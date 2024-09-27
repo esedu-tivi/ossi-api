@@ -1,0 +1,30 @@
+services:
+  api-gateway:
+    build:
+      context: ./api-gateway
+    ports:
+      - "3000:3000"
+    env_file: ".env"
+  auth-service:
+    build:
+      context: ./auth-service
+    env_file: ".env"
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pg@localhost.fi
+      PGADMIN_DEFAULT_PASSWORD: postgres
+    ports:
+      - "5433:80"
+volumes:
+  db-data:
