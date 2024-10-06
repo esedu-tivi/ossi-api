@@ -1,13 +1,9 @@
 services:
-  api-gateway:
+  api:
     build:
       context: ./api-gateway
     ports:
       - "3000:3000"
-    env_file: ".env"
-  auth-service:
-    build:
-      context: ./auth-service
     env_file: ".env"
   db:
     image: postgres
