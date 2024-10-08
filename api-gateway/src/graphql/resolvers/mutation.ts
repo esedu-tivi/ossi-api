@@ -3,9 +3,9 @@ import { config } from "../../config.js"
 
 interface IdTokenPayload extends JwtPayload {
     oid: string,
-    first_name: string,
-    last_name: string,
-    email: string,
+    given_name: string,
+    family_name: string,
+    upn: string,
 }
 
 const login = async (parent, args, context, info) => {
@@ -16,9 +16,9 @@ const login = async (parent, args, context, info) => {
 
     const user = {
         id: idToken.oid,
-        firstName: idToken.first_name,
-        lastName: idToken.last_name,
-        email: idToken.email,
+        firstName: idToken.given_name,
+        lastName: idToken.family_name,
+        email: idToken.upn,
     }
 
     return {
