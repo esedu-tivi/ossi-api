@@ -7,23 +7,15 @@ import { typeDefs } from '../graphql/type-defs.js';
 import { Mutation } from '../graphql/resolvers/mutation.js';
 import { Query } from '../graphql/resolvers/query.js';
 import { config } from '../config.js';
+import { Student } from '../graphql/resolvers/student.js';
+import { Context, UserContext } from '../graphql/context.js';
 
 const graphqlRouter = express.Router();
 
-interface UserContext extends JwtPayload {
-    id: string,
-    firstName: string,
-    lastName: string,
-    email: string
-} 
-
-interface Context {
-    user: UserContext | null
-}
-
 const resolvers = {
     Query,
-    Mutation
+    Mutation,
+    Student
 }
 
 const server = new ApolloServer<Context>({
