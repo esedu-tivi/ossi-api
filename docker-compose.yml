@@ -6,7 +6,7 @@ services:
       - "3000:3000"
     env_file: ".env"
   db:
-    image: postgres
+    image: docker.io/postgres
     restart: always
     environment:
       POSTGRES_PASSWORD: postgres
@@ -16,10 +16,12 @@ services:
     ports:
       - "5432:5432"
   pgadmin:
-    image: dpage/pgadmin4
+    restart: always
+    image: docker.io/dpage/pgadmin4
     environment:
       PGADMIN_DEFAULT_EMAIL: pg@localhost.fi
       PGADMIN_DEFAULT_PASSWORD: postgres
+      PGADMIN_LISTEN_ADDRESS: 0.0.0.0
     ports:
       - "5433:80"
 volumes:
