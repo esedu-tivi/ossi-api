@@ -2,10 +2,22 @@
 ossi-api
 
 ## Development usage
-* You must have [Docker Desktop](https://www.docker.com/) installed
+In order to run and develop the backend you must have installed:
 
-To build and run ossi-api, run the command:
+* Container engine compatible with Docker, for example [Docker Desktop](https://www.docker.com/)
+* Node.js compatible JavaScript runtime.
+
+Note: If using Node.js, version 22.11.0 (latest LTS version currently) is recommended.
+
+# Build and run
+Within the `api-gateway` directory run:
 ```
+npm install
+```
+
+To run the entire project run:
+```
+docker compose build
 docker compose up
 ```
 
