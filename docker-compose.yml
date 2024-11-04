@@ -5,6 +5,14 @@ services:
     ports:
       - "3000:3000"
     env_file: ".env"
+  authapi:
+    build:
+      context: ./auth-api
+    env_file: ".env"
+  studentmanagementapi:
+    build:
+      context: ./student-management-api
+    env_file: ".env"
   db:
     image: docker.io/postgres
     restart: always

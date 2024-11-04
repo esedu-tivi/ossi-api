@@ -1,32 +1,9 @@
-import jwt, { JwtPayload } from "jsonwebtoken"
-import { config } from "../../config.js"
-
-interface IdTokenPayload extends JwtPayload {
-    oid: string,
-    given_name: string,
-    family_name: string,
-    upn: string,
-}
+import axios from "axios"
 
 const login = async (parent, args, context, info) => {
-    const idToken = jwt.decode(args.idToken) as IdTokenPayload
+    const response = await axios.post(process.env.INTERNAL_AUTH_API_URL + "/login", args.id_token);
 
-    // idToken verification
-    // adding user to database
-
-    const user = {
-        id: idToken.oid,
-        firstName: idToken.given_name,
-        lastName: idToken.family_name,
-        email: idToken.upn,
-    }
-
-    return {
-        token: jwt.sign(user, config.JWT_SECRET_KEY, {
-            expiresIn: "1d"
-        }),
-        user: user
-    }
+    return response.data;
 }
 
 export const Mutation = {

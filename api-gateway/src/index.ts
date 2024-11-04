@@ -7,5 +7,4 @@ const app = express();
 
 app.use('/graphql', graphqlRouter);
 
-console.log("test")
 app.listen(3000)
