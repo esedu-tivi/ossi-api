@@ -9,13 +9,17 @@ import { Query } from '../graphql/resolvers/query.js';
 import { config } from '../config.js';
 import { Student } from '../graphql/resolvers/student.js';
 import { Context, UserContext } from '../graphql/context.js';
+import { QualificationProject } from '../graphql/resolvers/project.js';
+import { QualificationPart } from '../graphql/resolvers/part.js';
 
 const graphqlRouter = express.Router();
 
 const resolvers = {
     Query,
     Mutation,
-    Student
+    Student,
+    QualificationPart,
+    QualificationProject,
 }
 
 const server = new ApolloServer<Context>({

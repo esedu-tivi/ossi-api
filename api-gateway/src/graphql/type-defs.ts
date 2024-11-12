@@ -77,6 +77,20 @@ const typeDefs = `#graphql
         name: String!
     }
 
+    type QualificationUnitPart {
+        id: Int!
+        name: String!
+        projects: [QualificationProject!]!
+    }
+
+    type QualificationProject {
+        id: Int!
+        name: String!
+        includedInQualificationUnitParts: [QualificationUnitPart!]!
+        # osaamiset
+        # text
+    }
+
     type Student implements User {
         id: ID!
         firstName: String!
@@ -112,6 +126,8 @@ const typeDefs = `#graphql
     type Query {
         me: CurrentUser!
         students: [Student!]!
+        parts: [QualificationUnitPart!]!
+        projects: [QualificationProject!]!
     }
 
     type Mutation {

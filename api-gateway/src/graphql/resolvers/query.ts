@@ -15,6 +15,20 @@ const students: Resolver<null, null> = async (parent, _, context) => {
  //   return response.rows
 }
 
+const parts: Resolver<null, null> = async (_, __, context) => {
+    const response = await axios.get(process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/qualification/parts");
+
+    return response.data;
+}
+
+const projects: Resolver<null, null> = async (_, __, context) => {
+    const response = await axios.get(process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/qualification/projects");
+
+    return response.data;
+}
+
 export const Query = {
-    students
+    students,
+    parts,
+    projects,
 }

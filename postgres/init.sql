@@ -19,10 +19,26 @@ CREATE TABLE qualification_units (
     name text
 );
 
---CREATE TABLE undertaken_qualification_unit_for_student (
---    student_id integer NOT NULL REFERENCES students,
---    qualification_unit_id integer NOT NULL REFERENCES qualification_units
---);
+-- teema
+-- TODO check compatibility with old table
+CREATE TABLE qualification_unit_parts (
+    id serial PRIMARY KEY,
+    qualification_unit_id integer REFERENCES qualification_units NOT NULL,
+    name text
+);
+
+-- projekti
+CREATE TABLE qualification_projects (
+    id serial PRIMARY KEY,
+    name text,
+    -- store this in a seperate database with diffs
+    -- description text
+);
+
+CREATE TABLE qualification_projects_parts_relations (
+    qualification_project_id integer REFERENCES qualification_projects NOT NULL,
+    qualification_unit_part_id integer REFERENCES qualification_unit_parts NOT NULL
+);
 
 CREATE TYPE user_authority_scope AS ENUM ('student', 'teacher', 'job supervisor', 'admin');
 
@@ -41,11 +57,16 @@ CREATE TABLE users (
 --);
 
 CREATE TABLE students (
-    user_id integer PRIMARY KEY REFERENCES users,
+    user_id integer PRIMARY KEY REFERENCES users, -- unique
     group_id text NOT NULL,
     qualification_title_id INT REFERENCES qualification_titles,
     qualification_id integer NOT NULL REFERENCES qualifications
 );
+
+-- CREATE TABLE student_projects (
+--     student_id integer REFERENCES students,
+--     project_id integer REFERENCES qualification_projects
+-- );
 
 CREATE TABLE teachers (
     user_id integer PRIMARY KEY REFERENCES users,
@@ -67,3 +88,9 @@ INSERT INTO users(id, first_name, last_name, email, phone_number, scope) VALUES(
 INSERT INTO qualifications(eperuste_id, name) VALUES(7861752, 'Tieto- ja viestintätekniikan perustutkinto');
 INSERT INTO qualification_titles(eperuste_id, qualification_id, name) VALUES(10224, 7861752, 'Ohjelmistokehittäjä');
 INSERT INTO students(user_id, group_id, qualification_title_id, qualification_id) VALUES(1, 'TiVi23A', 10224, 7861752);
+
+INSERT INTO qualification_units(eperuste_id, qualification_id, scope, name) VALUES(106413, 7861752, 25, "Tieto- ja viestintätekniikan perustehtävät")
+INSERT INTO qualification_unit_parts(qualification_unit_id, name) VALUES(106413, "Teema 1");
+
+INSERT INTO qualification_projects(name) VALUES("TVP -Projekti 1");
+INSERT INTO qualification_projects_parts_relations(qualification_project_id, qualification_unit_part_id) VALUES(1, 106413);
