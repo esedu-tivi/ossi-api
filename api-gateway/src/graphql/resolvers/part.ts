@@ -7,6 +7,6 @@ const projects: Resolver<{ id: number }, null> = async (parent, _, context) => {
     return response.data;
 }
 
-export const QualificationPart = {
+export const QualificationUnitPart = {
     projects,
 }

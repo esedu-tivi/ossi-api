@@ -17,7 +17,7 @@ const students: Resolver<null, null> = async (parent, _, context) => {
 
 const parts: Resolver<null, null> = async (_, __, context) => {
     const response = await axios.get(process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/qualification/parts");
-
+    
     return response.data;
 }
 

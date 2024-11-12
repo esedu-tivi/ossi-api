@@ -10,7 +10,7 @@ import { config } from '../config.js';
 import { Student } from '../graphql/resolvers/student.js';
 import { Context, UserContext } from '../graphql/context.js';
 import { QualificationProject } from '../graphql/resolvers/project.js';
-import { QualificationPart } from '../graphql/resolvers/part.js';
+import { QualificationUnitPart } from '../graphql/resolvers/part.js';
 
 const graphqlRouter = express.Router();
 
@@ -18,7 +18,7 @@ const resolvers = {
     Query,
     Mutation,
     Student,
-    QualificationPart,
+    QualificationUnitPart,
     QualificationProject,
 }
 
