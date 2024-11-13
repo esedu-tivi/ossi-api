@@ -51,7 +51,21 @@ router.get("/parts/:id/projects", async (req, res) => {
 });
 
 router.post("/projects", async (req, res) => {
-    // create project
+    const project = req.body;
+
+    const queryResponse = await pool.query(`
+        INSERT INTO 
+            qualification_projects(
+                name
+            )
+        VALUES (
+            $1
+        )
+        RETURNING
+            *
+    ;`, [project.name]);
+
+    res.json(queryResponse.rows[0]);
 });
 
 router.post("/parts", async (req, res) => {

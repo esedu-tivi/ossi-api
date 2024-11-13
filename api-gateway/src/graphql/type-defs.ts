@@ -130,8 +130,26 @@ const typeDefs = `#graphql
         projects: [QualificationProject!]!
     }
 
+    input CreateProjectInput {
+        name: String!
+        description: String!
+        # materials: String!
+        # osaamiset: [ID!]
+        # duration: Int!
+        includedInParts: [ID!]!
+        tags: [ID!]!
+        isActive: Boolean!
+    }
+
+    # TODO
+    input CreatePartInput {
+        name: String!
+    }
+
     type Mutation {
         login(idToken: String!): AuthResponse
+        createProject(project: CreateProjectInput): QualificationProject
+        createPart(id: ID!, part: CreatePartInput): QualificationUnitPart
     }
 `
 

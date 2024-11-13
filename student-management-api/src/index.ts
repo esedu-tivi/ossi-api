@@ -1,9 +1,11 @@
 import 'dotenv/config'
-import express from 'express';
+import express, { json } from 'express';
 import { StudentRouter } from './student-router.js';
 import { QualificationRouter } from './qualification-router.js';
 
 const app = express();
+
+app.use(json());
 
 app.use("/students", StudentRouter);
 app.use("/qualification", QualificationRouter);
