@@ -86,6 +86,8 @@ const typeDefs = `#graphql
     type QualificationProject {
         id: Int!
         name: String!
+        description: String!
+        isActive: String!
         includedInQualificationUnitParts: [QualificationUnitPart!]!
         # osaamiset
         # text

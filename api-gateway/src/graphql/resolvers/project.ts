@@ -7,6 +7,13 @@ const includedInQualificationUnitParts: Resolver<{ id: number }, null> = async (
     return response.data;
 }
 
+const description: Resolver<{ id: number }, null> = async (parent, _, context) => {
+    const response = await axios.get(process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/qualification/projects/${parent.id}/description`);
+
+    return response.data.description;
+}
+
 export const QualificationProject = {
     includedInQualificationUnitParts,
+    description
 }

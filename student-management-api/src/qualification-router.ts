@@ -4,9 +4,15 @@ import { pool } from "./postgres-pool.js";
 const router = express();
 
 router.get("/projects", async (req, res) => {
-    const queryResponse = await pool.query("SELECT id, name FROM qualification_projects;");
+    const queryResponse = await pool.query("SELECT id, name, is_active as \"isActive\" FROM qualification_projects;");
 
     res.json(queryResponse.rows);
+});
+
+router.get("/projects/:id/description", async (req, res) => {
+    const queryResponse = await pool.query("SELECT description FROM qualification_projects WHERE id = $1;", [req.params.id]);
+
+    res.json(queryResponse.rows[0]);
 });
 
 router.get("/projects/:id/linked_qualification_unit_parts", async (req, res) => {
@@ -37,7 +43,8 @@ router.get("/parts/:id/projects", async (req, res) => {
     const queryResponse = await pool.query(`
         SELECT
             qualification_projects.id,
-            qualification_projects.name
+            qualification_projects.name,
+            qualification_projects.is_active as \"isActive\"
         FROM
             qualification_projects
         INNER JOIN
@@ -56,14 +63,18 @@ router.post("/projects", async (req, res) => {
     const queryResponse = await pool.query(`
         INSERT INTO 
             qualification_projects(
-                name
+                name,
+                description,
+                is_active
             )
         VALUES (
-            $1
+            $1,
+            $2,
+            $3
         )
         RETURNING
-            *
-    ;`, [project.name]);
+            *, is_active as \"isActive\"
+    ;`, [project.name, project.description, project.isActive]);
 
     res.json(queryResponse.rows[0]);
 });

@@ -30,7 +30,9 @@ CREATE TABLE qualification_unit_parts (
 -- projekti
 CREATE TABLE qualification_projects (
     id serial PRIMARY KEY,
-    name text
+    name text,
+    description text,
+    is_active boolean
     -- store this in a seperate database with diffs
     -- description text
 );
@@ -92,5 +94,5 @@ INSERT INTO students(user_id, group_id, qualification_title_id, qualification_id
 INSERT INTO qualification_units(eperuste_id, qualification_id, scope, name) VALUES(106413, 7861752, 25, 'Tieto- ja viestintätekniikan perustehtävät');
 INSERT INTO qualification_unit_parts(qualification_unit_id, name) VALUES(106413, 'Teema 1');
 
-INSERT INTO qualification_projects(name) VALUES('TVP -Projekti 1');
+INSERT INTO qualification_projects(name, description, is_active) VALUES('TVP -Projekti 1', 'Description', true);
 INSERT INTO qualification_projects_parts_relations(qualification_project_id, qualification_unit_part_id) VALUES(1, 1);
