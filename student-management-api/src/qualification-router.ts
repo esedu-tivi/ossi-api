@@ -57,6 +57,12 @@ router.get("/parts/:id/projects", async (req, res) => {
     res.json(queryResponse.rows);
 });
 
+router.get("/parts/:id/parent_qualification_unit", async (req, res) => {
+    // TODO
+
+    res.status(400);
+});
+
 router.post("/projects", async (req, res) => {
     const project = req.body;
 
@@ -80,7 +86,48 @@ router.post("/projects", async (req, res) => {
 });
 
 router.post("/parts", async (req, res) => {
-    // create part
+    const part = req.body;
+
+    // TODO should use transaction
+    const queryResponse = await pool.query(`
+        INSERT INTO
+            qualification_unit_parts(
+                qualification_unit_id,
+                name
+            )
+        VALUES (
+            $1,
+            $2
+        )
+        RETURNING
+            id, name
+    ;`, [part.parentQualificationUnit, part.name]);
+    
+    if (part.projects != undefined && part.projects.length > 0) {
+        part.projects.forEach(async projectId => {
+            await pool.query(`
+                INSERT INTO
+                    qualification_projects_parts_relations(
+                        qualification_project_id,
+                        qualification_unit_part_id
+                    )
+                VALUES (
+                    $1,
+                    $2
+                )
+            ;`, [projectId, queryResponse.rows[0].id]);
+        });
+    }
+
+    res.json(queryResponse.rows[0]);
+});
+
+router.put("/projects", async (req, res) => {
+
+});
+
+router.put("/parts", async (req, res) => {
+
 });
 
 export const QualificationRouter = router;

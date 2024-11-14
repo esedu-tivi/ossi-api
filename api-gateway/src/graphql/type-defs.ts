@@ -75,12 +75,20 @@ const typeDefs = `#graphql
     type Qualification {
         id: Int!
         name: String!
+        #QualificationUnits: [QualificationUnit!]!
+    }
+
+    type QualificationUnit {
+        id: Int!
+        name: String!
+        #QualificationUnitParts: [QualificationUnitPart!]!
     }
 
     type QualificationUnitPart {
         id: Int!
         name: String!
         projects: [QualificationProject!]!
+        parentQualificationUnit: QualificationUnit!
     }
 
     type QualificationProject {
@@ -143,15 +151,18 @@ const typeDefs = `#graphql
         isActive: Boolean!
     }
 
-    # TODO
     input CreatePartInput {
         name: String!
+        projects: [ID!]
+        parentQualificationUnit: ID!
     }
 
     type Mutation {
         login(idToken: String!): AuthResponse
-        createProject(project: CreateProjectInput): QualificationProject
-        createPart(id: ID!, part: CreatePartInput): QualificationUnitPart
+        createProject(project: CreateProjectInput!): QualificationProject!
+        createPart(part: CreatePartInput!): QualificationUnitPart!
+        updateProject(id: ID!, project: CreateProjectInput!): QualificationProject!
+        updatePart(id: ID!, part: CreatePartInput!): QualificationUnitPart!
     }
 `
 
