@@ -43,4 +43,6 @@ export const Query = {
     students,
     parts,
     projects,
+    part,
+    project
 }
