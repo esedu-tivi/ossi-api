@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import express, { json } from 'express';
 import { StudentRouter } from './student-router.js';
-import { QualificationRouter } from './qualification-router.js';
+import { QualificationRouter } from './qualifications/qualification-router.js';
 
 const app = express();
 
