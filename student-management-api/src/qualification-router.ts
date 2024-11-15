@@ -9,6 +9,12 @@ router.get("/projects", async (req, res) => {
     res.json(queryResponse.rows);
 });
 
+router.get("/projects/:id", async (req, res) => {
+    const queryResponse = await pool.query("SELECT id, name, is_active as \"isActive\" FROM qualification_projects WHERE id = $1;", [req.params.id]);
+
+    res.json(queryResponse.rows[0]);
+});
+
 router.get("/projects/:id/description", async (req, res) => {
     const queryResponse = await pool.query("SELECT description FROM qualification_projects WHERE id = $1;", [req.params.id]);
 
@@ -37,6 +43,12 @@ router.get("/parts", async (req, res) => {
     const queryResponse = await pool.query("SELECT id, qualification_unit_id, name FROM qualification_unit_parts;");
 
     res.json(queryResponse.rows);
+});
+
+router.get("/parts/:id", async (req, res) => {
+    const queryResponse = await pool.query("SELECT id, qualification_unit_id, name FROM qualification_unit_parts WHERE id = $1;", [req.params.id]);
+
+    res.json(queryResponse.rows[0]);
 });
 
 router.get("/parts/:id/projects", async (req, res) => {

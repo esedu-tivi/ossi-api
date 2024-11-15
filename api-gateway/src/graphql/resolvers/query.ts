@@ -27,6 +27,18 @@ const projects: Resolver<null, null> = async (_, __, context) => {
     return response.data;
 }
 
+const part: Resolver<null, { id: number }> = async (_, args, context) => {
+    const response = await axios.get(process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/qualification/parts/${args.id}`);
+
+    return response.data;
+}
+
+const project: Resolver<null, { id: number }> = async (_, args, context) => {
+    const response = await axios.get(process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/qualification/projects/${args.id}`);
+
+    return response.data;
+}
+
 export const Query = {
     students,
     parts,

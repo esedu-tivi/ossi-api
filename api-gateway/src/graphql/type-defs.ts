@@ -137,7 +137,10 @@ const typeDefs = `#graphql
         me: CurrentUser!
         students: [Student!]!
         parts: [QualificationUnitPart!]!
+        part(id: ID!): QualificationUnitPart
+
         projects: [QualificationProject!]!
+        project(id: ID!): QualificationProject
     }
 
     input CreateProjectInput {
