@@ -1,7 +1,7 @@
 import axios from "axios"
 
 const login = async (parent, args, context, info) => {
-    const response = await axios.post(process.env.INTERNAL_AUTH_API_URL + "/login", args.idToken);
+    const response = await axios.post(process.env.INTERNAL_AUTH_API_URL + "/login", { idToken: args.idToken });
 
     return response.data;
 }

@@ -25,12 +25,12 @@ router.post("/login", (req, res) => {
         email: idToken.upn,
     }
 
-    return {
+    res.json({
         token: jwt.sign(user, process.env.JWT_SECRET_KEY ?? "", {
             expiresIn: "1d"
         }),
         user: user
-    }
+    });
 });
 
 export const AuthRouter = router;
