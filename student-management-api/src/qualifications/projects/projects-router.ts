@@ -39,6 +39,23 @@ router.get("/:id/linked_qualification_unit_parts", async (req, res) => {
     res.json(queryResponse.rows);
 });
 
+router.get("/:id/tags", async (req, res) => {
+    const queryResponse = await pool.query(`
+        SELECT
+            qualification_project_tags.id,
+            qualification_project_tags.name
+        FROM
+            qualification_project_tags
+        INNER JOIN
+            qualification_projects_tags_relations
+                ON qualification_projects_tags_relations.qualification_project_tag_id = qualification_project_tags.id
+        WHERE
+            qualification_projects_tags_relations.qualification_project_id = $1
+    ;`, [req.params.id]);
+
+    res.json(queryResponse.rows);
+});
+
 router.post("/", async (req, res) => {
     const project = req.body;
 
@@ -57,13 +74,24 @@ router.post("/", async (req, res) => {
         RETURNING
             *, is_active as \"isActive\"
     ;`, [project.name, project.description, project.isActive]);
+    
+    if (project.tags != undefined && project.tags.length > 0) {
+        project.tags.forEach(async tagId => {
+            await pool.query(`
+                INSERT INTO
+                    qualification_projects_tags_relations(
+                        qualification_project_tag_id,
+                        qualification_project_id
+                    )
+                VALUES (
+                    $1,
+                    $2
+                )
+            ;`, [tagId, queryResponse.rows[0].id]);
+        });
+    }
 
     res.json(queryResponse.rows[0]);
-});
-
-
-router.put("/", async (req, res) => {
-
 });
 
 export const ProjectsRouter = router;

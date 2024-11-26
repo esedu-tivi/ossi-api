@@ -13,7 +13,14 @@ const description: Resolver<{ id: number }, null> = async (parent, _, context) =
     return response.data.description;
 }
 
+const tags: Resolver<{ id: number }, null> = async (parent, _, context) => {
+    const response = await axios.get(process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/qualification/projects/${parent.id}/tags`);
+
+    return response.data;
+}
+
 export const QualificationProject = {
     includedInQualificationUnitParts,
-    description
+    description,
+    tags,
 }

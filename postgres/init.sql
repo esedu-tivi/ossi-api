@@ -37,6 +37,16 @@ CREATE TABLE qualification_projects (
     -- description text
 );
 
+CREATE TABLE qualification_project_tags (
+    id serial PRIMARY KEY,
+    name text
+);
+
+CREATE TABLE qualification_projects_tags_relations (
+    qualification_project_id integer REFERENCES qualification_projects NOT NULL,
+    qualification_project_tag_id integer REFERENCES qualification_project_tags NOT NULL
+);
+
 CREATE TABLE qualification_projects_parts_relations (
     qualification_project_id integer REFERENCES qualification_projects NOT NULL,
     qualification_unit_part_id integer REFERENCES qualification_unit_parts NOT NULL
@@ -96,3 +106,9 @@ INSERT INTO qualification_unit_parts(qualification_unit_id, name) VALUES(106413,
 
 INSERT INTO qualification_projects(name, description, is_active) VALUES('TVP -Projekti 1', 'Description', true);
 INSERT INTO qualification_projects_parts_relations(qualification_project_id, qualification_unit_part_id) VALUES(1, 1);
+
+INSERT INTO qualification_project_tags(name) VALUES('Ohjelmointi');
+INSERT INTO qualification_project_tags(name) VALUES('Ryhmätyö');
+INSERT INTO qualification_project_tags(name) VALUES('Python');
+INSERT INTO qualification_project_tags(name) VALUES('JavaScript');
+INSERT INTO qualification_project_tags(name) Values('React');

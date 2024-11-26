@@ -91,12 +91,18 @@ const typeDefs = `#graphql
         parentQualificationUnit: QualificationUnit!
     }
 
+    type QualificationProjectTags {
+        id: Int!
+        name: String!
+    }
+
     type QualificationProject {
         id: Int!
         name: String!
         description: String!
         isActive: String!
         includedInQualificationUnitParts: [QualificationUnitPart!]!
+        tags: [QualificationProjectTags!]!
         # osaamiset
         # text
     }
@@ -154,6 +160,17 @@ const typeDefs = `#graphql
         isActive: Boolean!
     }
 
+    input UpdateProjectInput {
+        name: String
+        description: String
+        # materials: String
+        # osaamiset: [ID!]
+        # duration: Int
+        includedInParts: [ID!]
+        tags: [ID!]
+        isActive: Boolean
+    }
+
     input CreatePartInput {
         name: String!
         projects: [ID!]
@@ -164,7 +181,7 @@ const typeDefs = `#graphql
         login(idToken: String!): AuthResponse
         createProject(project: CreateProjectInput!): QualificationProject!
         createPart(part: CreatePartInput!): QualificationUnitPart!
-        updateProject(id: ID!, project: CreateProjectInput!): QualificationProject!
+        updateProject(id: ID!, project: UpdateProjectInput!): QualificationProject!
         updatePart(id: ID!, part: CreatePartInput!): QualificationUnitPart!
     }
 `
