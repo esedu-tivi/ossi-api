@@ -4,13 +4,13 @@ import { pool } from "../../postgres-pool.js";
 const router = express();
 
 router.get("/", async (req, res) => {
-    const queryResponse = await pool.query("SELECT id, name, is_active as \"isActive\" FROM qualification_projects;");
+    const queryResponse = await pool.query("SELECT id, name, materials, duration, is_active as \"isActive\" FROM qualification_projects;");
 
     res.json(queryResponse.rows);
 });
 
 router.get("/:id", async (req, res) => {
-    const queryResponse = await pool.query("SELECT id, name, is_active as \"isActive\" FROM qualification_projects WHERE id = $1;", [req.params.id]);
+    const queryResponse = await pool.query("SELECT id, name, materials, duration, is_active as \"isActive\" FROM qualification_projects WHERE id = $1;", [req.params.id]);
 
     res.json(queryResponse.rows[0]);
 });

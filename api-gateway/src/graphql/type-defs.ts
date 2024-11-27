@@ -100,11 +100,11 @@ const typeDefs = `#graphql
         id: Int!
         name: String!
         description: String!
+        duration: String!
+        materials: String!
         isActive: String!
         includedInQualificationUnitParts: [QualificationUnitPart!]!
         tags: [QualificationProjectTags!]!
-        # osaamiset
-        # text
     }
 
     type Student implements User {
