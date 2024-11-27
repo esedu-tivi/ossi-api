@@ -18,8 +18,15 @@ const createPart = async (parent, args, context, info) => {
     return response.data;
 }
 
+const updateProject = async (parent, args, context, info) => {
+    const response = await axios.put(process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/qualification/projects/${args.id}`, args.project);
+
+    return response.data;
+}
+
 export const Mutation = {
     login,
     createProject,
     createPart,
+    updateProject,
 }

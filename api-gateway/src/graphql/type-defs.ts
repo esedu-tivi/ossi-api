@@ -152,23 +152,23 @@ const typeDefs = `#graphql
     input CreateProjectInput {
         name: String!
         description: String!
-        # materials: String!
+        materials: String!
         # osaamiset: [ID!]
-        # duration: Int!
+        duration: Int!
         includedInParts: [ID!]!
         tags: [ID!]!
         isActive: Boolean!
     }
 
     input UpdateProjectInput {
-        name: String
-        description: String
-        # materials: String
+        name: String!
+        description: String!
+        materials: String!
         # osaamiset: [ID!]
-        # duration: Int
-        includedInParts: [ID!]
-        tags: [ID!]
-        isActive: Boolean
+        duration: Int!
+        includedInParts: [ID!]!
+        tags: [ID!]!
+        isActive: Boolean!
     }
 
     input CreatePartInput {

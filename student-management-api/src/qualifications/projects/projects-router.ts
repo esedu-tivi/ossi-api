@@ -64,16 +64,20 @@ router.post("/", async (req, res) => {
             qualification_projects(
                 name,
                 description,
+                materials,
+                duration,
                 is_active
             )
         VALUES (
             $1,
             $2,
-            $3
+            $3,
+            $4,
+            $5
         )
         RETURNING
             *, is_active as \"isActive\"
-    ;`, [project.name, project.description, project.isActive]);
+    ;`, [project.name, project.description, project.materials, project.duration, project.isActive]);
     
     if (project.tags != undefined && project.tags.length > 0) {
         project.tags.forEach(async tagId => {
@@ -90,6 +94,54 @@ router.post("/", async (req, res) => {
             ;`, [tagId, queryResponse.rows[0].id]);
         });
     }
+
+    res.json(queryResponse.rows[0]);
+});
+
+router.put("/:id", async (req, res) => {
+    const project = req.body;
+
+    const queryResponse = await pool.query(`
+        UPDATE
+            qualification_projects
+        SET
+            name = $1,
+            description = $2,
+            materials = $3,
+            duration = $4,
+            is_active = $5
+        RETURNING
+            *, is_active as \"isActive\"
+    ;`, [project.name, project.description, project.materials, project.duration, project.isActive]);
+
+    const existingTags = (await pool.query(`SELECT qualification_project_tag_id AS \"qualificationProjectTagId\" FROM qualification_projects_tags_relations WHERE qualification_project_id = $1;`, [req.params.id])).rows.map(row => row.qualificationProjectTagId);
+    
+    const tagsToRemove = existingTags.filter(tagId => !project.tags.includes(tagId))
+    const tagsToAdd = [...new Set(existingTags.filter(tagId => project.tags.includes(tagId)).concat(project.tags))]
+
+    tagsToRemove.forEach(tagId => {
+        pool.query(`
+            DELETE FROM
+                qualification_projects_tags_relations
+            WHERE
+                qualification_project_tag_id = $1
+                AND qualification_project_id = $2
+        ;`, [tagId, req.params.id]);
+    });
+
+    tagsToAdd.forEach(async tagId => {
+        await pool.query(`
+            INSERT INTO
+                qualification_projects_tags_relations(
+                    qualification_project_tag_id,
+                    qualification_project_id
+                )
+            VALUES (
+                $1,
+                $2
+            )
+        ;`, [tagId, req.params.id]);
+    });
 
     res.json(queryResponse.rows[0]);
 });
