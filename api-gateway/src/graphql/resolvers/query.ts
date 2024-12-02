@@ -39,10 +39,17 @@ const project: Resolver<null, { id: number }> = async (_, args, context) => {
     return response.data;
 }
 
+const projectTags: Resolver<null, null> = async (_, args, context) => {
+    const response = await axios.get(process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/qualification/projects/tags`);
+
+    return response.data;
+}
+
 export const Query = {
     students,
     parts,
     projects,
     part,
-    project
+    project,
+    projectTags,
 }

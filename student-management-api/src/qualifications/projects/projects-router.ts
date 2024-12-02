@@ -3,6 +3,35 @@ import { pool } from "../../postgres-pool.js";
 
 const router = express();
 
+router.get("/tags", async (req, res) => {
+    const queryResponse = await pool.query(`
+        SELECT
+            id,
+            name
+        FROM
+            qualification_project_tags
+    ;`);
+
+    res.json(queryResponse.rows);
+});
+
+router.post("/tags", async (req, res) => {
+    const tagName = req.body.tagName
+
+    const queryResponse = await pool.query(`
+        INSERT INTO
+            qualification_project_tags(
+                name
+            )
+        VALUES (
+            $1
+        )
+        RETURNING id, name
+    ;`, [tagName]);
+
+    res.json(queryResponse.rows[0]);
+});
+
 router.get("/", async (req, res) => {
     const queryResponse = await pool.query("SELECT id, name, materials, duration, is_active as \"isActive\" FROM qualification_projects;");
 

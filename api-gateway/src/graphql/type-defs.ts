@@ -91,7 +91,7 @@ const typeDefs = `#graphql
         parentQualificationUnit: QualificationUnit!
     }
 
-    type QualificationProjectTags {
+    type QualificationProjectTag {
         id: Int!
         name: String!
     }
@@ -104,7 +104,7 @@ const typeDefs = `#graphql
         materials: String!
         isActive: String!
         includedInQualificationUnitParts: [QualificationUnitPart!]!
-        tags: [QualificationProjectTags!]!
+        tags: [QualificationProjectTag!]!
     }
 
     type Student implements User {
@@ -147,6 +147,8 @@ const typeDefs = `#graphql
 
         projects: [QualificationProject!]!
         project(id: ID!): QualificationProject
+
+        projectTags: [QualificationProjectTag!]!
     }
 
     input CreateProjectInput {
@@ -169,6 +171,7 @@ const typeDefs = `#graphql
         includedInParts: [ID!]!
         tags: [ID!]!
         isActive: Boolean!
+        notifyStudents: Boolean!
     }
 
     input CreatePartInput {
@@ -183,6 +186,7 @@ const typeDefs = `#graphql
         createPart(part: CreatePartInput!): QualificationUnitPart!
         updateProject(id: ID!, project: UpdateProjectInput!): QualificationProject!
         updatePart(id: ID!, part: CreatePartInput!): QualificationUnitPart!
+        createProjectTag(name: String!): QualificationProjectTag!
     }
 `
 
