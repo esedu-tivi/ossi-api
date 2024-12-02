@@ -139,9 +139,11 @@ router.put("/:id", async (req, res) => {
             materials = $3,
             duration = $4,
             is_active = $5
+        WHERE
+            id = $6
         RETURNING
             *, is_active as \"isActive\"
-    ;`, [project.name, project.description, project.materials, project.duration, project.isActive]);
+    ;`, [project.name, project.description, project.materials, project.duration, project.isActive, req.params.id]);
 
     const existingTags = (await pool.query(`SELECT qualification_project_tag_id AS \"qualificationProjectTagId\" FROM qualification_projects_tags_relations WHERE qualification_project_id = $1;`, [req.params.id])).rows.map(row => row.qualificationProjectTagId);
     
