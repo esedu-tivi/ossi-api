@@ -139,6 +139,22 @@ const typeDefs = `#graphql
 
     union CurrentUser = Student | Teacher
 
+    type ProjectReturnNotification {
+        id: ID!
+        projectId: ID!
+        projectSubmitterStudentId: ID!
+        hasBeenRead: Boolean!
+    }
+
+    type ProjectUpdateNotification {
+        id: ID!
+        projectId: ID!
+        updateMessage: String!
+        hasBeenRead: Boolean!
+    }
+
+    union Notification = ProjectReturnNotification | ProjectUpdateNotification
+
     type Query {
         me: CurrentUser!
         students: [Student!]!
@@ -149,6 +165,8 @@ const typeDefs = `#graphql
         project(id: ID!): QualificationProject
 
         projectTags: [QualificationProjectTag!]!
+
+        notifications: [Notification!]!
     }
 
     input CreateProjectInput {
@@ -187,6 +205,9 @@ const typeDefs = `#graphql
         updateProject(id: ID!, project: UpdateProjectInput!): QualificationProject!
         updatePart(id: ID!, part: CreatePartInput!): QualificationUnitPart!
         createProjectTag(name: String!): QualificationProjectTag!
+        
+        # remove once not needed
+        debugSendNotification(recipients: [ID!]!, notification: String!): Int!
     }
 `
 

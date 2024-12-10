@@ -30,10 +30,17 @@ const createProjectTag = async (parent, args, context, info) => {
     return response.data;
 }
 
+const debugSendNotification = async (parent, args, context, info) => {
+    const response = await axios.post(process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/send_notification`, { recipients: args.recipients, notification: JSON.parse(args.notification) });
+
+    return response.status;
+}
+
 export const Mutation = {
     login,
     createProject,
     createPart,
     updateProject,
     createProjectTag,
+    debugSendNotification,
 }

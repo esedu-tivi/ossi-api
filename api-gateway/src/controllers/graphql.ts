@@ -15,6 +15,9 @@ import { QualificationUnitPart } from '../graphql/resolvers/part.js';
 const graphqlRouter = express.Router();
 
 const resolvers = {
+    Notification: {
+        __resolveType: (notification) => notification.kind
+    },
     Query,
     Mutation,
     Student,

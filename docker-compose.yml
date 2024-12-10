@@ -13,6 +13,12 @@ services:
     build:
       context: ./student-management-api
     env_file: ".env"
+  notificationserver:
+    ports:
+      - "3001:3000"
+    build:
+      context: ./notification-server
+    env_file: ".env"
   db:
     image: docker.io/postgres
     restart: always
@@ -32,5 +38,11 @@ services:
       PGADMIN_LISTEN_ADDRESS: 0.0.0.0
     ports:
       - "5433:80"
+  mongo:
+    image: docker.io/mongo
+    restart: always
+    #environment:
+    #  MONGO_INITDB_ROOT_USERNAME: root
+    #  MONGO_INITDB_ROOT_PASSWORD: mongo
 volumes:
   db-data:

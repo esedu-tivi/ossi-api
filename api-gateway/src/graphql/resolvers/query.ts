@@ -45,6 +45,16 @@ const projectTags: Resolver<null, null> = async (_, args, context) => {
     return response.data;
 }
 
+const notifications: Resolver<null, null> = async (_, args, context) => {
+    const response = await axios.get(process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/get_notifications`, {
+        headers: {
+            "Authorization": context.user.oid
+        }
+    });
+ 
+    return response.data;
+}
+
 export const Query = {
     students,
     parts,
@@ -52,4 +62,5 @@ export const Query = {
     part,
     project,
     projectTags,
+    notifications,
 }
