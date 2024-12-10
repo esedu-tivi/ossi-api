@@ -102,7 +102,7 @@ const typeDefs = `#graphql
         description: String!
         duration: String!
         materials: String!
-        isActive: String!
+        isActive: Boolean!
         includedInQualificationUnitParts: [QualificationUnitPart!]!
         tags: [QualificationProjectTag!]!
     }
