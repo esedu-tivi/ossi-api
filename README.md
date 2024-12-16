@@ -15,6 +15,11 @@ Within the directories `api-gateway`, `student-management-api` and `auth-api` ru
 npm install
 ```
 
+Within the `sequelize-models` directory run:
+```
+tsc --build
+```
+
 To run the entire project run:
 ```
 docker compose build

@@ -1,5 +1,6 @@
 import express from "express";
 import { pool } from "../../postgres-pool.js";
+import { QualificationProject } from "sequelize-models";
 
 const router = express();
 
@@ -33,9 +34,9 @@ router.post("/tags", async (req, res) => {
 });
 
 router.get("/", async (req, res) => {
-    const queryResponse = await pool.query("SELECT id, name, materials, duration, is_active as \"isActive\" FROM qualification_projects;");
+    const projects = await QualificationProject.findAll(); 
 
-    res.json(queryResponse.rows);
+    res.json(projects);
 });
 
 router.get("/:id", async (req, res) => {

@@ -12,6 +12,8 @@ services:
   studentmanagementapi:
     build:
       context: ./student-management-api
+      additional_contexts:
+        sequelize-models: ./sequelize-models
     env_file: ".env"
   notificationserver:
     ports:
