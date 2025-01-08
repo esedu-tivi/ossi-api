@@ -1,5 +1,6 @@
-import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model } from "sequelize";
+import { Association, CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model, NonAttribute } from "sequelize";
 import { sequelize } from "./sequelize.js";
+import { QualificationProjectTag } from "./qualification-project-tags.js";
 
 export class QualificationProject extends Model<InferAttributes<QualificationProject>, InferCreationAttributes<QualificationProject>> {
     declare id: CreationOptional<number>;
@@ -7,7 +8,13 @@ export class QualificationProject extends Model<InferAttributes<QualificationPro
     declare description: string;
     declare materials: string;
     declare duration: number;
-    declare is_active: boolean;
+    declare isActive: boolean;
+
+    declare tags?: NonAttribute<QualificationProjectTag[]>;
+
+    declare static associations: {
+        tags: Association<QualificationProject, QualificationProjectTag>;
+    }
 }
 
 QualificationProject.init(
@@ -21,7 +28,10 @@ QualificationProject.init(
         description: new DataTypes.STRING(1024),
         materials: new DataTypes.STRING(1024),
         duration: DataTypes.INTEGER.UNSIGNED,
-        is_active: DataTypes.BOOLEAN,
+        isActive: {
+            type: DataTypes.BOOLEAN,
+            field: "is_active",
+        },
     },
     {
         tableName: "qualification_projects",
