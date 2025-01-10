@@ -1,5 +1,6 @@
 import express from "express";
 import { pool } from "../../postgres-pool.js";
+import { QualificationProject } from "sequelize-models";
 
 const router = express();
 
@@ -16,21 +17,16 @@ router.get("/:id", async (req, res) => {
 });
 
 router.get("/:id/projects", async (req, res) => {
-    const queryResponse = await pool.query(`
-        SELECT
-            qualification_projects.id,
-            qualification_projects.name,
-            qualification_projects.is_active as \"isActive\"
-        FROM
-            qualification_projects
-        INNER JOIN
-            qualification_projects_parts_relations
-                ON qualification_projects_parts_relations.qualification_project_id = qualification_projects.id
-        WHERE
-            qualification_projects_parts_relations.qualification_unit_part_id = $1
-        ;`, [req.params.id]);
+    const projects = await QualificationProject.findAll({
+        include: {
+            association: QualificationProject.associations.parts,
+            where: {
+                id: req.params.id
+            }
+        }
+    });
 
-    res.json(queryResponse.rows);
+    res.json(projects);
 });
 
 router.get("/:id/parent_qualification_unit", async (req, res) => {

@@ -1,19 +1,13 @@
 import express from "express";
 import { pool } from "../../postgres-pool.js";
-import { QualificationProject } from "sequelize-models";
+import { QualificationProject, QualificationProjectTag, QualificationUnitPart } from "sequelize-models";
 
 const router = express();
 
 router.get("/tags", async (req, res) => {
-    const queryResponse = await pool.query(`
-        SELECT
-            id,
-            name
-        FROM
-            qualification_project_tags
-    ;`);
+    const tags = await QualificationProjectTag.findAll();
 
-    res.json(queryResponse.rows);
+    res.json(tags);
 });
 
 router.post("/tags", async (req, res) => {
@@ -34,56 +28,35 @@ router.post("/tags", async (req, res) => {
 });
 
 router.get("/", async (req, res) => {
-    const projects = await QualificationProject.findAll(); 
+    const projects = await QualificationProject.findAll({
+        include: [QualificationProject.associations.tags]
+    });
 
     res.json(projects);
 });
 
 router.get("/:id", async (req, res) => {
-    const queryResponse = await pool.query("SELECT id, name, materials, duration, is_active as \"isActive\" FROM qualification_projects WHERE id = $1;", [req.params.id]);
+    const project = await QualificationProject.findOne({
+        where: {
+            id: req.params.id
+        },
+        include: [QualificationProject.associations.tags]
+    });
 
-    res.json(queryResponse.rows[0]);
-});
-
-router.get("/:id/description", async (req, res) => {
-    const queryResponse = await pool.query("SELECT description FROM qualification_projects WHERE id = $1;", [req.params.id]);
-
-    res.json(queryResponse.rows[0]);
+    res.json(project);
 });
 
 router.get("/:id/linked_qualification_unit_parts", async (req, res) => {
-    const queryResponse = await pool.query(`
-        SELECT
-            qualification_unit_parts.id,
-            qualification_unit_parts.qualification_unit_id as \"qualificationUnitId\", 
-            qualification_unit_parts.name
-        FROM 
-            qualification_unit_parts
-        INNER JOIN 
-            qualification_projects_parts_relations
-                ON qualification_projects_parts_relations.qualification_unit_part_id = qualification_unit_parts.id
-        WHERE
-            qualification_projects_parts_relations.qualification_project_id = $1
-        ;`, [req.params.id]);
+    const unitParts = await QualificationUnitPart.findAll({
+        include: [{
+            association: QualificationUnitPart.associations.projects,
+            where: {
+                id: req.params.id
+            }
+        }]
+    })
 
-    res.json(queryResponse.rows);
-});
-
-router.get("/:id/tags", async (req, res) => {
-    const queryResponse = await pool.query(`
-        SELECT
-            qualification_project_tags.id,
-            qualification_project_tags.name
-        FROM
-            qualification_project_tags
-        INNER JOIN
-            qualification_projects_tags_relations
-                ON qualification_projects_tags_relations.qualification_project_tag_id = qualification_project_tags.id
-        WHERE
-            qualification_projects_tags_relations.qualification_project_id = $1
-    ;`, [req.params.id]);
-
-    res.json(queryResponse.rows);
+    res.json(unitParts);
 });
 
 router.post("/", async (req, res) => {
