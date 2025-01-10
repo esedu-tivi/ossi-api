@@ -1,6 +1,7 @@
 import { Association, CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model, NonAttribute } from "sequelize";
 import { sequelize } from "./sequelize.js";
 import { QualificationProjectTag } from "./qualification-project-tags.js";
+import { QualificationUnitPart } from "./qualification-unit-part.js";
 
 export class QualificationProject extends Model<InferAttributes<QualificationProject>, InferCreationAttributes<QualificationProject>> {
     declare id: CreationOptional<number>;
@@ -11,9 +12,11 @@ export class QualificationProject extends Model<InferAttributes<QualificationPro
     declare isActive: boolean;
 
     declare tags?: NonAttribute<QualificationProjectTag[]>;
+    declare parts?: NonAttribute<QualificationUnitPart[]>;
 
     declare static associations: {
         tags: Association<QualificationProject, QualificationProjectTag>;
+        parts: Association<QualificationProject, QualificationUnitPart>;
     }
 }
 
