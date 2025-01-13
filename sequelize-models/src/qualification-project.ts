@@ -1,15 +1,18 @@
-import { Association, CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model, NonAttribute } from "sequelize";
+import { Association, CreationOptional, DataTypes, HasManyAddAssociationMixin, HasManyAddAssociationsMixin, InferAttributes, InferCreationAttributes, Model, NonAttribute } from "sequelize";
 import { sequelize } from "./sequelize.js";
 import { QualificationProjectTag } from "./qualification-project-tags.js";
 import { QualificationUnitPart } from "./qualification-unit-part.js";
 
-export class QualificationProject extends Model<InferAttributes<QualificationProject>, InferCreationAttributes<QualificationProject>> {
+export class QualificationProject extends Model<InferAttributes<QualificationProject, { omit: "tags" | "parts" }>, InferCreationAttributes<QualificationProject, { omit: "tags" | "parts" }>> {
     declare id: CreationOptional<number>;
     declare name: string;
     declare description: string;
     declare materials: string;
     declare duration: number;
     declare isActive: boolean;
+
+    declare addTag: HasManyAddAssociationMixin<QualificationProjectTag, number>;
+    declare addTags: HasManyAddAssociationsMixin<QualificationProjectTag, number>;
 
     declare tags?: NonAttribute<QualificationProjectTag[]>;
     declare parts?: NonAttribute<QualificationUnitPart[]>;

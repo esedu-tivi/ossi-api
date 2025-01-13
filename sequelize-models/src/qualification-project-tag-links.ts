@@ -48,5 +48,6 @@ QualificationProjectTag.belongsToMany(QualificationProject, {
     through: "qualification_projects_tags_relations",
     foreignKey: "qualification_project_tag_id",
     otherKey: "qualification_project_id",
+    as: "projects",
     timestamps: false
 });

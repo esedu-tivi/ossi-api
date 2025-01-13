@@ -2,9 +2,10 @@ import { Association, CreationOptional, DataTypes, InferAttributes, InferCreatio
 import { sequelize } from "./sequelize.js";
 import { QualificationProject } from "./qualification-project.js";
 
-export class QualificationUnitPart extends Model<InferAttributes<QualificationUnitPart>, InferCreationAttributes<QualificationUnitPart>> {
+export class QualificationUnitPart extends Model<InferAttributes<QualificationUnitPart, { omit: "projects" }>, InferCreationAttributes<QualificationUnitPart, { omit: "projects" }>> {
     declare id: CreationOptional<number>;
     declare name: string;
+    declare qualificationUnitId: number;
 
     declare projects?: NonAttribute<QualificationProject[]>;
 
@@ -21,6 +22,10 @@ QualificationUnitPart.init(
             primaryKey: true,
         },
         name: new DataTypes.STRING(128),
+        qualificationUnitId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            field: "qualification_unit_id"
+        }
     },
     {
         tableName: "qualification_unit_parts",
