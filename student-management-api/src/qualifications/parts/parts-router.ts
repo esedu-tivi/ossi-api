@@ -1,29 +1,34 @@
 import express from "express";
-import { pool } from "../../postgres-pool.js";
-import { QualificationProject } from "sequelize-models";
+import { QualificationProject, QualificationProjectPartLinks, QualificationUnitPart } from "sequelize-models";
 
 const router = express();
 
 router.get("/", async (req, res) => {
-    const queryResponse = await pool.query("SELECT id, qualification_unit_id, name FROM qualification_unit_parts;");
+    const part = await QualificationUnitPart.findAll();
 
-    res.json(queryResponse.rows);
+    res.json(part);
 });
 
 router.get("/:id", async (req, res) => {
-    const queryResponse = await pool.query("SELECT id, qualification_unit_id, name FROM qualification_unit_parts WHERE id = $1;", [req.params.id]);
+    const part = await QualificationUnitPart.findOne({
+        where: {
+            id: req.params.id
+        }
+    });
 
-    res.json(queryResponse.rows[0]);
+    res.json(part);
 });
 
 router.get("/:id/projects", async (req, res) => {
     const projects = await QualificationProject.findAll({
-        include: {
+        include: [{
             association: QualificationProject.associations.parts,
             where: {
                 id: req.params.id
             }
-        }
+        }, {
+            association: QualificationProject.associations.tags
+        }]
     });
 
     res.json(projects);
@@ -36,40 +41,22 @@ router.get("/:id/parent_qualification_unit", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-    const part = req.body;
+    const partFields = req.body;
 
     // TODO should use transaction
-    const queryResponse = await pool.query(`
-        INSERT INTO
-            qualification_unit_parts(
-                qualification_unit_id,
-                name
-            )
-        VALUES (
-            $1,
-            $2
-        )
-        RETURNING
-            id, name
-    ;`, [part.parentQualificationUnit, part.name]);
+    const part = await QualificationUnitPart.create({
+        name: partFields.name,
+        qualificationUnitId: partFields.parentQualificationUnit
+    });
     
-    if (part.projects != undefined && part.projects.length > 0) {
-        part.projects.forEach(async projectId => {
-            await pool.query(`
-                INSERT INTO
-                    qualification_projects_parts_relations(
-                        qualification_project_id,
-                        qualification_unit_part_id
-                    )
-                VALUES (
-                    $1,
-                    $2
-                )
-            ;`, [projectId, queryResponse.rows[0].id]);
-        });
+    if (partFields.projects != undefined && partFields.projects.length > 0) {
+        await QualificationProjectPartLinks.bulkCreate(partFields.projects.map(projectId => ({
+            qualificationProjectId: projectId,
+            qualificationUnitPartId: part.id
+        })));
     }
 
-    res.json(queryResponse.rows[0]);
+    res.json(part);
 });
 
 router.put("/", async (req, res) => {
