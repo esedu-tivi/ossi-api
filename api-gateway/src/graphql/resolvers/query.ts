@@ -55,6 +55,51 @@ const notifications: Resolver<null, null> = async (_, args, context) => {
     return response.data;
 }
 
+const conversations: Resolver<null, null> = async (_, __, context) => {
+    try {
+        if (!context.user?.email) {
+            console.log('No user email in context');
+            return [];
+        }
+        
+        const response = await axios.post(
+            `${process.env.INTERNAL_MESSAGING_SERVER_URL}/graphql`,
+            {
+                query: `
+                    query {
+                        conversations {
+                            id
+                            participants {
+                                id
+                                firstName
+                                lastName
+                                email
+                            }
+                            lastMessage {
+                                content
+                                createdAt
+                            }
+                            createdAt
+                        }
+                    }
+                `
+            },
+            {
+                headers: {
+                    Authorization: context.user.email,
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+        
+        console.log('API Gateway response:', response.data);
+        return response.data?.data?.conversations || [];
+    } catch (error) {
+        console.error('Error fetching conversations:', error);
+        return [];
+    }
+};
+
 export const Query = {
     students,
     parts,
@@ -63,4 +108,5 @@ export const Query = {
     project,
     projectTags,
     notifications,
+    conversations,
 }

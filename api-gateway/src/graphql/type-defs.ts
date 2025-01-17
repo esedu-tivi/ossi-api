@@ -107,6 +107,15 @@ const typeDefs = `#graphql
         tags: [QualificationProjectTag!]!
     }
 
+    type BasicUser {
+        id: ID!
+        firstName: String!
+        lastName: String!
+        email: String!
+        phoneNumber: String
+        archived: Boolean!
+    }
+
     type Student implements User {
         id: ID!
         firstName: String!
@@ -114,12 +123,10 @@ const typeDefs = `#graphql
         email: String!
         archived: Boolean!
         phoneNumber: String
-        
         """
         selectedQualificationUnits: [QualificationUnit!]!
         currentlyUndertakenQualificationProjects: [UndertakenQualificationProject!]!
         """
-
         groupId: String!
         studyingQualification: Qualification
         studyingQualificationTitle: QualificationTitle
@@ -132,7 +139,6 @@ const typeDefs = `#graphql
         email: String!
         archived: Boolean!
         phoneNumber: String
-
         teachingQualification: Qualification
         followingStudents: [Student!]!
     }
@@ -167,6 +173,11 @@ const typeDefs = `#graphql
         projectTags: [QualificationProjectTag!]!
 
         notifications: [Notification!]!
+
+        conversations: [Conversation!]!
+        conversation(id: ID!): Conversation
+        messages(conversationId: ID!): [Message!]!
+        searchUsers(query: String!): [BasicUser!]!
     }
 
     input CreateProjectInput {
@@ -208,7 +219,32 @@ const typeDefs = `#graphql
         
         # remove once not needed
         debugSendNotification(recipients: [ID!]!, notification: String!): Int!
+
+        createConversation(participantIds: [ID!]!): Conversation!
+        sendMessage(conversationId: ID!, content: String!): Message!
+        markMessageAsRead(messageId: ID!): Message!
+    }
+
+    type Subscription {
+        messageReceived(conversationId: ID!): Message!
+        conversationUpdated(userId: ID!): Conversation!
+    }
+
+    type Message {
+        id: ID!
+        conversationId: ID!
+        sender: BasicUser!
+        content: String!
+        readBy: [BasicUser!]!
+        createdAt: String!
+    }
+
+    type Conversation {
+        id: ID!
+        participants: [BasicUser!]!
+        lastMessage: Message
+        createdAt: String!
     }
 `
 
-export { typeDefs }
+export default typeDefs
