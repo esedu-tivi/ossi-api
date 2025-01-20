@@ -9,53 +9,49 @@ import {
   SendMessageInput,
   ResolverContext,
   ConversationDocument,
-  MessageDocument
+  MessageDocument,
+  DBUser
 } from './types.js';
-
-const MOCK_USERS = [
-    {
-        id: 'test1@example.com',
-        firstName: 'Test',
-        lastName: 'User 1',
-        email: 'test1@example.com',
-        phoneNumber: '+1234567890',
-        archived: false
-    },
-    {
-        id: 'test2@example.com',
-        firstName: 'Test',
-        lastName: 'User 2',
-        email: 'test2@example.com',
-        phoneNumber: '+1234567891',
-        archived: false
-    },
-    {
-        id: 'teacher@esedulainen.fi',
-        firstName: 'Teacher',
-        lastName: 'Test',
-        email: 'teacher@esedulainen.fi',
-        phoneNumber: '+1234567892',
-        archived: false
-    }
-];
-
-const getMockUser = (email: string): User => {
-    const mockUser = MOCK_USERS.find(u => u.email === email);
-    if (mockUser) {
-        return mockUser;
-    }
-    return {
-        id: email,
-        firstName: email.split('@')[0],
-        lastName: 'User',
-        email: email,
-        phoneNumber: '+1234567890',
-        archived: false
-    };
-};
+import { pool } from './postgres-pool.js';
 
 const MESSAGE_RECEIVED = 'MESSAGE_RECEIVED';
 const CONVERSATION_UPDATED = 'CONVERSATION_UPDATED';
+
+// Add this function to get user data from PostgreSQL
+const getUserFromDatabase = async (email: string): Promise<User | null> => {
+  try {
+    const result = await pool.query<DBUser>(
+      `SELECT 
+        id,
+        first_name as "firstName",
+        last_name as "lastName",
+        email,
+        phone_number as "phoneNumber",
+        archived,
+        scope
+       FROM users 
+       WHERE email = $1`,
+      [email]
+    );
+    
+    if (result.rows.length === 0) {
+      return null;
+    }
+    
+    const row = result.rows[0];
+    return {
+      id: row.email, // Using email as ID for consistency
+      firstName: row.firstName,
+      lastName: row.lastName,
+      email: row.email,
+      phoneNumber: row.phoneNumber,
+      archived: row.archived
+    };
+  } catch (error) {
+    console.error('Error fetching user from database:', error);
+    return null;
+  }
+};
 
 export const resolvers = {
     Query: {
@@ -78,12 +74,12 @@ export const resolvers = {
                 
                 const mappedConversations = conversations.map((conv: ConversationDocument) => ({
                     id: conv._id.toString(),
-                    participants: conv.participants.map((email: string) => getMockUser(email)),
+                    participants: conv.participants.map((email: string) => getUserFromDatabase(email)),
                     lastMessage: conv.lastMessage && 'content' in conv.lastMessage ? {
                         id: conv.lastMessage._id.toString(),
                         content: conv.lastMessage.content,
                         createdAt: conv.lastMessage.createdAt.toISOString(),
-                        sender: getMockUser(conv.lastMessage.sender)
+                        sender: getUserFromDatabase(conv.lastMessage.sender)
                     } : null,
                     createdAt: conv.createdAt.toISOString()
                 }));
@@ -122,8 +118,8 @@ export const resolvers = {
                 return messages.map((msg: MessageDocument) => ({
                     id: msg._id.toString(),
                     content: msg.content,
-                    sender: getMockUser(msg.sender),
-                    readBy: msg.readBy.map((email: string) => getMockUser(email)),
+                    sender: getUserFromDatabase(msg.sender),
+                    readBy: msg.readBy.map((email: string) => getUserFromDatabase(email)),
                     createdAt: msg.createdAt.toISOString()
                 }));
             } catch (error) {
@@ -141,16 +137,38 @@ export const resolvers = {
                 console.log('Searching users with query:', query);
                 console.log('Current user:', user?.email);
 
-                const users = MOCK_USERS;
-                const filteredUsers = users.filter(u => 
-                    u.email !== user?.email && 
-                    (u.firstName.toLowerCase().includes(query.toLowerCase()) || 
-                     u.lastName.toLowerCase().includes(query.toLowerCase()) || 
-                     u.email.toLowerCase().includes(query.toLowerCase()))
+                if (!user?.email) {
+                    throw new Error('User not authenticated');
+                }
+
+                const searchResult = await pool.query<DBUser>(
+                    `SELECT 
+                        id,
+                        first_name as "firstName",
+                        last_name as "lastName",
+                        email,
+                        phone_number as "phoneNumber",
+                        archived,
+                        scope
+                     FROM users 
+                     WHERE email != $1 
+                       AND (
+                         LOWER(first_name) LIKE LOWER($2) 
+                         OR LOWER(last_name) LIKE LOWER($2) 
+                         OR LOWER(email) LIKE LOWER($2)
+                       )
+                       AND archived = false`,
+                    [user.email, `%${query}%`]
                 );
 
-                console.log('Filtered users:', filteredUsers);
-                return filteredUsers;
+                return searchResult.rows.map((row: DBUser) => ({
+                    id: row.email, // Using email as ID for consistency with the existing system
+                    firstName: row.firstName,
+                    lastName: row.lastName,
+                    email: row.email,
+                    phoneNumber: row.phoneNumber,
+                    archived: row.archived
+                }));
             } catch (error) {
                 console.error('Error searching users:', error);
                 return [];
@@ -179,7 +197,7 @@ export const resolvers = {
 
                 const mappedConversation = {
                     id: conversation._id.toString(),
-                    participants: conversation.participants.map((email: string) => getMockUser(email)),
+                    participants: conversation.participants.map((email: string) => getUserFromDatabase(email)),
                     lastMessage: null,
                     createdAt: conversation.createdAt.toISOString()
                 };
@@ -234,8 +252,8 @@ export const resolvers = {
                 const mappedMessage = {
                     id: message._id.toString(),
                     content: message.content,
-                    sender: getMockUser(message.sender),
-                    readBy: message.readBy.map((email: string) => getMockUser(email)),
+                    sender: getUserFromDatabase(message.sender),
+                    readBy: message.readBy.map((email: string) => getUserFromDatabase(email)),
                     createdAt: message.createdAt.toISOString()
                 };
 

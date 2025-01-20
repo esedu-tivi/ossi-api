@@ -59,3 +59,13 @@ export interface SendMessageInput {
   conversationId: string;
   content: string;
 }
+
+export interface DBUser {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  archived: boolean;
+  scope: 'student' | 'teacher' | 'job supervisor' | 'admin';
+}

@@ -1,5 +1,23 @@
 # Backend Changelog
 
+## 20.01.2025
+
+### Added
+- Integrated messaging server with PostgreSQL database for user data
+- Added proper type definitions for database user records (DBUser interface)
+- Added PostgreSQL connection pool configuration to messaging server
+
+### Changed
+- Replaced mock user data with real user data from PostgreSQL database
+- Updated user search functionality to query actual users table
+- Modified user resolvers to maintain email as ID for consistency
+- Improved error handling for database connections
+
+
+### Removed
+- Removed mock user data and related functionality
+
+
 ## 17.01.2025
 
 ### Added

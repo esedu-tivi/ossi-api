@@ -56,11 +56,13 @@ CREATE TABLE qualification_projects_parts_relations (
 
 CREATE TYPE user_authority_scope AS ENUM ('student', 'teacher', 'job supervisor', 'admin');
 
+CREATE SEQUENCE users_id_seq START WITH 2;
+
 CREATE TABLE users (
-    id integer PRIMARY KEY,
+    id integer PRIMARY KEY DEFAULT nextval('users_id_seq'),
     first_name text NOT NULL,
     last_name text NOT NULL,
-    email text NOT NULL,
+    email text NOT NULL UNIQUE,
     phone_number text NOT NULL,
     scope user_authority_scope NOT NULL,
     archived boolean DEFAULT FALSE
