@@ -1,16 +1,19 @@
-import { Association, CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model, NonAttribute } from "sequelize";
+import { Association, CreationOptional, DataTypes, ForeignKey, InferAttributes, InferCreationAttributes, Model, NonAttribute } from "sequelize";
 import { sequelize } from "./sequelize.js";
 import { QualificationProject } from "./qualification-project.js";
+import { QualificationUnit } from "./qualification-unit.js";
 
 export class QualificationUnitPart extends Model<InferAttributes<QualificationUnitPart, { omit: "projects" }>, InferCreationAttributes<QualificationUnitPart, { omit: "projects" }>> {
     declare id: CreationOptional<number>;
     declare name: string;
-    declare qualificationUnitId: number;
+    declare qualificationUnitId: ForeignKey<QualificationUnit["id"]>;
 
     declare projects?: NonAttribute<QualificationProject[]>;
+    declare unit?: NonAttribute<QualificationUnit>;
 
     declare static associations: {
         projects: Association<QualificationUnitPart, QualificationProject>;
+        unit: Association<QualificationUnitPart, QualificationUnit>;
     }
 }
 
@@ -24,7 +27,11 @@ QualificationUnitPart.init(
         name: new DataTypes.STRING(128),
         qualificationUnitId: {
             type: DataTypes.INTEGER.UNSIGNED,
-            field: "qualification_unit_id"
+            field: "qualification_unit_id",
+            references: {
+                model: QualificationUnit,
+                key: "id"
+            }
         }
     },
     {
@@ -33,3 +40,14 @@ QualificationUnitPart.init(
         sequelize
     }
 );
+
+
+QualificationUnitPart.belongsTo(QualificationUnit, {
+    as: "unit",
+    foreignKey: "qualificationUnitId",
+    targetKey: "id",
+})
+
+QualificationUnit.hasMany(QualificationUnitPart, {
+    foreignKey: "qualificationUnitId"
+});

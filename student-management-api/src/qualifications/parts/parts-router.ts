@@ -1,5 +1,6 @@
 import express from "express";
 import { QualificationProject, QualificationProjectPartLinks, QualificationUnitPart } from "sequelize-models";
+import { QualificationUnit } from "sequelize-models/dist/qualification-unit";
 
 const router = express();
 
@@ -35,9 +36,11 @@ router.get("/:id/projects", async (req, res) => {
 });
 
 router.get("/:id/parent_qualification_unit", async (req, res) => {
-    // TODO
+    const qualificationUnit = await QualificationUnitPart.findByPk(req.params.id, {
+        include: [QualificationUnitPart.associations.unit]
+    });
 
-    res.status(400);
+    res.json(qualificationUnit.unit);
 });
 
 router.post("/", async (req, res) => {
