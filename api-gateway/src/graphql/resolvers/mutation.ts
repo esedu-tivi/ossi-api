@@ -7,19 +7,23 @@ const login = async (parent, args, context, info) => {
 }
 
 const createProject = async (parent, args, context, info) => {
-    return await context.dataSources.StudentManagementAPI.createProject(args.project);
+    return await context.dataSources.studentManagementAPI.createProject(args.project);
 }
 
 const createPart = async (parent, args, context, info) => {
-    return await context.dataSources.StudentManagementAPI.createPart(args.part);
+    return await context.dataSources.studentManagementAPI.createPart(args.part);
 }
 
 const updateProject = async (parent, args, context, info) => {
-    return await context.dataSources.StudentManagementAPI.updateProject(args.project);
+    return await context.dataSources.studentManagementAPI.updateProject(args.id, args.project);
+}
+
+const updatePart = async (parent, args, context, info) => {
+    return await context.dataSources.studentManagementAPI.updatePart(args.id, args.part);
 }
 
 const createProjectTag = async (parent, args, context, info) => {
-    return await context.dataSources.StudentManagementAPI.createProjectTag({ tagName: args.name });
+    return await context.dataSources.studentManagementAPI.createProjectTag({ tagName: args.name });
 }
 
 const debugSendNotification = async (parent, args, context, info) => {
@@ -33,6 +37,7 @@ export const Mutation = {
     createProject,
     createPart,
     updateProject,
+    updatePart,
     createProjectTag,
     debugSendNotification,
 }

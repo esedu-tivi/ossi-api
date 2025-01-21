@@ -44,6 +44,7 @@ router.get("/:id/parent_qualification_unit", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
+    console.log(req.body);
     const partFields = req.body;
 
     // TODO should use transaction
@@ -62,8 +63,38 @@ router.post("/", async (req, res) => {
     res.json(part);
 });
 
-router.put("/", async (req, res) => {
+router.put("/:id", async (req, res) => {
+    const updatedPartFields = req.body;
 
+    const updatedPart = await QualificationUnitPart.findByPk(req.params.id, {
+        include: [QualificationUnitPart.associations.projects]
+    });
+
+    console.log(req.params.id)
+
+    await updatedPart.update({
+        name: updatedPartFields.name,
+        qualificationUnitId: updatedPartFields.parentQualificationUnit,
+    });
+
+    const projectsToRemove = updatedPart.projects.filter(project => !updatedPartFields.projects.includes(project.id));
+    const projectIdsToAdd = [...new Set(updatedPart.projects.filter(project => updatedPartFields.projects.includes(project.id)).map(project => project.id).concat(updatedPartFields.projects))];
+
+    await QualificationProjectPartLinks.destroy({
+        where: {
+            qualificationUnitPartId: req.params.id,
+            qualificationProjectId: projectsToRemove.map(project => project.id)
+        }
+    });
+
+    await QualificationProjectPartLinks.bulkCreate(projectIdsToAdd.map(projectId => ({
+        qualificationUnitPartId: Number(req.params.id),
+        qualificationProjectId: projectId
+    })));
+
+    await updatedPart.reload();
+
+    res.json(updatedPart);
 });
 
 export const PartsRouter = router;

@@ -28,14 +28,14 @@ class StudentManagementAPI extends RESTDataSource {
     async createProject(project) {
         return this.post(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/qualification/projects", 
-            project
+            { body: project }
         );
     }
 
-    async updateProject(project) {
+    async updateProject(id, project) {
         return this.put(
-            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/qualification/projects",
-            project
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/qualification/projects/${id}`,
+            { body: project }
         );
     }
 
@@ -58,9 +58,17 @@ class StudentManagementAPI extends RESTDataSource {
     }
 
     async createPart(part) {
+        console.log(part);
         return this.post(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/qualification/parts", 
-            part
+            { body: part }
+        );
+    }
+
+    async updatePart(id, part) {
+        return this.put(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/qualification/parts/${id}`,
+            { body: part }
         );
     }
 
@@ -73,7 +81,7 @@ class StudentManagementAPI extends RESTDataSource {
     async createProjectTag(tag) {
         return this.post(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/qualification/projects/tags",
-            tag
+            { body: tag }
         );
     }
 
