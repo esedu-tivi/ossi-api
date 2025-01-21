@@ -1,4 +1,6 @@
+import { AugmentedRequest, RequestOptions, RESTDataSource } from "@apollo/datasource-rest"
 import { JwtPayload } from "jsonwebtoken"
+import { StudentManagementAPI } from "./data-sources/student-management-api.js";
 
 interface UserContext extends JwtPayload {
     id: string,
@@ -7,8 +9,13 @@ interface UserContext extends JwtPayload {
     email: string
 } 
 
-interface Context {
-    user: UserContext | null
+interface ApolloContext {
+    user: UserContext | null,
+    dataSources: {
+        studentManagementAPI: StudentManagementAPI,
+//        activityAPI: ActivityAPI,
+//        authAPI: AuthAPI,
+    }
 }
 
-export { Context, UserContext };
+export { ApolloContext, UserContext };

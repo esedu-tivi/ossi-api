@@ -2,9 +2,7 @@ import axios from "axios"
 import { Resolver } from "../resolver.js"
 
 const includedInQualificationUnitParts: Resolver<{ id: number }, null> = async (parent, _, context) => {
-    const response = await axios.get(process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/qualification/projects/${parent.id}/linked_qualification_unit_parts`);
-
-    return response.data;
+    return await context.dataSources.studentManagementAPI.getProjectIncludedInQualificationUnitParts(parent.id);
 }
 
 export const QualificationProject = {

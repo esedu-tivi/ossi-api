@@ -41,6 +41,7 @@ const typeDefs = `#graphql
         id: Int!
         name: String!
         scope: Int!
+        
             TODO: Check the data provided from the ePerusteet API.
             Possibly seperate requirements and assessment in description.
         description: String!
@@ -66,6 +67,11 @@ const typeDefs = `#graphql
         isSentForReview: Boolean!
     }
 """
+    type LocalizedString {
+        fi: String
+        en: String
+        sv: String
+    }
 
     type QualificationTitle {
         id: Int!
@@ -78,9 +84,21 @@ const typeDefs = `#graphql
         #QualificationUnits: [QualificationUnit!]!
     }
 
+    type VocationalCompetenceRequirementDescription {
+        id: Int!
+        description: LocalizedString!
+    }
+
+    type VocationalCompetenceRequirementGroup {
+        id: Int!
+        description: LocalizedString!
+        requirements: [VocationalCompetenceRequirementDescription!]!
+    }
+
     type QualificationUnit {
         id: Int!
         name: String!
+        competenceRequirementGroups: [VocationalCompetenceRequirementGroup!]!
         #QualificationUnitParts: [QualificationUnitPart!]!
     }
 

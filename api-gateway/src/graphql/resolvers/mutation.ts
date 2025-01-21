@@ -2,32 +2,24 @@ import axios from "axios"
 
 const login = async (parent, args, context, info) => {
     const response = await axios.post(process.env.INTERNAL_AUTH_API_URL + "/login", { idToken: args.idToken });
-
+    
     return response.data;
 }
 
 const createProject = async (parent, args, context, info) => {
-    const response = await axios.post(process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/qualification/projects", args.project);
-
-    return response.data;
+    return await context.dataSources.StudentManagementAPI.createProject(args.project);
 }
 
 const createPart = async (parent, args, context, info) => {
-    const response = await axios.post(process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/qualification/parts", args.part);
-
-    return response.data;
+    return await context.dataSources.StudentManagementAPI.createPart(args.part);
 }
 
 const updateProject = async (parent, args, context, info) => {
-    const response = await axios.put(process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/qualification/projects/${args.id}`, args.project);
-
-    return response.data;
+    return await context.dataSources.StudentManagementAPI.updateProject(args.project);
 }
 
 const createProjectTag = async (parent, args, context, info) => {
-    const response = await axios.post(process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/qualification/projects/tags`, { tagName: args.name });
-
-    return response.data;
+    return await context.dataSources.StudentManagementAPI.createProjectTag({ tagName: args.name });
 }
 
 const debugSendNotification = async (parent, args, context, info) => {
