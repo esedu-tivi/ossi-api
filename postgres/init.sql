@@ -24,7 +24,9 @@ CREATE TABLE qualification_units (
 CREATE TABLE qualification_unit_parts (
     id serial PRIMARY KEY,
     qualification_unit_id integer REFERENCES qualification_units NOT NULL,
-    name text
+    name text,
+    description text,
+    materials text
 );
 
 -- projekti
@@ -111,9 +113,9 @@ INSERT INTO qualification_unit_parts(qualification_unit_id, name) VALUES(6779606
 INSERT INTO qualification_unit_parts(qualification_unit_id, name) VALUES(6779606, 'TVP Teema 3');
 
 INSERT INTO qualification_units(eperuste_id, qualification_id, scope, name) VALUES(6816480, 7861752, 45, 'Ohjelmointi');
-INSERT INTO qualification_unit_parts(qualification_unit_id, name) VALUES(6816480, 'Ohjelmointi Teema 1');
-INSERT INTO qualification_unit_parts(qualification_unit_id, name) VALUES(6816480, 'Ohjelmointi Teema 2');
-INSERT INTO qualification_unit_parts(qualification_unit_id, name) VALUES(6816480, 'Ohjelmointi Teema 3');
+INSERT INTO qualification_unit_parts(qualification_unit_id, name, description, materials) VALUES(6816480, 'Ohjelmointi Teema 1', 'Description', '-');
+INSERT INTO qualification_unit_parts(qualification_unit_id, name, description, materials) VALUES(6816480, 'Ohjelmointi Teema 2', 'Description', '-');
+INSERT INTO qualification_unit_parts(qualification_unit_id, name, description, materials) VALUES(6816480, 'Ohjelmointi Teema 3', 'Description', '-');
 
 INSERT INTO qualification_projects(name, description, materials, duration, is_active) VALUES('TVP -Projekti 1', 'Description', '-', 100, true);
 INSERT INTO qualification_projects(name, description, materials, duration, is_active) VALUES('TVP -Projekti 2', 'Description', '-', 100, true);

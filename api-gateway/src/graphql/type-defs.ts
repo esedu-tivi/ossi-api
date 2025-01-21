@@ -23,20 +23,6 @@ const typeDefs = `#graphql
 
     """
     Prototype schemas for types related to vocational studies
-
-    type QualificationUnitPartProject {
-        id: ID!
-        name: String!
-        description: String!            
-    }
-
-    type QualificationUnitPart {
-        id: ID!
-        name: String!
-        description: String!
-        projects: [QualificationUnitPartProject!]!
-    }
-
     type QualificationUnit {
         id: Int!
         name: String!
@@ -105,6 +91,8 @@ const typeDefs = `#graphql
     type QualificationUnitPart {
         id: Int!
         name: String!
+        description: String!
+        materials: String!
         projects: [QualificationProject!]!
         parentQualificationUnit: QualificationUnit!
     }
@@ -212,6 +200,8 @@ const typeDefs = `#graphql
 
     input CreatePartInput {
         name: String!
+        description: String!
+        materials: String!
         projects: [ID!]
         parentQualificationUnit: ID!
     }

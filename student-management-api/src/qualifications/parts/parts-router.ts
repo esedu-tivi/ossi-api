@@ -50,7 +50,9 @@ router.post("/", async (req, res) => {
     // TODO should use transaction
     const part = await QualificationUnitPart.create({
         name: partFields.name,
-        qualificationUnitId: partFields.parentQualificationUnit
+        qualificationUnitId: partFields.parentQualificationUnit,
+        description: partFields.description,
+        materials: partFields.materials,
     });
     
     if (partFields.projects != undefined && partFields.projects.length > 0) {
@@ -75,6 +77,8 @@ router.put("/:id", async (req, res) => {
     await updatedPart.update({
         name: updatedPartFields.name,
         qualificationUnitId: updatedPartFields.parentQualificationUnit,
+        description: updatedPartFields.description,
+        materials: updatedPartFields.materials,
     });
 
     const projectsToRemove = updatedPart.projects.filter(project => !updatedPartFields.projects.includes(project.id));

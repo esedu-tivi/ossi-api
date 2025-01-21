@@ -6,6 +6,8 @@ import { QualificationUnit } from "./qualification-unit.js";
 export class QualificationUnitPart extends Model<InferAttributes<QualificationUnitPart, { omit: "projects" }>, InferCreationAttributes<QualificationUnitPart, { omit: "projects" }>> {
     declare id: CreationOptional<number>;
     declare name: string;
+    declare description: string;
+    declare materials: string;
     declare qualificationUnitId: ForeignKey<QualificationUnit["id"]>;
 
     declare projects?: NonAttribute<QualificationProject[]>;
@@ -25,6 +27,8 @@ QualificationUnitPart.init(
             primaryKey: true,
         },
         name: new DataTypes.STRING(128),
+        description: new DataTypes.TEXT(),
+        materials: new DataTypes.TEXT(),
         qualificationUnitId: {
             type: DataTypes.INTEGER.UNSIGNED,
             field: "qualification_unit_id",
@@ -32,7 +36,7 @@ QualificationUnitPart.init(
                 model: QualificationUnit,
                 key: "id"
             }
-        }
+        },
     },
     {
         tableName: "qualification_unit_parts",
