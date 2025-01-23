@@ -19,7 +19,8 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.2.1",
     "ws": "^8.16.0",
-    "pg": "^8.11.3"
+    "pg": "^8.11.3",
+    "redis": "^4.6.13"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

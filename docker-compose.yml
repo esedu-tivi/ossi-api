@@ -52,6 +52,7 @@ services:
       - app-network
     depends_on:
       - mongo
+      - redis
   db:
     image: docker.io/postgres
     restart: always
@@ -86,6 +87,12 @@ services:
       PGADMIN_LISTEN_ADDRESS: 0.0.0.0
     ports:
       - "5433:80"
+    networks:
+      - app-network
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
     networks:
       - app-network
 

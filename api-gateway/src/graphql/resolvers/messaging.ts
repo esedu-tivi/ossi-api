@@ -1,50 +1,50 @@
 import axios from 'axios';
+import { publisher, subscriber } from '../../redis-client.js';
+import { PubSub } from 'graphql-subscriptions';
+import { ResolverContext, MessageDocument } from '../../types/messaging.js';
+
+
+const messagingPubSub = new PubSub();
+let redisSubscriptionInitialized = false;
+
+// Initialize Redis subscription once
+const initializeRedisSubscription = () => {
+    if (!redisSubscriptionInitialized) {
+        subscriber.subscribe('message_received', (message) => {
+            const parsedMessage = JSON.parse(message);
+            messagingPubSub.publish(`MESSAGE_RECEIVED.${parsedMessage.conversationId}`, {
+                messageReceived: parsedMessage
+            });
+        });
+        redisSubscriptionInitialized = true;
+    }
+};
 
 export const MessagingResolvers = {
     Query: {
-        conversations: async (_, __, context) => {
+        conversations: async (_, __, context: ResolverContext) => {
             try {
                 if (!context.user?.email) {
-                    console.log('No user email in context');
                     return [];
                 }
-                
-                console.log('Fetching conversations for user:', context.user.email);
-                
-                const response = await axios.post(
-                    `${process.env.INTERNAL_MESSAGING_SERVER_URL}/graphql`,
-                    {
-                        query: `
-                            query {
-                                conversations {
-                                    id
-                                    participants {
-                                        id
-                                        firstName
-                                        lastName
-                                        email
-                                    }
-                                    lastMessage {
-                                        content
-                                        createdAt
-                                    }
-                                    createdAt
-                                }
-                            }
-                        `
-                    },
-                    {
-                        headers: {
-                            Authorization: context.user.email,
-                            'Content-Type': 'application/json',
-                        },
-                    }
-                );
-                
-                console.log('API Gateway response:', response.data);
-                
-                // Always return an array, even if the response is null/undefined
-                return response.data?.data?.conversations || [];
+
+                // Publish request for conversations
+                await publisher.publish('get_conversations', JSON.stringify({
+                    userEmail: context.user.email
+                }));
+
+                // Wait for response
+                return new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => {
+                        reject(new Error('Conversations fetch timeout'));
+                    }, 5000);
+
+                    subscriber.subscribe('conversations_response', (message) => {
+                        clearTimeout(timeout);
+                        subscriber.unsubscribe('conversations_response');
+                        resolve(JSON.parse(message));
+                    });
+                });
             } catch (error) {
                 console.error('Error fetching conversations:', error);
                 return [];
@@ -52,41 +52,28 @@ export const MessagingResolvers = {
         },
         messages: async (_, { conversationId }, context) => {
             try {
-                const response = await axios.post(
-                    `${process.env.INTERNAL_MESSAGING_SERVER_URL}/graphql`,
-                    {
-                        query: `
-                            query GetMessages($conversationId: ID!) {
-                                messages(conversationId: $conversationId) {
-                                    id
-                                    content
-                                    sender {
-                                        id
-                                        firstName
-                                        lastName
-                                        email
-                                    }
-                                    readBy {
-                                        id
-                                        firstName
-                                        lastName
-                                    }
-                                    createdAt
-                                }
-                            }
-                        `,
-                        variables: { conversationId }
-                    },
-                    {
-                        headers: {
-                            Authorization: context.user?.email || '',
-                            'Content-Type': 'application/json',
-                        },
-                    }
-                );
+                if (!context.user?.email) {
+                    return [];
+                }
 
-                console.log('Messages response:', response.data);
-                return response.data?.data?.messages || [];
+                // Publish request for messages
+                await publisher.publish('get_messages', JSON.stringify({
+                    conversationId,
+                    userEmail: context.user.email
+                }));
+
+                // Wait for response
+                return new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => {
+                        reject(new Error('Messages fetch timeout'));
+                    }, 5000);
+
+                    subscriber.subscribe('messages_response', (message) => {
+                        clearTimeout(timeout);
+                        subscriber.unsubscribe('messages_response');
+                        resolve(JSON.parse(message));
+                    });
+                });
             } catch (error) {
                 console.error('Error fetching messages:', error);
                 return [];
@@ -139,82 +126,71 @@ export const MessagingResolvers = {
     Mutation: {
         createConversation: async (_, { participantIds }, context) => {
             try {
-                console.log('Creating conversation with participants:', participantIds);
-                console.log('Context:', context);
+                if (!context.user?.email) {
+                    throw new Error('User not authenticated');
+                }
 
-                const response = await axios.post(
-                    `${process.env.INTERNAL_MESSAGING_SERVER_URL}/graphql`,
-                    {
-                        query: `
-                            mutation CreateConversation($participantIds: [ID!]!) {
-                                createConversation(participantIds: $participantIds) {
-                                    id
-                                    participants {
-                                        id
-                                        firstName
-                                        lastName
-                                        email
-                                    }
-                                    createdAt
-                                }
-                            }
-                        `,
-                        variables: { participantIds }
-                    },
-                    {
-                        headers: {
-                            Authorization: context.user?.email || '',
-                            'Content-Type': 'application/json',
-                        },
-                    }
-                );
+                await publisher.publish('create_conversation', JSON.stringify({
+                    participantIds,
+                    userEmail: context.user.email
+                }));
 
-                console.log('Create conversation response:', response.data);
-                return response.data?.data?.createConversation;
+                return new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => {
+                        reject(new Error('Create conversation timeout'));
+                    }, 5000);
+
+                    subscriber.subscribe('conversation_created', (message) => {
+                        clearTimeout(timeout);
+                        subscriber.unsubscribe('conversation_created');
+                        resolve(JSON.parse(message));
+                    });
+                });
             } catch (error) {
                 console.error('Error creating conversation:', error);
-                console.error('Error response:', error.response?.data);
                 throw error;
             }
         },
-        sendMessage: async (_, { conversationId, content }, context) => {
+        sendMessage: async (_, { conversationId, content }, context: ResolverContext) => {
             try {
-                console.log('Sending message:', { conversationId, content });
-                const response = await axios.post(
-                    `${process.env.INTERNAL_MESSAGING_SERVER_URL}/graphql`,
-                    {
-                        query: `
-                            mutation SendMessage($conversationId: ID!, $content: String!) {
-                                sendMessage(conversationId: $conversationId, content: $content) {
-                                    id
-                                    content
-                                    sender {
-                                        id
-                                        firstName
-                                        lastName
-                                        email
-                                    }
-                                    createdAt
-                                }
-                            }
-                        `,
-                        variables: { conversationId, content }
-                    },
-                    {
-                        headers: {
-                            Authorization: context.user?.email || '',
-                            'Content-Type': 'application/json',
-                        },
-                    }
-                );
+                if (!context.user?.email) {
+                    throw new Error('User not authenticated');
+                }
 
-                console.log('Send message response:', response.data);
-                return response.data?.data?.sendMessage;
+                // Publish message to Redis for messaging server to process
+                await publisher.publish('new_message', JSON.stringify({
+                    conversationId,
+                    content,
+                    sender: context.user
+                }));
+
+                // Wait for response from messaging server
+                return new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => {
+                        reject(new Error('Message sending timeout'));
+                    }, 5000);
+
+                    subscriber.subscribe('message_received', (message) => {
+                        const parsedMessage = JSON.parse(message);
+                        if (parsedMessage.conversationId === conversationId) {
+                            clearTimeout(timeout);
+                            subscriber.unsubscribe('message_received');
+                            resolve(parsedMessage);
+                        }
+                    });
+                });
             } catch (error) {
                 console.error('Error sending message:', error);
-                console.error('Error details:', error.response?.data);
                 throw error;
             }
         },
     },
+    Subscription: {
+        messageReceived: {
+            subscribe: (_, { conversationId }) => {
+                initializeRedisSubscription();
+                return messagingPubSub.asyncIterator([`MESSAGE_RECEIVED.${conversationId}`]);
+            }
+        }
+    }
 };
