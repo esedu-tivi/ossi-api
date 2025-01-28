@@ -46,6 +46,24 @@ CREATE TABLE qualification_project_tags (
     name text
 );
 
+-- competence requirement tables are populated lazily from ePeruste
+CREATE TABLE qualification_competence_requirements (
+    eperuste_id integer PRIMARY KEY,
+    qualification_unit_id integer NOT NULL REFERENCES qualification_units,
+    title text NOT NULL
+);
+
+CREATE TABLE qualification_competence_requirement (
+    eperuste_id integer NOT NULL,
+    group_id integer NOT NULL REFERENCES qualification_competence_requirements,
+    description text NOT NULL
+);
+
+CREATE TABLE qualification_project_fulfilled_competence_requirements_relations (
+    qualification_project_id integer NOT NULL REFERENCES qualification_projects,
+    qualification_competence_requirements_id integer NOT NULL REFERENCES qualification_competence_requirements
+);
+
 CREATE TABLE qualification_projects_tags_relations (
     qualification_project_id integer NOT NULL REFERENCES qualification_projects,
     qualification_project_tag_id integer NOT NULL REFERENCES qualification_project_tags

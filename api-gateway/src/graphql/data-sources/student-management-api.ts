@@ -58,7 +58,6 @@ class StudentManagementAPI extends RESTDataSource {
     }
 
     async createPart(part) {
-        console.log(part);
         return this.post(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/qualification/parts", 
             { body: part }
@@ -94,6 +93,12 @@ class StudentManagementAPI extends RESTDataSource {
     async getPartParentQualificationUnit(id) {
         return this.get(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/qualification/parts/${id}/parent_qualification_unit`
+        );
+    }
+
+    async getQualificationUnitCompetenceRequirements(id) {
+        return this.get(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/qualification/units/${id}/competence_requirements`
         );
     }
 

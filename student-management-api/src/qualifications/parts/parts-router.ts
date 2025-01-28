@@ -44,7 +44,6 @@ router.get("/:id/parent_qualification_unit", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-    console.log(req.body);
     const partFields = req.body;
 
     // TODO should use transaction
@@ -71,8 +70,6 @@ router.put("/:id", async (req, res) => {
     const updatedPart = await QualificationUnitPart.findByPk(req.params.id, {
         include: [QualificationUnitPart.associations.projects]
     });
-
-    console.log(req.params.id)
 
     await updatedPart.update({
         name: updatedPartFields.name,

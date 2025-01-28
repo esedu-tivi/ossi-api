@@ -21,38 +21,6 @@ const typeDefs = `#graphql
         archived: Boolean!
     }
 
-    """
-    Prototype schemas for types related to vocational studies
-    type QualificationUnit {
-        id: Int!
-        name: String!
-        scope: Int!
-        
-            TODO: Check the data provided from the ePerusteet API.
-            Possibly seperate requirements and assessment in description.
-        description: String!
-            TODO: check if this can be more dynamic. For now they are representing "teemoja" in Esedu.
-        parts: [QualificationUnitPart!]!        
-    }
-
-    type Qualification {
-            Qualification ID from ePerusteet.
-            See for example https://eperusteet.opintopolku.fi/#/fi/ammatillinenperustutkinto/7861752/tiedot
-        id: Int!
-        name: String!
-
-        qualificationTitle(id: Int!): QualificationTitle
-        qualificationTitles: [QualificationTitle!]!
-
-        qualificationUnit(id: Int!): QualificationUnit!
-        qualificationUnits: [QualificationUnit!]!
-    }
-
-    type UndertakenQualificationProject {
-        projectId: ID!
-        isSentForReview: Boolean!
-    }
-"""
     type LocalizedString {
         fi: String
         en: String
@@ -72,12 +40,13 @@ const typeDefs = `#graphql
 
     type VocationalCompetenceRequirementDescription {
         id: Int!
-        description: LocalizedString!
+        # should use LocalizedString
+        description: String!
     }
 
     type VocationalCompetenceRequirementGroup {
         id: Int!
-        description: LocalizedString!
+        title: String!
         requirements: [VocationalCompetenceRequirementDescription!]!
     }
 
