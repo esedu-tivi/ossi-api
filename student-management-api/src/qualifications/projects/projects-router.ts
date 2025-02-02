@@ -1,5 +1,5 @@
 import express from "express";
-import { QualificationProject, QualificationProjectTag, QualificationProjectTagLinks, QualificationUnitPart } from "sequelize-models";
+import { CompetenceRequirementsInProjects, QualificationCompetenceRequirement, QualificationProject, QualificationProjectTag, QualificationProjectTagLinks, QualificationUnitPart } from "sequelize-models";
 
 const router = express();
 
@@ -21,7 +21,7 @@ router.post("/tags", async (req, res) => {
 
 router.get("/", async (req, res) => {
     const projects = await QualificationProject.findAll({
-        include: [QualificationProject.associations.tags]
+        include: [QualificationProject.associations.tags, QualificationProject.associations.competenceRequirements]
     });
 
     res.json(projects);
@@ -32,7 +32,7 @@ router.get("/:id", async (req, res) => {
         where: {
             id: req.params.id
         },
-        include: [QualificationProject.associations.tags]
+        include: [QualificationProject.associations.tags, QualificationProject.associations.competenceRequirements]
     });
 
     res.json(project);
@@ -63,16 +63,31 @@ router.post("/", async (req, res) => {
     });
     
     if (project.tags != undefined && project.tags.length > 0) {
-        project.tags.forEach(async tagId => {
+        await Promise.all(project.tags.map(async tagId => {
             const tag = await QualificationProjectTag.findByPk(tagId);
 
             if (tag === null)
                 // rollback transaction
                 throw Error();
 
-            createdProject.addTag(tag)
-        });
+            await createdProject.addTag(tag)
+        }));
     }
+
+    if (project.competenceRequirements != undefined && project.competenceRequirements.length > 0) {
+        await Promise.all(project.competenceRequirements.map(async requirementId => {
+            const requirement = await QualificationCompetenceRequirement.findByPk(requirementId);
+
+            if (requirement === null) 
+                throw Error();
+
+            await createdProject.addCompetenceRequirement(requirement)
+        }));
+    }
+
+    await createdProject.reload({
+        include: [QualificationProject.associations.tags, QualificationProject.associations.competenceRequirements]
+    });
 
     res.json(createdProject);
 });
@@ -81,7 +96,7 @@ router.put("/:id", async (req, res) => {
     const updatedProjectFields = req.body;
 
     const updatedProject = await QualificationProject.findByPk(req.params.id, {
-        include: [QualificationProject.associations.tags]
+        include: [QualificationProject.associations.tags, QualificationProject.associations.competenceRequirements]
     });
     
     await updatedProject.update({
@@ -104,6 +119,15 @@ router.put("/:id", async (req, res) => {
     const tagsToRemove = existingTags.filter(tag => !updatedProjectFields.tags.includes(tag.id));
     const tagIdsToAdd = [...new Set(existingTags.filter(tag => updatedProjectFields.tags.includes(tag.id)).map(tag => tag.id).concat(updatedProjectFields.tags))];
 
+    const existingCompetenceRequirements = await QualificationCompetenceRequirement.findAll({
+        include: {
+            association: QualificationCompetenceRequirement.associations.projects,
+            where: {
+                id: req.params.id,
+            }
+        }
+    });
+
     await QualificationProjectTagLinks.destroy({
         where: {
             qualificationProjectId: req.params.id,
@@ -114,6 +138,21 @@ router.put("/:id", async (req, res) => {
     await QualificationProjectTagLinks.bulkCreate(tagIdsToAdd.map(tagId => ({
         qualificationProjectTagId: tagId,
         qualificationProjectId: Number(req.params.id)
+    })));
+
+    const requirementsToRemove = existingCompetenceRequirements.filter(requirement => !updatedProjectFields.competenceRequirements.includes(requirement.id));
+    const requirementIdsToAdd = [...new Set(existingCompetenceRequirements.filter(requirement => updatedProjectFields.requirements.includes(requirement.id)).map(tag => tag.id).concat(updatedProjectFields.competenceRequirements))]
+
+    await CompetenceRequirementsInProjects.destroy({
+        where: {
+            competenceRequirementId: requirementsToRemove.map(requirement => requirement.id),
+            projectId: req.params.id
+        }
+    });
+
+    await CompetenceRequirementsInProjects.bulkCreate(requirementIdsToAdd.map(requirementId => ({
+        competenceRequirementId: requirementId,
+        projectId: Number(req.params.id)
     })));
 
     await updatedProject.reload();

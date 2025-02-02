@@ -7,3 +7,4 @@ export { QualificationUnitPart } from "./qualification-unit-part.js";
 export { QualificationProjectPartLinks } from "./qualification-project-part-links.js";
 export { QualificationCompetenceRequirements } from "./qualification-competence-requirements.js";
 export { QualificationCompetenceRequirement } from "./qualification-competence-requirement.js";
+export { CompetenceRequirementsInProjects } from "./competence-requirements-in-projects.js";

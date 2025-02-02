@@ -79,6 +79,7 @@ const typeDefs = `#graphql
         materials: String!
         isActive: Boolean!
         includedInQualificationUnitParts: [QualificationUnitPart!]!
+        competenceRequirements: [VocationalCompetenceRequirementDescription!]!
         tags: [QualificationProjectTag!]!
     }
 
@@ -151,6 +152,7 @@ const typeDefs = `#graphql
         # osaamiset: [ID!]
         duration: Int!
         includedInParts: [ID!]!
+        competenceRequirements: [ID!]!
         tags: [ID!]!
         isActive: Boolean!
     }
@@ -162,6 +164,7 @@ const typeDefs = `#graphql
         # osaamiset: [ID!]
         duration: Int!
         includedInParts: [ID!]!
+        competenceRequirements: [ID!]!
         tags: [ID!]!
         isActive: Boolean!
         notifyStudents: Boolean!

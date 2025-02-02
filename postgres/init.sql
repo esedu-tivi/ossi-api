@@ -54,14 +54,14 @@ CREATE TABLE qualification_competence_requirements (
 );
 
 CREATE TABLE qualification_competence_requirement (
-    eperuste_id integer NOT NULL,
+    eperuste_id integer PRIMARY KEY,
     group_id integer NOT NULL REFERENCES qualification_competence_requirements,
     description text NOT NULL
 );
 
-CREATE TABLE qualification_project_fulfilled_competence_requirements_relations (
+CREATE TABLE competence_requirements_in_projects (
     qualification_project_id integer NOT NULL REFERENCES qualification_projects,
-    qualification_competence_requirements_id integer NOT NULL REFERENCES qualification_competence_requirements
+    qualification_competence_requirement_id integer NOT NULL REFERENCES qualification_competence_requirement
 );
 
 CREATE TABLE qualification_projects_tags_relations (
