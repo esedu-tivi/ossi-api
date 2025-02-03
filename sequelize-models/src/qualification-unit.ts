@@ -1,6 +1,5 @@
 import { Association, CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model, NonAttribute } from "sequelize";
 import { sequelize } from "./sequelize.js";
-import { QualificationUnitPart } from "./qualification-unit-part.js";
 
 export class QualificationUnit extends Model<InferAttributes<QualificationUnit>, InferCreationAttributes<QualificationUnit>> {
     declare id: CreationOptional<number>;
