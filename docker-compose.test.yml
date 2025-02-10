@@ -1,0 +1,19 @@
+services:
+  studentmanagementapi:
+    image: ossi-api-studentmanagementapi
+    command: npm run test
+    depends_on:
+      - db-test
+    env_file: ".env"
+  db-test:
+    image: docker.io/postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - db-test-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+volumes:
+  db-test-data:
