@@ -2,6 +2,7 @@ import { Association, CreationOptional, DataTypes, HasManyAddAssociationMixin, H
 import { sequelize } from "./sequelize.js";
 import { QualificationProjectTag } from "./qualification-project-tags.js";
 import { QualificationUnitPart } from "./qualification-unit-part.js";
+import { QualificationCompetenceRequirement } from "./qualification-competence-requirement.js";
 
 export class QualificationProject extends Model<InferAttributes<QualificationProject, { omit: "tags" | "parts" }>, InferCreationAttributes<QualificationProject, { omit: "tags" | "parts" }>> {
     declare id: CreationOptional<number>;
@@ -13,13 +14,18 @@ export class QualificationProject extends Model<InferAttributes<QualificationPro
 
     declare addTag: HasManyAddAssociationMixin<QualificationProjectTag, number>;
     declare addTags: HasManyAddAssociationsMixin<QualificationProjectTag, number>;
+    
+    declare addCompetenceRequirement: HasManyAddAssociationMixin<QualificationCompetenceRequirement, number>;
+    declare addCompetenceRequirements: HasManyAddAssociationsMixin<QualificationCompetenceRequirement, number>;
 
     declare tags?: NonAttribute<QualificationProjectTag[]>;
     declare parts?: NonAttribute<QualificationUnitPart[]>;
+    declare competenceRequirements?: NonAttribute<QualificationCompetenceRequirement[]>;
 
     declare static associations: {
         tags: Association<QualificationProject, QualificationProjectTag>;
         parts: Association<QualificationProject, QualificationUnitPart>;
+        competenceRequirements: Association<QualificationProject, QualificationCompetenceRequirement>;
     }
 }
 

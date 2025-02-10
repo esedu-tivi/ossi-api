@@ -46,6 +46,24 @@ CREATE TABLE qualification_project_tags (
     name text
 );
 
+-- competence requirement tables are populated lazily from ePeruste
+CREATE TABLE qualification_competence_requirements (
+    eperuste_id integer PRIMARY KEY,
+    qualification_unit_id integer NOT NULL REFERENCES qualification_units,
+    title text NOT NULL
+);
+
+CREATE TABLE qualification_competence_requirement (
+    eperuste_id integer PRIMARY KEY,
+    group_id integer NOT NULL REFERENCES qualification_competence_requirements,
+    description text NOT NULL
+);
+
+CREATE TABLE competence_requirements_in_projects (
+    qualification_project_id integer NOT NULL REFERENCES qualification_projects,
+    qualification_competence_requirement_id integer NOT NULL REFERENCES qualification_competence_requirement
+);
+
 CREATE TABLE qualification_projects_tags_relations (
     qualification_project_id integer NOT NULL REFERENCES qualification_projects,
     qualification_project_tag_id integer NOT NULL REFERENCES qualification_project_tags
@@ -108,9 +126,9 @@ INSERT INTO qualification_titles(eperuste_id, qualification_id, name) VALUES(102
 INSERT INTO students(user_id, group_id, qualification_title_id, qualification_id) VALUES(1, 'TiVi23A', 10224, 7861752);
 
 INSERT INTO qualification_units(eperuste_id, qualification_id, scope, name) VALUES(6779606, 7861752, 25, 'Tieto- ja viestintätekniikan perustehtävät');
-INSERT INTO qualification_unit_parts(qualification_unit_id, name) VALUES(6779606, 'TVP Teema 1');
-INSERT INTO qualification_unit_parts(qualification_unit_id, name) VALUES(6779606, 'TVP Teema 2');
-INSERT INTO qualification_unit_parts(qualification_unit_id, name) VALUES(6779606, 'TVP Teema 3');
+INSERT INTO qualification_unit_parts(qualification_unit_id, name, description, materials) VALUES(6779606, 'TVP Teema 1', 'Description', '-');
+INSERT INTO qualification_unit_parts(qualification_unit_id, name, description, materials) VALUES(6779606, 'TVP Teema 2', 'Description', '-');
+INSERT INTO qualification_unit_parts(qualification_unit_id, name, description, materials) VALUES(6779606, 'TVP Teema 3', 'Description', '-');
 
 INSERT INTO qualification_units(eperuste_id, qualification_id, scope, name) VALUES(6816480, 7861752, 45, 'Ohjelmointi');
 INSERT INTO qualification_unit_parts(qualification_unit_id, name, description, materials) VALUES(6816480, 'Ohjelmointi Teema 1', 'Description', '-');

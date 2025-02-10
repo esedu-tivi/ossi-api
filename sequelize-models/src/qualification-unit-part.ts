@@ -1,4 +1,4 @@
-import { Association, CreationOptional, DataTypes, ForeignKey, InferAttributes, InferCreationAttributes, Model, NonAttribute } from "sequelize";
+import { Association, CreationOptional, DataTypes, ForeignKey, HasManyAddAssociationMixin, HasManyAddAssociationsMixin, InferAttributes, InferCreationAttributes, Model, NonAttribute } from "sequelize";
 import { sequelize } from "./sequelize.js";
 import { QualificationProject } from "./qualification-project.js";
 import { QualificationUnit } from "./qualification-unit.js";
@@ -12,6 +12,8 @@ export class QualificationUnitPart extends Model<InferAttributes<QualificationUn
 
     declare projects?: NonAttribute<QualificationProject[]>;
     declare unit?: NonAttribute<QualificationUnit>;
+
+    declare addProject: HasManyAddAssociationMixin<QualificationProject, number>;
 
     declare static associations: {
         projects: Association<QualificationUnitPart, QualificationProject>;
