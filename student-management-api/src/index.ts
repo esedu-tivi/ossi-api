@@ -12,5 +12,4 @@ import { getExternalQualificationData } from './utils/utils';
     await QualificationCompetenceRequirement.bulkCreate(qualificationData.competenceRequirements);
 
     app.listen(3000);
-})
-
+})()
