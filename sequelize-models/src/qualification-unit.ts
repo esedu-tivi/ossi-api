@@ -3,7 +3,9 @@ import { sequelize } from "./sequelize.js";
 
 export class QualificationUnit extends Model<InferAttributes<QualificationUnit>, InferCreationAttributes<QualificationUnit>> {
     declare id: CreationOptional<number>;
+    declare qualificationId: number;
     declare name: string;
+    declare scope: number;
 
 //    declare parts?: NonAttribute<QualificationUnitPart[]>;
 
@@ -19,7 +21,12 @@ QualificationUnit.init(
             field: "eperuste_id",
             primaryKey: true,
         },
+        qualificationId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            field: "qualification_id"
+        },
         name: new DataTypes.STRING(128),
+        scope: DataTypes.INTEGER.UNSIGNED,
     },
     {
         tableName: "qualification_units",

@@ -11,6 +11,10 @@ const students: Resolver<null, null> = async (parent, _, context) => {
     return response.data;
 }
 
+const units: Resolver<null, null> = async (_, __, context) => {
+    return await context.dataSources.studentManagementAPI.getUnits();
+}
+
 const parts: Resolver<null, null> = async (_, __, context) => {
     return await context.dataSources.studentManagementAPI.getParts();
 }
@@ -43,6 +47,7 @@ const notifications: Resolver<null, null> = async (_, args, context) => {
 
 export const Query = {
     students,
+    units,
     parts,
     projects,
     part,

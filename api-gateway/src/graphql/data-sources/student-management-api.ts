@@ -71,6 +71,12 @@ class StudentManagementAPI extends RESTDataSource {
         );
     }
 
+    async getUnits() {
+        return this.get(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/qualification/units",
+        );
+    }
+
     async getProjectTags() {
         return this.get(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/qualification/projects/tags`
@@ -99,6 +105,12 @@ class StudentManagementAPI extends RESTDataSource {
     async getQualificationUnitCompetenceRequirements(id) {
         return this.get(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/qualification/units/${id}/competence_requirements`
+        );
+    }
+
+    async getQualificationUnitParts(id) {
+        return this.get(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/qualification/units/${id}/parts`
         );
     }
 

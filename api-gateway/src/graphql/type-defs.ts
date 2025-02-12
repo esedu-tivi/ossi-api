@@ -54,7 +54,7 @@ const typeDefs = `#graphql
         id: Int!
         name: String!
         competenceRequirementGroups: [VocationalCompetenceRequirementGroup!]!
-        #QualificationUnitParts: [QualificationUnitPart!]!
+        parts: [QualificationUnitPart!]!
     }
 
     type QualificationUnitPart {
@@ -134,6 +134,9 @@ const typeDefs = `#graphql
     type Query {
         me: CurrentUser!
         students: [Student!]!
+
+        units: [QualificationUnit!]!
+
         parts: [QualificationUnitPart!]!
         part(id: ID!): QualificationUnitPart
 

@@ -1,7 +1,5 @@
 import express from "express";
 import { CompetenceRequirementsInProjects, QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationProject, QualificationProjectTag, QualificationProjectTagLinks, QualificationUnitPart } from "sequelize-models";
-import { getExternalCompetenceRequirements } from "../../utils/utils";
-import { QualificationUnit } from "sequelize-models/dist/qualification-unit";
 
 const router = express();
 
@@ -71,21 +69,6 @@ router.post("/", async (req, res) => {
 
         if (part === null)
             throw Error();
-
-        // add competence requirements for the unit that the part is associated with
-        // if they don't exist in the database yet
-        const competenceRequirementGroup = await QualificationCompetenceRequirements.findAll({
-            where: {
-                qualificationUnitId: part.unit.id
-            }
-        });
-        
-        if (competenceRequirementGroup.length == 0) {    
-            const { qualificationCompetenceRequirementGroupsMapped, qualificationCompetenceRequirementDescriptionsList } = await getExternalCompetenceRequirements(7861752, part.unit.id);
-
-            await QualificationCompetenceRequirements.bulkCreate(qualificationCompetenceRequirementGroupsMapped);
-            await QualificationCompetenceRequirement.bulkCreate(qualificationCompetenceRequirementDescriptionsList);
-        }
 
         await part.addProject(createdProject);
     }
