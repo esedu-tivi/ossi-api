@@ -10,8 +10,8 @@ test('students are returned as json', async () => {
     .get('/students')
     .expect(200)
     .expect('Content-Type', /application\/json/);
-})
+});
 
 after(async () => {
   await pool.end();
-})
+});
