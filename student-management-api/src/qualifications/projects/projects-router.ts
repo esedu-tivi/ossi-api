@@ -128,16 +128,7 @@ router.put("/:id", async (req, res) => {
     });
 
     const tagsToRemove = existingTags.filter(tag => !updatedProjectFields.tags.includes(tag.id));
-    const tagIdsToAdd = [...new Set(existingTags.filter(tag => updatedProjectFields.tags.includes(tag.id)).map(tag => tag.id).concat(updatedProjectFields.tags))];
-
-    const existingCompetenceRequirements = await QualificationCompetenceRequirement.findAll({
-        include: {
-            association: QualificationCompetenceRequirement.associations.projects,
-            where: {
-                id: req.params.id,
-            }
-        }
-    });
+    const tagIdsToAdd = [...new Set(existingTags.filter(tag => updatedProjectFields.tags.includes(tag.id)).map(tag => tag.id).concat(updatedProjectFields.tags))]; 
 
     await QualificationProjectTagLinks.destroy({
         where: {
@@ -151,8 +142,8 @@ router.put("/:id", async (req, res) => {
         qualificationProjectId: Number(req.params.id)
     })));
 
-    const requirementsToRemove = existingCompetenceRequirements.filter(requirement => !updatedProjectFields.competenceRequirements.includes(requirement.id));
-    const requirementIdsToAdd = [...new Set(existingCompetenceRequirements.filter(requirement => updatedProjectFields.requirements.includes(requirement.id)).map(tag => tag.id).concat(updatedProjectFields.competenceRequirements))]
+    const requirementsToRemove = updatedProject.competenceRequirements.filter(requirement => !updatedProjectFields.competenceRequirements.includes(requirement.id));
+    const requirementIdsToAdd = [...new Set(updatedProject.competenceRequirements.filter(requirement => updatedProjectFields.competenceRequirements.includes(requirement.id)).map(tag => tag.id).concat(updatedProjectFields.competenceRequirements))]
 
     await CompetenceRequirementsInProjects.destroy({
         where: {
