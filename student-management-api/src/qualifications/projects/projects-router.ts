@@ -1,5 +1,5 @@
 import express from "express";
-import { CompetenceRequirementsInProjects, QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationProject, QualificationProjectTag, QualificationProjectTagLinks, QualificationUnitPart } from "sequelize-models";
+import { CompetenceRequirementsInProjects, QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationProject, QualificationProjectPartLinks, QualificationProjectTag, QualificationProjectTagLinks, QualificationUnitPart } from "sequelize-models";
 
 const router = express();
 
@@ -46,7 +46,7 @@ router.get("/:id/linked_qualification_unit_parts", async (req, res) => {
                 id: req.params.id
             }
         }]
-    })
+    });
 
     res.json(unitParts);
 });
@@ -107,7 +107,7 @@ router.put("/:id", async (req, res) => {
     const updatedProjectFields = req.body;
 
     const updatedProject = await QualificationProject.findByPk(req.params.id, {
-        include: [QualificationProject.associations.tags, QualificationProject.associations.competenceRequirements]
+        include: [QualificationProject.associations.parts, QualificationProject.associations.tags, QualificationProject.associations.competenceRequirements]
     });
     
     await updatedProject.update({
@@ -118,46 +118,18 @@ router.put("/:id", async (req, res) => {
         isActive: updatedProjectFields.isActive,
     });
 
-    const existingTags = await QualificationProjectTag.findAll({
-        include: {
-            association: QualificationProjectTag.associations.projects,
-            where: {
-                id: req.params.id,
-            }
-        }
+    await QualificationProjectPartLinks.destroy({ where: { qualificationProjectId: req.params.id } });
+    await updatedProject.addParts(updatedProjectFields.includedInParts);
+    
+    await QualificationProjectTagLinks.destroy({ where: { qualificationProjectId: req.params.id } });
+    await updatedProject.addTags(updatedProjectFields.tags);
+
+    await CompetenceRequirementsInProjects.destroy({ where: { projectId: req.params.id } });
+    await updatedProject.addCompetenceRequirements(updatedProjectFields.competenceRequirements)
+
+    await updatedProject.reload({
+        include: [QualificationProject.associations.parts, QualificationProject.associations.tags, QualificationProject.associations.competenceRequirements]
     });
-
-    const tagsToRemove = existingTags.filter(tag => !updatedProjectFields.tags.includes(tag.id));
-    const tagIdsToAdd = [...new Set(existingTags.filter(tag => updatedProjectFields.tags.includes(tag.id)).map(tag => tag.id).concat(updatedProjectFields.tags))]; 
-
-    await QualificationProjectTagLinks.destroy({
-        where: {
-            qualificationProjectId: req.params.id,
-            qualificationProjectTagId: tagsToRemove.map(tag => tag.id)
-        }
-    });
-
-    await QualificationProjectTagLinks.bulkCreate(tagIdsToAdd.map(tagId => ({
-        qualificationProjectTagId: tagId,
-        qualificationProjectId: Number(req.params.id)
-    })));
-
-    const requirementsToRemove = updatedProject.competenceRequirements.filter(requirement => !updatedProjectFields.competenceRequirements.includes(requirement.id));
-    const requirementIdsToAdd = [...new Set(updatedProject.competenceRequirements.filter(requirement => updatedProjectFields.competenceRequirements.includes(requirement.id)).map(tag => tag.id).concat(updatedProjectFields.competenceRequirements))]
-
-    await CompetenceRequirementsInProjects.destroy({
-        where: {
-            competenceRequirementId: requirementsToRemove.map(requirement => requirement.id),
-            projectId: req.params.id
-        }
-    });
-
-    await CompetenceRequirementsInProjects.bulkCreate(requirementIdsToAdd.map(requirementId => ({
-        competenceRequirementId: requirementId,
-        projectId: Number(req.params.id)
-    })));
-
-    await updatedProject.reload();
 
     res.json(updatedProject);
 });
