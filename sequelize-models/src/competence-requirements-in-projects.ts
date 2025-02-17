@@ -12,10 +12,12 @@ CompetenceRequirementsInProjects.init(
     {
         projectId: {
             type: DataTypes.INTEGER,
+            primaryKey: true,
             field: "qualification_project_id",
         },
         competenceRequirementId: {
             type: DataTypes.INTEGER,
+            primaryKey: true,
             field: "qualification_competence_requirement_id",
         },
     },
