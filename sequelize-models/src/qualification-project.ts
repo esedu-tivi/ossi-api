@@ -1,4 +1,4 @@
-import { Association, CreationOptional, DataTypes, HasManyAddAssociationMixin, HasManyAddAssociationsMixin, InferAttributes, InferCreationAttributes, Model, NonAttribute } from "sequelize";
+import { Association, CreationOptional, DataTypes, HasManyAddAssociationMixin, HasManyAddAssociationsMixin, HasManyRemoveAssociationsMixin, HasManyRemoveAssociationsMixinOptions, InferAttributes, InferCreationAttributes, Model, NonAttribute } from "sequelize";
 import { sequelize } from "./sequelize.js";
 import { QualificationProjectTag } from "./qualification-project-tags.js";
 import { QualificationUnitPart } from "./qualification-unit-part.js";
@@ -14,9 +14,15 @@ export class QualificationProject extends Model<InferAttributes<QualificationPro
 
     declare addTag: HasManyAddAssociationMixin<QualificationProjectTag, number>;
     declare addTags: HasManyAddAssociationsMixin<QualificationProjectTag, number>;
+    declare removeTags: HasManyRemoveAssociationsMixin<QualificationProjectTag, number>
     
     declare addCompetenceRequirement: HasManyAddAssociationMixin<QualificationCompetenceRequirement, number>;
     declare addCompetenceRequirements: HasManyAddAssociationsMixin<QualificationCompetenceRequirement, number>;
+    declare removeCompetenceRequirements: HasManyRemoveAssociationsMixin<QualificationCompetenceRequirement, number>
+
+    declare addPart: HasManyAddAssociationMixin<QualificationUnitPart, number>;
+    declare addParts: HasManyAddAssociationsMixin<QualificationUnitPart, number>;
+    declare removeParts: HasManyRemoveAssociationsMixin<QualificationUnitPart, number>
 
     declare tags?: NonAttribute<QualificationProjectTag[]>;
     declare parts?: NonAttribute<QualificationUnitPart[]>;
