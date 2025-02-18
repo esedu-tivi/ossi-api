@@ -1,6 +1,5 @@
 import express from "express";
 import { QualificationProject, QualificationProjectPartLinks, QualificationUnitPart } from "sequelize-models";
-import { QualificationUnit } from "sequelize-models/dist/qualification-unit";
 
 const router = express();
 
