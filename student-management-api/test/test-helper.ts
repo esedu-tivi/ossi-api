@@ -13,3 +13,7 @@ export const initialProjectTags = [
   { name: 'JavaScript' },
   { name: 'React' }
 ];
+
+export const initialParts = [
+  { name: "Teema 1", description: "-", materials: "-", qualificationUnitId: 6779606 }
+];
