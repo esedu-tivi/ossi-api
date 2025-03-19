@@ -71,6 +71,13 @@ class StudentManagementAPI extends RESTDataSource {
         );
     }
 
+    async updatePartOrder(id, partOrder) {
+        return this.put(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/qualification/units/${id}/part_order`,
+            { body: partOrder }
+        );
+    }
+
     async getUnits() {
         return this.get(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/qualification/units",

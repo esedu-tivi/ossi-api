@@ -22,6 +22,10 @@ const updatePart = async (parent, args, context, info) => {
     return await context.dataSources.studentManagementAPI.updatePart(args.id, args.part);
 }
 
+const updatePartOrder = async (parent, args, context, info) => {
+    return await context.dataSources.studentManagementAPI.updatePartOrder(args.id, { partOrder: args.partOrder });
+}
+
 const createProjectTag = async (parent, args, context, info) => {
     return await context.dataSources.studentManagementAPI.createProjectTag({ tagName: args.name });
 }
@@ -38,6 +42,7 @@ export const Mutation = {
     createPart,
     updateProject,
     updatePart,
+    updatePartOrder,
     createProjectTag,
     debugSendNotification,
 }
