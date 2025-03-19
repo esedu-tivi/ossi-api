@@ -32,4 +32,21 @@ router.get("/:id/parts", async (req, res) => {
     res.json(parts);
 });
 
+router.post("/:id/part_order", async (req, res) => {
+    const partOrder = req.body.partOrder;
+
+    await Promise.all(partOrder.reduce(async (_, partId, index) => {
+        await QualificationUnitPart.update(
+            { unitOrderIndex: index },
+            {
+                where: {
+                    id: partId
+                }
+            }
+        );
+    }));
+
+    res.json({})
+})
+
 export const UnitsRouter = router;

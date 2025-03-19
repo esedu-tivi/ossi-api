@@ -9,6 +9,7 @@ export class QualificationUnitPart extends Model<InferAttributes<QualificationUn
     declare description: string;
     declare materials: string;
     declare qualificationUnitId: ForeignKey<QualificationUnit["id"]>;
+    declare unitOrderIndex: number;
 
     declare projects?: NonAttribute<QualificationProject[]>;
     declare unit?: NonAttribute<QualificationUnit>;
@@ -39,6 +40,10 @@ QualificationUnitPart.init(
                 key: "id"
             }
         },
+        unitOrderIndex: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            field: "unit_order_index"
+        }
     },
     {
         tableName: "qualification_unit_parts",

@@ -1,4 +1,5 @@
 import express from "express";
+import { Op, Sequelize } from "sequelize";
 import { CompetenceRequirementsInProjects, QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationProject, QualificationProjectPartLinks, QualificationProjectTag, QualificationProjectTagLinks, QualificationUnitPart } from "sequelize-models";
 
 const router = express();
@@ -70,34 +71,55 @@ router.post("/", async (req, res) => {
         if (part === null)
             throw Error();
 
-        await part.addProject(createdProject);
+        const lastPartOrderIndex = await QualificationProjectPartLinks.count({ where: { qualificationUnitPartId: partId } });
+
+        await QualificationProjectPartLinks.create({
+            qualificationUnitPartId: partId,
+            qualificationProjectId: createdProject.id,
+            partOrderIndex: lastPartOrderIndex,
+        })
     }
     
-    if (project.tags != undefined && project.tags.length > 0) {
-        await Promise.all(project.tags.map(async tagId => {
-            const tag = await QualificationProjectTag.findByPk(tagId);
+    await Promise.all(project.tags.map(async tagId => {
+        const tag = await QualificationProjectTag.findByPk(tagId);
 
-            if (tag === null)
-                // rollback transaction
-                throw Error();
+        if (tag === null)
+            // rollback transaction
+            throw Error();
 
-            await createdProject.addTag(tag)
-        }));
-    }
+        await createdProject.addTag(tag)
+    }));
 
-    if (project.competenceRequirements != undefined && project.competenceRequirements.length > 0) {
-        await Promise.all(project.competenceRequirements.map(async requirementId => {
-            const requirement = await QualificationCompetenceRequirement.findByPk(requirementId);
+    await Promise.all(project.competenceRequirements.map(async requirementId => {
+        const requirement = await QualificationCompetenceRequirement.findByPk(requirementId);
 
-            if (requirement === null) 
-                throw Error();
+        if (requirement === null) 
+            throw Error();
 
-            await createdProject.addCompetenceRequirement(requirement)
-        }));
-    }
+        await createdProject.addCompetenceRequirement(requirement)
+    }));
 
     await createdProject.reload({
-        include: [QualificationProject.associations.tags, QualificationProject.associations.competenceRequirements]
+        include: [
+            { 
+                association: QualificationProject.associations.parts, 
+                through: {
+                    attributes: []
+                }
+            },
+            {
+                association: QualificationProject.associations.tags,
+                through: {
+                    attributes: []
+                }
+            },
+            {
+                association: QualificationProject.associations.competenceRequirements,
+                through: {
+                    attributes: []
+                }
+            }
+        ],
     });
 
     res.json(createdProject);
@@ -107,7 +129,7 @@ router.put("/:id", async (req, res) => {
     const updatedProjectFields = req.body;
 
     const updatedProject = await QualificationProject.findByPk(req.params.id, {
-        include: [QualificationProject.associations.parts, QualificationProject.associations.tags, QualificationProject.associations.competenceRequirements]
+        include: [QualificationProject.associations.parts, QualificationProject.associations.tags, QualificationProject.associations.competenceRequirements],
     });
     
     await updatedProject.update({
@@ -118,8 +140,34 @@ router.put("/:id", async (req, res) => {
         isActive: updatedProjectFields.isActive,
     });
 
-    await QualificationProjectPartLinks.destroy({ where: { qualificationProjectId: req.params.id } });
-    await updatedProject.addParts(updatedProjectFields.includedInParts);
+    const projectRemovedFromParts = updatedProject.parts.filter(part => !updatedProjectFields.includedInParts.includes(part.id)).map(part => part.id)
+    const projectAddedToParts = updatedProjectFields.includedInParts.filter(id => !updatedProject.parts.map(part => part.id).includes(id))
+
+    const projectPartLinks = await QualificationProjectPartLinks.findAll({ where: { qualificationProjectId: req.params.id }})
+
+    await QualificationProjectPartLinks.destroy({ where: { qualificationUnitPartId: projectRemovedFromParts, qualificationProjectId: req.params.id }});
+
+    await Promise.all(projectRemovedFromParts.map(async partId => {
+        await QualificationProjectPartLinks.update(
+            { partOrderIndex: Sequelize.literal("part_order_index - 1") },
+            {
+                where: {
+                    qualificationUnitPartId: partId,
+                    partOrderIndex: { [Op.gt]: projectPartLinks.find(link => link.qualificationUnitPartId == partId).partOrderIndex }
+                }
+            }
+        );
+    }));
+
+    await Promise.all(projectAddedToParts.map(async partId => {
+        const lastPartOrderIndex = await QualificationProjectPartLinks.count({ where: { qualificationUnitPartId: partId } });
+
+        await QualificationProjectPartLinks.create({
+            qualificationUnitPartId: partId,
+            qualificationProjectId: updatedProject.id,
+            partOrderIndex: lastPartOrderIndex,
+        });
+    }));
     
     await QualificationProjectTagLinks.destroy({ where: { qualificationProjectId: req.params.id } });
     await updatedProject.addTags(updatedProjectFields.tags);
@@ -128,7 +176,26 @@ router.put("/:id", async (req, res) => {
     await updatedProject.addCompetenceRequirements(updatedProjectFields.competenceRequirements)
 
     await updatedProject.reload({
-        include: [QualificationProject.associations.parts, QualificationProject.associations.tags, QualificationProject.associations.competenceRequirements]
+        include: [
+            { 
+                association: QualificationProject.associations.parts, 
+                through: {
+                    attributes: []
+                }
+            },
+            {
+                association: QualificationProject.associations.tags,
+                through: {
+                    attributes: []
+                }
+            },
+            {
+                association: QualificationProject.associations.competenceRequirements,
+                through: {
+                    attributes: []
+                }
+            }
+        ],
     });
 
     res.json(updatedProject);

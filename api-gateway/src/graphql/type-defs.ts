@@ -12,6 +12,8 @@ const typeDefs = `#graphql
         scope: AuthorityScope!
     }
 
+    type Empty {}
+
     interface User {
         id: ID!
         firstName: String!
@@ -177,7 +179,7 @@ const typeDefs = `#graphql
         name: String!
         description: String!
         materials: String!
-        projects: [ID!]
+        projectsInOrder: [ID!]
         parentQualificationUnit: ID!
     }
 
@@ -187,6 +189,7 @@ const typeDefs = `#graphql
         createPart(part: CreatePartInput!): QualificationUnitPart!
         updateProject(id: ID!, project: UpdateProjectInput!): QualificationProject!
         updatePart(id: ID!, part: CreatePartInput!): QualificationUnitPart!
+        updatePartOrder(id: ID!, partOrder: [ID!]!): Empty!
         createProjectTag(name: String!): QualificationProjectTag!
         
         # remove once not needed

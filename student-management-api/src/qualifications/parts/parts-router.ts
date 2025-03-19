@@ -1,4 +1,5 @@
 import express from "express";
+import { Sequelize } from "sequelize";
 import { QualificationProject, QualificationProjectPartLinks, QualificationUnitPart } from "sequelize-models";
 
 const router = express();
@@ -20,18 +21,23 @@ router.get("/:id", async (req, res) => {
 });
 
 router.get("/:id/projects", async (req, res) => {
+    const projectIdsInOrder = (await QualificationProjectPartLinks.findAll({
+        where: { qualificationUnitPartId: req.params.id },
+        order: [["partOrderIndex", "ASC"]]
+    })).map(link => link.qualificationProjectId);
+
     const projects = await QualificationProject.findAll({
         include: [{
             association: QualificationProject.associations.parts,
             where: {
                 id: req.params.id
-            }
+            },
         }, {
             association: QualificationProject.associations.tags
-        }]
+        }],
     });
 
-    res.json(projects);
+    res.json(projectIdsInOrder.map(projectId => projects.find(project => project.id == projectId)));
 });
 
 router.get("/:id/parent_qualification_unit", async (req, res) => {
@@ -45,18 +51,22 @@ router.get("/:id/parent_qualification_unit", async (req, res) => {
 router.post("/", async (req, res) => {
     const partFields = req.body;
 
-    // TODO should use transaction
+    // TODO should use transaction 
+    const unitOrderIndex = await QualificationUnitPart.count({ where: { qualificationUnitId: partFields.parentQualificationUnit } });
+
     const part = await QualificationUnitPart.create({
         name: partFields.name,
         qualificationUnitId: partFields.parentQualificationUnit,
         description: partFields.description,
         materials: partFields.materials,
+        unitOrderIndex: unitOrderIndex
     });
     
-    if (partFields.projects != undefined && partFields.projects.length > 0) {
-        await QualificationProjectPartLinks.bulkCreate(partFields.projects.map(projectId => ({
+    if (partFields.projectsInOrder != undefined && partFields.projectsInOrder.length > 0) {
+        await QualificationProjectPartLinks.bulkCreate(partFields.projectsInOrder.reduce((_, projectId, index) => ({
             qualificationProjectId: projectId,
-            qualificationUnitPartId: part.id
+            qualificationUnitPartId: part.id,
+            partOrderIndex: index
         })));
     }
 
@@ -77,19 +87,11 @@ router.put("/:id", async (req, res) => {
         materials: updatedPartFields.materials,
     });
 
-    const projectsToRemove = updatedPart.projects.filter(project => !updatedPartFields.projects.includes(project.id));
-    const projectIdsToAdd = [...new Set(updatedPart.projects.filter(project => updatedPartFields.projects.includes(project.id)).map(project => project.id).concat(updatedPartFields.projects))];
-
-    await QualificationProjectPartLinks.destroy({
-        where: {
-            qualificationUnitPartId: req.params.id,
-            qualificationProjectId: projectsToRemove.map(project => project.id)
-        }
-    });
-
-    await QualificationProjectPartLinks.bulkCreate(projectIdsToAdd.map(projectId => ({
-        qualificationUnitPartId: Number(req.params.id),
-        qualificationProjectId: projectId
+    await QualificationProjectPartLinks.destroy({ where: { qualificationUnitPartId: req.params.id } });
+    await QualificationProjectPartLinks.bulkCreate(updatedPartFields.projectsInOrder.reduce((_, projectId, index) => ({
+        qualificationProjectId: projectId,
+        qualificationUnitPartId: req.params.id,
+        partOrderIndex: index
     })));
 
     await updatedPart.reload();
