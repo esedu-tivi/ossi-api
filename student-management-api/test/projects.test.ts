@@ -25,7 +25,7 @@ beforeEach(async () => {
   await QualificationProject.bulkCreate(initialProjects);
   await QualificationProjectTag.bulkCreate(initialProjectTags);
   await QualificationUnitPart.bulkCreate(initialParts);
-})
+});
 
 test('right number of projects are returned as json', async () => {
   const response = await api
@@ -34,7 +34,7 @@ test('right number of projects are returned as json', async () => {
     .expect('Content-Type', /application\/json/);
   
   assert.strictEqual(response.body.length, initialProjects.length);
-})
+});
 
 test('right number of project tags are returned as json', async () => {
   const response = await api
@@ -43,7 +43,7 @@ test('right number of project tags are returned as json', async () => {
     .expect('Content-Type', /application\/json/);
   
   assert.strictEqual(response.body.length, initialProjectTags.length);
-})
+});
 
 test('adding projects works with empty references', async () => {
   await api
@@ -55,8 +55,33 @@ test('adding projects works with empty references', async () => {
   const response = await api
     .get('/qualification/projects');
 
-  assert.strictEqual(response.body.length, initialProjects.length + 1)
-})
+  assert.strictEqual(response.body.length, initialProjects.length + 1);
+});
+
+test('adding project tags works', async () => {
+  await api
+    .post('/qualification/projects/tags')
+    .send({ name: 'React' })
+    .expect(200)
+    .expect('Content-Type', /application\/json/);
+
+  const response = await api
+    .get('/qualification/projects/tags');
+
+  assert.strictEqual(response.body.length, initialProjectTags.length + 1);
+});
+
+test('right project is returned when using id', async () => {
+  const projectToReturn = initialProjects[0];
+
+  const response = await api
+    .get(`/qualification/projects/${projectToReturn.id}`)
+    .expect(200)
+    .expect('Content-Type', /application\/json/);
+
+  assert.strictEqual(response.body.name, projectToReturn.name);
+  assert.strictEqual(response.body.description, projectToReturn.description);
+});
 
 test('adding projects works with references', async (t) => {
     const parts = [await QualificationUnitPart.findOne({ raw: true })];
@@ -184,4 +209,4 @@ test('tags are created', async () => {
 
 after(async () => {
   await sequelize.close();
-})
+});

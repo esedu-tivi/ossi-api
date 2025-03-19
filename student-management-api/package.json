@@ -5,7 +5,8 @@
   "scripts": {
     "compile": "tsc",
     "start": "npm run compile && node ./dist/src/index.js",
-    "test": "NODE_ENV=test node --import tsx --test test/**/*test.ts"
+    "test": "NODE_ENV=test node --import tsx --test test/**/*test.ts",
+    "test:coverage": "NODE_ENV=test node --import tsx --test --experimental-test-coverage test/**/*test.ts"
   },
   "dependencies": {
     "@types/cors": "^2.8.17",
