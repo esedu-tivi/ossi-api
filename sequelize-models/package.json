@@ -9,7 +9,7 @@
   "dependencies": {
     "@types/sequelize": "^4.28.20",
     "pg": "^8.13.1",
-    "sequelize": "^6.37.5"
+    "sequelize": "^6.37.6"
   },
   "files": [
     "/dist"
