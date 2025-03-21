@@ -35,17 +35,17 @@ router.get("/:id/parts", async (req, res) => {
 
 router.post("/:id/part_order", async (req, res) => {
     const partOrder = req.body.partOrder;
-
-    await Promise.all(partOrder.reduce(async (_, partId, index) => {
+    
+    for (let index = 0; index < partOrder.length; index++) {
         await QualificationUnitPart.update(
             { unitOrderIndex: index },
             {
                 where: {
-                    id: partId
+                    id: partOrder[index]
                 }
             }
-        );
-    }));
+        )
+    }
 
     res.json({ status: "ok" })
 })
