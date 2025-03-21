@@ -8,3 +8,8 @@ export { QualificationProjectPartLinks } from "./qualification-project-part-link
 export { QualificationCompetenceRequirements } from "./qualification-competence-requirements.js";
 export { QualificationCompetenceRequirement } from "./qualification-competence-requirement.js";
 export { CompetenceRequirementsInProjects } from "./competence-requirements-in-projects.js";
+export { Qualification } from "./qualification.js";
+export { QualificationTitle } from "./qualification-title.js";
+export { User } from "./user.js";
+export { Student } from "./student.js";
+export { Teacher } from "./teacher.js";

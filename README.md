@@ -27,3 +27,14 @@ docker compose up
 ```
 
 The API is exposed through port 3000.
+
+## Migrations
+
+Migrations are run automatically when running `docker compose up`. To migrate down, run:
+```
+docker compose run --rm db-migrations node migrator down
+```
+To run other [commands](https://github.com/sequelize/umzug?tab=readme-ov-file#cli-usage), run:
+```
+docker compose run --rm db-migrations node migrator <command>
+```
