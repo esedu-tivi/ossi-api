@@ -2,7 +2,7 @@ import 'dotenv/config';
 import app from "./app";
 import { QualificationUnit } from 'sequelize-models/dist/qualification-unit';
 import { QualificationCompetenceRequirement, QualificationCompetenceRequirements } from 'sequelize-models';
-import { getExternalQualificationData } from './utils/utils';
+import { getExternalQualificationData } from './utils/eperuste';
 
 (async () => {
     // we can presume qualification data from ePeruste is not yet, if there are no units in db
