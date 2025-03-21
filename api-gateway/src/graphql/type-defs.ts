@@ -11,8 +11,11 @@ const typeDefs = `#graphql
         user: User!
         scope: AuthorityScope!
     }
-
-    type Empty {}
+    
+    # should use status wrapper type for responses
+    type Empty {
+        status: String!
+    }
 
     interface User {
         id: ID!

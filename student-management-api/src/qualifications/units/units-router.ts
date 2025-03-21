@@ -46,7 +46,7 @@ router.post("/:id/part_order", async (req, res) => {
         );
     }));
 
-    res.json({})
+    res.json({ status: "ok" })
 })
 
 export const UnitsRouter = router;
