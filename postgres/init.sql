@@ -24,6 +24,7 @@ CREATE TABLE qualification_units (
 CREATE TABLE qualification_unit_parts (
     id serial PRIMARY KEY,
     qualification_unit_id integer REFERENCES qualification_units NOT NULL,
+    unit_order_index integer NOT NULL,
     name text,
     description text,
     materials text
@@ -73,7 +74,8 @@ CREATE TABLE qualification_projects_tags_relations (
 
 CREATE TABLE qualification_projects_parts_relations (
     qualification_project_id integer REFERENCES qualification_projects NOT NULL,
-    qualification_unit_part_id integer REFERENCES qualification_unit_parts NOT NULL
+    qualification_unit_part_id integer REFERENCES qualification_unit_parts NOT NULL,
+    part_order_index integer NOT NULL
 );
 
 CREATE TYPE user_authority_scope AS ENUM ('student', 'teacher', 'job supervisor', 'admin');

@@ -11,6 +11,11 @@ const typeDefs = `#graphql
         user: User!
         scope: AuthorityScope!
     }
+    
+    # should use status wrapper type for responses
+    type Empty {
+        status: String!
+    }
 
     interface User {
         id: ID!
@@ -177,7 +182,7 @@ const typeDefs = `#graphql
         name: String!
         description: String!
         materials: String!
-        projects: [ID!]
+        projectsInOrder: [ID!]
         parentQualificationUnit: ID!
     }
 
@@ -187,6 +192,7 @@ const typeDefs = `#graphql
         createPart(part: CreatePartInput!): QualificationUnitPart!
         updateProject(id: ID!, project: UpdateProjectInput!): QualificationProject!
         updatePart(id: ID!, part: CreatePartInput!): QualificationUnitPart!
+        updatePartOrder(id: ID!, partOrder: [ID!]!): Empty!
         createProjectTag(name: String!): QualificationProjectTag!
         
         # remove once not needed

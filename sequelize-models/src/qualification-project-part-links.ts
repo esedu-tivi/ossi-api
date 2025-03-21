@@ -7,6 +7,7 @@ import { QualificationUnitPart } from "./qualification-unit-part.js";
 export class QualificationProjectPartLinks extends Model<InferAttributes<QualificationProjectPartLinks>, InferCreationAttributes<QualificationProjectPartLinks>> {
     declare qualificationProjectId: number
     declare qualificationUnitPartId: number
+    declare partOrderIndex: number
 }
 
 QualificationProjectPartLinks.init(
@@ -28,6 +29,10 @@ QualificationProjectPartLinks.init(
                 model: QualificationUnitPart,
                 key: "id"
             }
+        },
+        partOrderIndex: {
+            type: DataTypes.INTEGER,
+            field: "part_order_index"
         }
     },
     {
