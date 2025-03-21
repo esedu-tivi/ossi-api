@@ -9,7 +9,9 @@
   "dependencies": {
     "@types/sequelize": "^4.28.20",
     "pg": "^8.13.1",
-    "sequelize": "^6.37.5"
+    "sequelize": "^6.37.5",
+    "ts-node": "^10.9.2",
+    "umzug": "^3.8.2"
   },
   "files": [
     "/dist"
