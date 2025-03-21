@@ -26,7 +26,8 @@ router.get("/:id/parts", async (req, res) => {
     const parts = await QualificationUnitPart.findAll({
         where: {
             qualificationUnitId: req.params.id
-        }
+        },
+        order: [["unit_order_index", "ASC"]]
     });
 
     res.json(parts);
