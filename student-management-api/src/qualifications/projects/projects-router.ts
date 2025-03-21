@@ -69,7 +69,7 @@ router.post("/", async (req, res) => {
         });
 
         if (part === null)
-            throw Error();
+            throw Error("Unknown part id");
 
         const lastPartOrderIndex = await QualificationProjectPartLinks.count({ where: { qualificationUnitPartId: partId } });
 
@@ -85,7 +85,7 @@ router.post("/", async (req, res) => {
 
         if (tag === null)
             // rollback transaction
-            throw Error();
+            throw Error("Unknown tag id");
 
         await createdProject.addTag(tag)
     }));
@@ -94,7 +94,7 @@ router.post("/", async (req, res) => {
         const requirement = await QualificationCompetenceRequirement.findByPk(requirementId);
 
         if (requirement === null) 
-            throw Error();
+            throw Error("Unknown requirement id");
 
         await createdProject.addCompetenceRequirement(requirement)
     }));

@@ -88,11 +88,12 @@ router.put("/:id", async (req, res) => {
     });
 
     await QualificationProjectPartLinks.destroy({ where: { qualificationUnitPartId: req.params.id } });
-    await QualificationProjectPartLinks.bulkCreate(updatedPartFields.projectsInOrder.reduce((_, projectId, index) => ({
+
+    await QualificationProjectPartLinks.bulkCreate(updatedPartFields.projectsInOrder.reduce((acc, projectId, index) => [...acc, ({
         qualificationProjectId: projectId,
         qualificationUnitPartId: req.params.id,
         partOrderIndex: index
-    })));
+    })], []));
 
     await updatedPart.reload();
 
