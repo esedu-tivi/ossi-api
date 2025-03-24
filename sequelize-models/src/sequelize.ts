@@ -1,4 +1,3 @@
-require('ts-node/register');
 import { Sequelize } from "sequelize";
 import { SequelizeStorage, Umzug } from "umzug";
 
