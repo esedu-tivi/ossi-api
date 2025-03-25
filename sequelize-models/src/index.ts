@@ -13,3 +13,4 @@ export { QualificationTitle } from "./qualification-title.js";
 export { User } from "./user.js";
 export { Student } from "./student.js";
 export { Teacher } from "./teacher.js";
+export { QualificationUnit } from "./qualification-unit.js";
