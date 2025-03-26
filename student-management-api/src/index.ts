@@ -1,7 +1,6 @@
 import 'dotenv/config';
 import app from "./app";
-import { QualificationUnit } from 'sequelize-models/dist/qualification-unit';
-import { QualificationCompetenceRequirement, QualificationCompetenceRequirements } from 'sequelize-models';
+import { QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationUnit } from 'sequelize-models';
 import { getExternalQualificationData } from './utils/eperuste';
 
 (async () => {

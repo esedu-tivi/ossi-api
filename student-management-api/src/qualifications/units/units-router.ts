@@ -1,7 +1,6 @@
 import axios from "axios";
 import express from "express";
-import { QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationUnitPart } from "sequelize-models";
-import { QualificationUnit } from "sequelize-models/dist/qualification-unit";
+import { QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationUnitPart, QualificationUnit } from "sequelize-models";
 
 const router = express();
 
