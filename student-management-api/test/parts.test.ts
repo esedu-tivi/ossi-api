@@ -22,7 +22,7 @@ test('right number of unit parts are returned as json', async () => {
 });
 
 test('right unit part is returned when using id', async () => {
-  const partToRequest = initialParts[0];
+  const partToRequest = await QualificationUnitPart.findOne();
 
   const response = await api
     .get(`/qualification/parts/${partToRequest.id}`)
@@ -46,7 +46,7 @@ test('adding parts works', async () => {
 });
 
 test('updating parts works', async () => {
-  const partToUpdate = initialParts[0];
+  const partToUpdate = await QualificationUnitPart.findOne();
 
   const updatedPart = { name: 'Ohjelmointi Teema 4', projects: [] };
 
