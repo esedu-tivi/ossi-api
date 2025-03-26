@@ -33,7 +33,7 @@ router.get("/:id", async (req, res) => {
         where: {
             id: req.params.id
         },
-        include: [QualificationProject.associations.tags, QualificationProject.associations.competenceRequirements]
+        include: [QualificationProject.associations.parts, QualificationProject.associations.tags, QualificationProject.associations.competenceRequirements]
     });
 
     res.json(project);
@@ -54,7 +54,7 @@ router.get("/:id/linked_qualification_unit_parts", async (req, res) => {
 
 router.post("/", async (req, res) => {
     const project = req.body;
-    
+
     const createdProject = await QualificationProject.create({
         name: project.name,
         description: project.description,

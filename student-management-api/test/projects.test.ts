@@ -17,6 +17,7 @@ beforeEach(async () => {
   
   if ((await QualificationUnit.findAll()).length == 0) {
     const qualificationData = await getExternalQualificationData(7861752);
+
     await QualificationUnit.bulkCreate(qualificationData.units);
     await QualificationCompetenceRequirements.bulkCreate(qualificationData.competenceRequirementGroups);
     await QualificationCompetenceRequirement.bulkCreate(qualificationData.competenceRequirements);
@@ -72,15 +73,20 @@ test('adding project tags works', async () => {
 });
 
 test('right project is returned when using id', async () => {
-  const projectToReturn = initialProjects[0];
+    const expectedProjectData = await QualificationProject.findOne({ 
+        raw: true, 
+        include: [QualificationProject.associations.parts, QualificationProject.associations.tags, QualificationProject.associations.competenceRequirements]
+    });
 
-  const response = await api
-    .get(`/qualification/projects/${projectToReturn.id}`)
-    .expect(200)
-    .expect('Content-Type', /application\/json/);
+    const response = await api
+        .get(`/qualification/projects/${expectedProjectData.id}`)
+        .expect(200)
+        .expect('Content-Type', /application\/json/);
 
-  assert.strictEqual(response.body.name, projectToReturn.name);
-  assert.strictEqual(response.body.description, projectToReturn.description);
+    console.log(expectedProjectData)
+    console.log(response.body)
+
+    assert(_.isEqual(expectedProjectData, response.body));
 });
 
 test('adding projects works with references', async (t) => {
@@ -101,7 +107,9 @@ test('adding projects works with references', async (t) => {
 
     const response = await api
         .post("/qualification/projects/")
-        .send(projectCreateData);
+        .send(projectCreateData)
+        .expect(200)
+        .expect('Content-Type', /application\/json/);
 
     const expectedProjectData = { 
         id: response.body.id,
@@ -137,7 +145,9 @@ test('updating projects works with empty references', async (t) => {
 
     const response = await api
         .put(`/qualification/projects/${existingProject.id}`)
-        .send(projectUpdateData);
+        .send(projectUpdateData)
+        .expect(200)
+        .expect('Content-Type', /application\/json/);
     
     assert(_.isEqual(expectedProjectData, response.body));
 });
@@ -174,7 +184,9 @@ test('updating projects works with references', async (t) => {
 
     const response = await api
         .put(`/qualification/projects/${existingProject.id}`)
-        .send(projectUpdateData);
+        .send(projectUpdateData)
+        .expect(200)
+        .expect('Content-Type', /application\/json/);
 
     assert(_.isEqual(expectedProjectData, response.body));
 });
@@ -182,12 +194,11 @@ test('updating projects works with references', async (t) => {
 test('all tags are retrieved', async () => {
     const response = await api
         .get("/qualification/projects/tags")
-        .send();
+        .send()
+        .expect(200)
+        .expect('Content-Type', /application\/json/);
 
     const expectedTags = await QualificationProjectTag.findAll({ raw: true });
-
-    console.log(expectedTags)
-    console.log(response.body)
 
     assert(_.isEqual(expectedTags, response.body))
 });
@@ -197,7 +208,9 @@ test('tags are created', async () => {
 
     const response = await api
         .post("/qualification/projects/tags")
-        .send(tagCreateData);
+        .send(tagCreateData)
+        .expect(200)
+        .expect('Content-Type', /application\/json/);
 
     const expectedTag = {
         id: response.body.id,
