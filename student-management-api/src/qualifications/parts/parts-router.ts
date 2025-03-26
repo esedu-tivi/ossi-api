@@ -63,11 +63,11 @@ router.post("/", async (req, res) => {
     });
     
     if (partFields.projectsInOrder != undefined && partFields.projectsInOrder.length > 0) {
-        await QualificationProjectPartLinks.bulkCreate(partFields.projectsInOrder.reduce((_, projectId, index) => ({
+        await QualificationProjectPartLinks.bulkCreate(partFields.projectsInOrder.reduce((acc, projectId, index) => [...acc, ({
             qualificationProjectId: projectId,
             qualificationUnitPartId: part.id,
             partOrderIndex: index
-        })));
+        })], []));
     }
 
     res.json(part);
@@ -76,9 +76,7 @@ router.post("/", async (req, res) => {
 router.put("/:id", async (req, res) => {
     const updatedPartFields = req.body;
 
-    const updatedPart = await QualificationUnitPart.findByPk(req.params.id, {
-        include: [QualificationUnitPart.associations.projects]
-    });
+    const updatedPart = await QualificationUnitPart.findByPk(req.params.id);
 
     await updatedPart.update({
         name: updatedPartFields.name,
