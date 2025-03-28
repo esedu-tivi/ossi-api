@@ -20,6 +20,14 @@ export class QualificationUnitPart extends Model<InferAttributes<QualificationUn
         projects: Association<QualificationUnitPart, QualificationProject>;
         unit: Association<QualificationUnitPart, QualificationUnit>;
     }
+    
+    toJSON() {
+        const modelJSON = super.toJSON();
+        
+        delete modelJSON.unitOrderIndex;
+
+        return modelJSON;
+    }
 }
 
 QualificationUnitPart.init(
