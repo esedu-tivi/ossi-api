@@ -15,7 +15,7 @@ const createPart = async (parent, args, context, info) => {
 }
 
 const updateProject = async (parent, args, context, info) => {
-    return await context.dataSources.studentManagementAPI.updateProject(args.id, args.project);
+    return await context.dataSources.studentManagementAPI.updateProject(args.unitId, args.project);
 }
 
 const updatePart = async (parent, args, context, info) => {

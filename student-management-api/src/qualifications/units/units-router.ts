@@ -33,6 +33,7 @@ router.get("/:id/parts", async (req, res) => {
 });
 
 router.post("/:id/part_order", async (req, res) => {
+    const unitId = req.body.id;
     const partOrder = req.body.partOrder;
     
     for (let index = 0; index < partOrder.length; index++) {
@@ -40,7 +41,8 @@ router.post("/:id/part_order", async (req, res) => {
             { unitOrderIndex: index },
             {
                 where: {
-                    id: partOrder[index]
+                    id: partOrder[index],
+                    qualificationUnitId: unitId
                 }
             }
         )
