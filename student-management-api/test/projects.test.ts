@@ -11,10 +11,6 @@ import { getExternalQualificationData } from '../src/utils/eperuste';
 const api = supertest(app);
 
 beforeEach(async () => {
-  await QualificationProject.truncate({ cascade: true });
-  await QualificationProjectTag.truncate({ cascade: true });
-  await QualificationUnitPart.truncate({ cascade: true });
-  
   if ((await QualificationUnit.findAll()).length == 0) {
     const qualificationData = await getExternalQualificationData(7861752);
 
@@ -23,6 +19,9 @@ beforeEach(async () => {
     await QualificationCompetenceRequirement.bulkCreate(qualificationData.competenceRequirements);
   }
 
+  await QualificationProject.truncate({ cascade: true });
+  await QualificationProjectTag.truncate({ cascade: true });
+  await QualificationUnitPart.truncate({ cascade: true });
   await QualificationProject.bulkCreate(initialProjects);
   await QualificationProjectTag.bulkCreate(initialProjectTags);
   await QualificationUnitPart.bulkCreate(initialParts);
@@ -73,9 +72,8 @@ test('adding project tags works', async () => {
 });
 
 test('right project is returned when using id', async () => {
-    const expectedProjectData = await QualificationProject.findOne({ 
-        raw: true, 
-        include: [QualificationProject.associations.parts, QualificationProject.associations.tags, QualificationProject.associations.competenceRequirements]
+    const expectedProjectData = await QualificationProject.findOne({
+        include: [QualificationProject.associations.parts, QualificationProject.associations.tags, QualificationProject.associations.competenceRequirements],
     });
 
     const response = await api
@@ -83,10 +81,7 @@ test('right project is returned when using id', async () => {
         .expect(200)
         .expect('Content-Type', /application\/json/);
 
-    console.log(expectedProjectData)
-    console.log(response.body)
-
-    assert(_.isEqual(expectedProjectData, response.body));
+    assert(_.isEqual(expectedProjectData.toJSON(), response.body));
 });
 
 test('adding projects works with references', async (t) => {
