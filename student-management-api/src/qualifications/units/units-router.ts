@@ -4,51 +4,75 @@ import { QualificationCompetenceRequirement, QualificationCompetenceRequirements
 
 const router = express();
 
-router.get("/", async (req, res) => {
-    const units = await QualificationUnit.findAll();
+router.get("/", async (req, res, next) => {
+    try {
+        const units = await QualificationUnit.findAll();
 
-    return res.json(units);
-});
-
-router.get("/:id/competence_requirements", async (req, res) => {
-    const qualificationCompetenceRequirements = await QualificationCompetenceRequirements.findAll({
-        where: {
-            qualificationUnitId: req.params.id
-        },
-        include: [QualificationCompetenceRequirements.associations.requirements]
-    });
+        res.json(units);
         
-    res.json(qualificationCompetenceRequirements);
+        next();
+    } catch (e) {
+        next(e)
+    }
 });
 
-router.get("/:id/parts", async (req, res) => {
-    const parts = await QualificationUnitPart.findAll({
-        where: {
-            qualificationUnitId: req.params.id
-        },
-        order: [["unit_order_index", "ASC"]]
-    });
-
-    res.json(parts);
+router.get("/:id/competence_requirements", async (req, res, next) => {
+    try {
+        const qualificationCompetenceRequirements = await QualificationCompetenceRequirements.findAll({
+            where: {
+                qualificationUnitId: req.params.id
+            },
+            include: [QualificationCompetenceRequirements.associations.requirements]
+        });
+            
+        res.json(qualificationCompetenceRequirements);
+        
+        next();
+    } catch (e) {
+        next(e)
+    }
 });
 
-router.post("/:id/part_order", async (req, res) => {
-    const unitId = req.body.id;
-    const partOrder = req.body.partOrder;
-    
-    for (let index = 0; index < partOrder.length; index++) {
-        const part = await QualificationUnitPart.findByPk();
+router.get("/:id/parts", async (req, res, next) => {
+    try {
+        const parts = await QualificationUnitPart.findAll({
+            where: {
+                qualificationUnitId: req.params.id
+            },
+            order: [["unit_order_index", "ASC"]]
+        });
 
-        if (part.qualificationUnitId != unitId) {
-            throw Error("updating a part order that doesn't belong to the specified unit")
+        res.json(parts);
+        
+        next();
+    } catch (e) {
+        next(e)
+    }
+});
+
+router.post("/:id/part_order", async (req, res, next) => {
+    try {
+        const unitId = Number(req.params.id);
+        const partOrder = req.body.partOrder;
+        
+        for (let index = 0; index < partOrder.length; index++) {
+            const part = await QualificationUnitPart.findByPk(partOrder[index]);
+
+            if (part.qualificationUnitId != unitId) {
+                throw Error("updating a part order that doesn't belong to the specified unit")
+            }
+
+            await part.update(
+                { unitOrderIndex: index },
+            )
         }
 
-        await part.update(
-            { unitOrderIndex: index },
-        )
+        res.json({ status: "ok" })
+        
+        next();
+    } catch (e) {
+        next(e)
     }
-
-    res.json({ status: "ok" })
 })
 
 export const UnitsRouter = router;
