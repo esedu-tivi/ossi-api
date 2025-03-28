@@ -15,7 +15,7 @@ const createPart = async (parent, args, context, info) => {
 }
 
 const updateProject = async (parent, args, context, info) => {
-    return await context.dataSources.studentManagementAPI.updateProject(args.unitId, args.project);
+    return await context.dataSources.studentManagementAPI.updateProject(args.id, args.project);
 }
 
 const updatePart = async (parent, args, context, info) => {
@@ -23,7 +23,7 @@ const updatePart = async (parent, args, context, info) => {
 }
 
 const updatePartOrder = async (parent, args, context, info) => {
-    return await context.dataSources.studentManagementAPI.updatePartOrder(args.id, { partOrder: args.partOrder });
+    return await context.dataSources.studentManagementAPI.updatePartOrder(args.unitId, { partOrder: args.partOrder });
 }
 
 const createProjectTag = async (parent, args, context, info) => {
