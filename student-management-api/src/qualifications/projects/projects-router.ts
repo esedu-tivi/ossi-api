@@ -1,6 +1,6 @@
 import express from "express";
 import { Op, Sequelize } from "sequelize";
-import { CompetenceRequirementsInProjects, QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationProject, QualificationProjectPartLinks, QualificationProjectTag, QualificationProjectTagLinks, QualificationUnitPart } from "sequelize-models";
+import { CompetenceRequirementsInProjects, QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationProject, QualificationProjectPartLinks, QualificationProjectTag, QualificationProjectTagLinks, QualificationUnitPart, sequelize } from "sequelize-models";
 
 const router = express();
 
@@ -131,7 +131,7 @@ router.put("/:id", async (req, res) => {
     const updatedProject = await QualificationProject.findByPk(req.params.id, {
         include: [QualificationProject.associations.parts, QualificationProject.associations.tags, QualificationProject.associations.competenceRequirements],
     });
-    
+
     await updatedProject.update({
         name: updatedProjectFields.name,
         description: updatedProjectFields.description,
@@ -139,6 +139,7 @@ router.put("/:id", async (req, res) => {
         duration: updatedProjectFields.duration,
         isActive: updatedProjectFields.isActive,
     });
+
 
     const projectRemovedFromParts = updatedProject.parts.filter(part => !updatedProjectFields.includedInParts.includes(part.id)).map(part => part.id)
     const projectAddedToParts = updatedProjectFields.includedInParts.filter(id => !updatedProject.parts.map(part => part.id).includes(id))
@@ -149,7 +150,7 @@ router.put("/:id", async (req, res) => {
 
     await Promise.all(projectRemovedFromParts.map(async partId => {
         await QualificationProjectPartLinks.update(
-            { partOrderIndex: Sequelize.literal("part_order_index - 1") },
+            { partOrderIndex: sequelize.literal("part_order_index - 1") },
             {
                 where: {
                     qualificationUnitPartId: partId,
