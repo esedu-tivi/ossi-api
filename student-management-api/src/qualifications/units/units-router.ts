@@ -37,14 +37,14 @@ router.post("/:id/part_order", async (req, res) => {
     const partOrder = req.body.partOrder;
     
     for (let index = 0; index < partOrder.length; index++) {
-        await QualificationUnitPart.update(
+        const part = await QualificationUnitPart.findByPk();
+
+        if (part.qualificationUnitId != unitId) {
+            throw Error("updating a part order that doesn't belong to the specified unit")
+        }
+
+        await part.update(
             { unitOrderIndex: index },
-            {
-                where: {
-                    id: partOrder[index],
-                    qualificationUnitId: unitId
-                }
-            }
         )
     }
 
