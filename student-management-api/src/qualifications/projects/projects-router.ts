@@ -1,10 +1,11 @@
 import express from "express";
 import { Op, Sequelize } from "sequelize";
 import { CompetenceRequirementsInProjects, QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationProject, QualificationProjectPartLinks, QualificationProjectTag, QualificationProjectTagLinks, QualificationUnitPart, sequelize } from "sequelize-models";
+import { beginTransaction, commitTransaction } from "../../utils/middleware";
 
 const router = express();
 
-router.get("/tags", async (req, res, next) => {
+router.get("/tags", beginTransaction, async (req, res, next) => {
     try {
         const tags = await QualificationProjectTag.findAll({ transaction: res.locals._transaction });
 
@@ -14,9 +15,9 @@ router.get("/tags", async (req, res, next) => {
     } catch (e) {
         next(e);
     }
-});
+}, commitTransaction);
 
-router.post("/tags", async (req, res, next) => {
+router.post("/tags", beginTransaction, async (req, res, next) => {
     try {
         const tagName = req.body.tagName
 
@@ -32,9 +33,9 @@ router.post("/tags", async (req, res, next) => {
     } catch (e) {
         next(e);
     }
-});
+}, commitTransaction);
 
-router.get("/", async (req, res, next) => {
+router.get("/", beginTransaction, async (req, res, next) => {
     try {
         const projects = await QualificationProject.findAll({
             include: [QualificationProject.associations.tags, QualificationProject.associations.competenceRequirements],
@@ -47,9 +48,9 @@ router.get("/", async (req, res, next) => {
     } catch (e) {
         next(e);
     }
-});
+}, commitTransaction);
 
-router.get("/:id", async (req, res, next) => {
+router.get("/:id", beginTransaction, async (req, res, next) => {
     try {
         const project = await QualificationProject.findOne({
             where: {
@@ -65,9 +66,9 @@ router.get("/:id", async (req, res, next) => {
     } catch (e) {
         next(e);
     }
-});
+}, commitTransaction);
 
-router.get("/:id/linked_qualification_unit_parts", async (req, res, next) => {
+router.get("/:id/linked_qualification_unit_parts", beginTransaction, async (req, res, next) => {
     try {
         const unitParts = await QualificationUnitPart.findAll({
             include: [{
@@ -85,9 +86,9 @@ router.get("/:id/linked_qualification_unit_parts", async (req, res, next) => {
     } catch (e) {
         next(e);
     }
-});
+}, commitTransaction);
 
-router.post("/", async (req, res, next) => {
+router.post("/", beginTransaction, async (req, res, next) => {
     try {
         const project = req.body;
 
@@ -181,9 +182,9 @@ router.post("/", async (req, res, next) => {
     } catch (e) {
         next(e);
     }
-});
+}, commitTransaction);
 
-router.put("/:id", async (req, res, next) => {
+router.put("/:id", beginTransaction, async (req, res, next) => {
     try {
         const updatedProjectFields = req.body;
 
@@ -292,6 +293,6 @@ router.put("/:id", async (req, res, next) => {
     } catch (e) {
         next(e);
     }
-});
+}, commitTransaction);
 
 export const ProjectsRouter = router;

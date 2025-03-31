@@ -13,7 +13,6 @@ const beginTransaction = async (req, res, next) => {
 
 const commitTransaction = async (req, res, next) => {
     await res.locals._transaction.commit();
-    next();
 };
 
 export { errorHandler, beginTransaction, commitTransaction };

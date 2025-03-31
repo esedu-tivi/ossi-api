@@ -1,9 +1,10 @@
 import express from "express";
 import { QualificationProject, QualificationProjectPartLinks, QualificationUnitPart } from "sequelize-models";
+import { beginTransaction, commitTransaction } from "../../utils/middleware";
 
 const router = express();
 
-router.get("/", async (req, res, next) => {
+router.get("/", beginTransaction, async (req, res, next) => {
     try {
         const part = await QualificationUnitPart.findAll({
             transaction: res.locals._transaction
@@ -15,9 +16,9 @@ router.get("/", async (req, res, next) => {
     } catch (e) {
         next(e)
     }
-});
+}, commitTransaction);
 
-router.get("/:id", async (req, res, next) => {
+router.get("/:id", beginTransaction, async (req, res, next) => {
     try {
         const part = await QualificationUnitPart.findOne({
             where: {
@@ -32,9 +33,9 @@ router.get("/:id", async (req, res, next) => {
     } catch (e) {
         next(e)
     }
-});
+}, commitTransaction);
 
-router.get("/:id/projects", async (req, res, next) => {
+router.get("/:id/projects", beginTransaction, async (req, res, next) => {
     try {
         const projectIdsInOrder = (await QualificationProjectPartLinks.findAll({
             where: { qualificationUnitPartId: req.params.id },
@@ -60,9 +61,9 @@ router.get("/:id/projects", async (req, res, next) => {
     } catch (e) {
         next(e)
     }
-});
+}, commitTransaction);
 
-router.get("/:id/parent_qualification_unit", async (req, res, next) => {
+router.get("/:id/parent_qualification_unit", beginTransaction, async (req, res, next) => {
     try {
         const qualificationUnit = await QualificationUnitPart.findByPk(req.params.id, {
             include: [QualificationUnitPart.associations.unit],
@@ -75,9 +76,9 @@ router.get("/:id/parent_qualification_unit", async (req, res, next) => {
     } catch (e) {
         next(e)
     }
-});
+}, commitTransaction);
 
-router.post("/", async (req, res, next) => {
+router.post("/", beginTransaction, async (req, res, next) => {
     try {
         const partFields = req.body;
 
@@ -113,9 +114,9 @@ router.post("/", async (req, res, next) => {
     } catch (e) {
         next(e)
     }
-});
+}, commitTransaction);
 
-router.put("/:id", async (req, res, next) => {
+router.put("/:id", beginTransaction, async (req, res, next) => {
     try {
         const updatedPartFields = req.body;
 
@@ -155,6 +156,6 @@ router.put("/:id", async (req, res, next) => {
     } catch (e) {
         next(e)
     }
-});
+}, commitTransaction);
 
 export const PartsRouter = router;

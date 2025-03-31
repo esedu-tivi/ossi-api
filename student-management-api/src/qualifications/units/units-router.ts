@@ -1,10 +1,11 @@
 import axios from "axios";
 import express from "express";
 import { QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationUnitPart, QualificationUnit } from "sequelize-models";
+import { beginTransaction, commitTransaction } from "../../utils/middleware";
 
 const router = express();
 
-router.get("/", async (req, res, next) => {
+router.get("/", beginTransaction, async (req, res, next) => {
     try {
         const units = await QualificationUnit.findAll({
             transaction: res.locals._transaction
@@ -16,9 +17,9 @@ router.get("/", async (req, res, next) => {
     } catch (e) {
         next(e)
     }
-});
+}, commitTransaction);
 
-router.get("/:id/competence_requirements", async (req, res, next) => {
+router.get("/:id/competence_requirements", beginTransaction, async (req, res, next) => {
     try {
         const qualificationCompetenceRequirements = await QualificationCompetenceRequirements.findAll({
             where: {
@@ -34,9 +35,9 @@ router.get("/:id/competence_requirements", async (req, res, next) => {
     } catch (e) {
         next(e)
     }
-});
+}, commitTransaction);
 
-router.get("/:id/parts", async (req, res, next) => {
+router.get("/:id/parts", beginTransaction, async (req, res, next) => {
     try {
         const parts = await QualificationUnitPart.findAll({
             where: {
@@ -52,9 +53,9 @@ router.get("/:id/parts", async (req, res, next) => {
     } catch (e) {
         next(e)
     }
-});
+}, commitTransaction);
 
-router.post("/:id/part_order", async (req, res, next) => {
+router.post("/:id/part_order", beginTransaction, async (req, res, next) => {
     try {
         const unitId = Number(req.params.id);
         const partOrder = req.body.partOrder;
@@ -79,6 +80,6 @@ router.post("/:id/part_order", async (req, res, next) => {
     } catch (e) {
         next(e)
     }
-})
+}, commitTransaction)
 
 export const UnitsRouter = router;
