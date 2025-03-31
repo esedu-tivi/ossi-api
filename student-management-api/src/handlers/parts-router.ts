@@ -1,6 +1,6 @@
 import express from "express";
 import { QualificationProject, QualificationProjectPartLinks, QualificationUnitPart } from "sequelize-models";
-import { beginTransaction, commitTransaction } from "../../utils/middleware";
+import { beginTransaction, commitTransaction } from "../utils/middleware";
 
 const router = express();
 

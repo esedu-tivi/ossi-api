@@ -1,39 +1,9 @@
 import express from "express";
 import { Op, Sequelize } from "sequelize";
 import { CompetenceRequirementsInProjects, QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationProject, QualificationProjectPartLinks, QualificationProjectTag, QualificationProjectTagLinks, QualificationUnitPart, sequelize } from "sequelize-models";
-import { beginTransaction, commitTransaction } from "../../utils/middleware";
+import { beginTransaction, commitTransaction } from "../utils/middleware";
 
 const router = express();
-
-router.get("/tags", beginTransaction, async (req, res, next) => {
-    try {
-        const tags = await QualificationProjectTag.findAll({ transaction: res.locals._transaction });
-
-        res.json(tags);
-
-        next();
-    } catch (e) {
-        next(e);
-    }
-}, commitTransaction);
-
-router.post("/tags", beginTransaction, async (req, res, next) => {
-    try {
-        const tagName = req.body.tagName
-
-        const tag = await QualificationProjectTag.create({
-            name: tagName
-        }, {
-            transaction: res.locals._transaction 
-        });
-
-        res.json(tag);
-        
-        next();
-    } catch (e) {
-        next(e);
-    }
-}, commitTransaction);
 
 router.get("/", beginTransaction, async (req, res, next) => {
     try {
