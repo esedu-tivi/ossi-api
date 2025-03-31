@@ -6,7 +6,9 @@ const router = express();
 
 router.get("/", async (req, res, next) => {
     try {
-        const units = await QualificationUnit.findAll();
+        const units = await QualificationUnit.findAll({
+            transaction: res.locals._transaction
+        });
 
         res.json(units);
         
@@ -22,7 +24,8 @@ router.get("/:id/competence_requirements", async (req, res, next) => {
             where: {
                 qualificationUnitId: req.params.id
             },
-            include: [QualificationCompetenceRequirements.associations.requirements]
+            include: [QualificationCompetenceRequirements.associations.requirements],
+            transaction: res.locals._transaction
         });
             
         res.json(qualificationCompetenceRequirements);
@@ -39,7 +42,8 @@ router.get("/:id/parts", async (req, res, next) => {
             where: {
                 qualificationUnitId: req.params.id
             },
-            order: [["unit_order_index", "ASC"]]
+            order: [["unit_order_index", "ASC"]],
+            transaction: res.locals._transaction
         });
 
         res.json(parts);
@@ -56,15 +60,17 @@ router.post("/:id/part_order", async (req, res, next) => {
         const partOrder = req.body.partOrder;
         
         for (let index = 0; index < partOrder.length; index++) {
-            const part = await QualificationUnitPart.findByPk(partOrder[index]);
+            const part = await QualificationUnitPart.findByPk(partOrder[index], {
+                transaction: res.locals._transaction
+            });
 
             if (part.qualificationUnitId != unitId) {
                 throw Error("updating a part order that doesn't belong to the specified unit")
             }
 
-            await part.update(
-                { unitOrderIndex: index },
-            )
+            await part.update({ unitOrderIndex: index }, { 
+                transaction: res.locals._transaction
+            });
         }
 
         res.json({ status: "ok" })

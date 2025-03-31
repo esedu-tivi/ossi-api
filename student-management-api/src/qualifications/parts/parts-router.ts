@@ -1,12 +1,13 @@
 import express from "express";
-import { Sequelize } from "sequelize";
 import { QualificationProject, QualificationProjectPartLinks, QualificationUnitPart } from "sequelize-models";
 
 const router = express();
 
 router.get("/", async (req, res, next) => {
     try {
-        const part = await QualificationUnitPart.findAll();
+        const part = await QualificationUnitPart.findAll({
+            transaction: res.locals._transaction
+        });
 
         res.json(part);
         
@@ -21,7 +22,8 @@ router.get("/:id", async (req, res, next) => {
         const part = await QualificationUnitPart.findOne({
             where: {
                 id: req.params.id
-            }
+            },
+            transaction: res.locals._transaction
         });
 
         res.json(part);
@@ -36,7 +38,8 @@ router.get("/:id/projects", async (req, res, next) => {
     try {
         const projectIdsInOrder = (await QualificationProjectPartLinks.findAll({
             where: { qualificationUnitPartId: req.params.id },
-            order: [["partOrderIndex", "ASC"]]
+            order: [["partOrderIndex", "ASC"]],
+            transaction: res.locals._transaction
         })).map(link => link.qualificationProjectId);
 
         const projects = await QualificationProject.findAll({
@@ -48,6 +51,7 @@ router.get("/:id/projects", async (req, res, next) => {
             }, {
                 association: QualificationProject.associations.tags
             }],
+            transaction: res.locals._transaction
         });
 
         res.json(projectIdsInOrder.map(projectId => projects.find(project => project.id == projectId)));
@@ -61,7 +65,8 @@ router.get("/:id/projects", async (req, res, next) => {
 router.get("/:id/parent_qualification_unit", async (req, res, next) => {
     try {
         const qualificationUnit = await QualificationUnitPart.findByPk(req.params.id, {
-            include: [QualificationUnitPart.associations.unit]
+            include: [QualificationUnitPart.associations.unit],
+            transaction: res.locals._transaction
         });
 
         res.json(qualificationUnit.unit);
@@ -77,7 +82,10 @@ router.post("/", async (req, res, next) => {
         const partFields = req.body;
 
         // TODO should use transaction 
-        const unitOrderIndex = await QualificationUnitPart.count({ where: { qualificationUnitId: partFields.parentQualificationUnit } });
+        const unitOrderIndex = await QualificationUnitPart.count({
+            where: { qualificationUnitId: partFields.parentQualificationUnit },
+            transaction: res.locals._transaction
+        });
 
         const part = await QualificationUnitPart.create({
             name: partFields.name,
@@ -85,6 +93,8 @@ router.post("/", async (req, res, next) => {
             description: partFields.description,
             materials: partFields.materials,
             unitOrderIndex: unitOrderIndex
+        }, {
+            transaction: res.locals._transaction
         });
         
         if (partFields.projectsInOrder != undefined && partFields.projectsInOrder.length > 0) {
@@ -92,7 +102,9 @@ router.post("/", async (req, res, next) => {
                 qualificationProjectId: projectId,
                 qualificationUnitPartId: part.id,
                 partOrderIndex: index
-            })], []));
+            })], []), {
+                transaction: res.locals._transaction
+            });
         }
 
         res.json(part);
@@ -107,24 +119,35 @@ router.put("/:id", async (req, res, next) => {
     try {
         const updatedPartFields = req.body;
 
-        const updatedPart = await QualificationUnitPart.findByPk(req.params.id);
+        const updatedPart = await QualificationUnitPart.findByPk(req.params.id, {
+            transaction: res.locals._transaction
+        });
 
         await updatedPart.update({
             name: updatedPartFields.name,
             qualificationUnitId: updatedPartFields.parentQualificationUnit,
             description: updatedPartFields.description,
             materials: updatedPartFields.materials,
+        }, {
+            transaction: res.locals._transaction
         });
 
-        await QualificationProjectPartLinks.destroy({ where: { qualificationUnitPartId: req.params.id } });
+        await QualificationProjectPartLinks.destroy({
+            where: { qualificationUnitPartId: req.params.id },
+            transaction: res.locals._transaction
+        });
 
         await QualificationProjectPartLinks.bulkCreate(updatedPartFields.projectsInOrder.reduce((acc, projectId, index) => [...acc, ({
             qualificationProjectId: projectId,
             qualificationUnitPartId: req.params.id,
             partOrderIndex: index
-        })], []));
+        })], []), {
+            transaction: res.locals._transaction
+        });
 
-        await updatedPart.reload();
+        await updatedPart.reload({
+            transaction: res.locals._transaction
+        });
 
         res.json(updatedPart);
         

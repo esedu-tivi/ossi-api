@@ -6,7 +6,7 @@ const router = express();
 
 router.get("/tags", async (req, res, next) => {
     try {
-        const tags = await QualificationProjectTag.findAll();
+        const tags = await QualificationProjectTag.findAll({ transaction: res.locals._transaction });
 
         res.json(tags);
 
@@ -22,6 +22,8 @@ router.post("/tags", async (req, res, next) => {
 
         const tag = await QualificationProjectTag.create({
             name: tagName
+        }, {
+            transaction: res.locals._transaction 
         });
 
         res.json(tag);
@@ -35,7 +37,8 @@ router.post("/tags", async (req, res, next) => {
 router.get("/", async (req, res, next) => {
     try {
         const projects = await QualificationProject.findAll({
-            include: [QualificationProject.associations.tags, QualificationProject.associations.competenceRequirements]
+            include: [QualificationProject.associations.tags, QualificationProject.associations.competenceRequirements],
+            transaction: res.locals._transaction 
         });
 
         res.json(projects);
@@ -52,7 +55,8 @@ router.get("/:id", async (req, res, next) => {
             where: {
                 id: req.params.id
             },
-            include: [QualificationProject.associations.parts, QualificationProject.associations.tags, QualificationProject.associations.competenceRequirements]
+            include: [QualificationProject.associations.parts, QualificationProject.associations.tags, QualificationProject.associations.competenceRequirements],
+            transaction: res.locals._transaction 
         });
 
         res.json(project);
@@ -71,7 +75,8 @@ router.get("/:id/linked_qualification_unit_parts", async (req, res, next) => {
                 where: {
                     id: req.params.id
                 }
-            }]
+            }],
+            transaction: res.locals._transaction 
         });
 
         res.json(unitParts);
@@ -92,42 +97,58 @@ router.post("/", async (req, res, next) => {
             materials: project.materials,
             duration: project.duration,
             isActive: project.isActive,
+        }, {
+            transaction: res.locals._transaction 
         });
 
         for (const partId of project.includedInParts) {
             const part = await QualificationUnitPart.findByPk(partId, {
-                include: [QualificationUnitPart.associations.unit]
+                include: [QualificationUnitPart.associations.unit],
+                transaction: res.locals._transaction 
             });
 
             if (part === null)
                 throw Error("Unknown part id");
 
-            const lastPartOrderIndex = await QualificationProjectPartLinks.count({ where: { qualificationUnitPartId: partId } });
+            const lastPartOrderIndex = await QualificationProjectPartLinks.count({ 
+                where: { qualificationUnitPartId: partId },
+                transaction: res.locals._transaction 
+            });
 
             await QualificationProjectPartLinks.create({
                 qualificationUnitPartId: partId,
                 qualificationProjectId: createdProject.id,
                 partOrderIndex: lastPartOrderIndex,
-            })
+            }, {
+                transaction: res.locals._transaction 
+            });
         }
         
         await Promise.all(project.tags.map(async tagId => {
-            const tag = await QualificationProjectTag.findByPk(tagId);
+            const tag = await QualificationProjectTag.findByPk(tagId, {
+                transaction: res.locals._transaction 
+            });
 
             if (tag === null)
                 // rollback transaction
                 throw Error("Unknown tag id");
 
-            await createdProject.addTag(tag)
+            await createdProject.addTag(tag, {
+                transaction: res.locals._transaction 
+            });
         }));
 
         await Promise.all(project.competenceRequirements.map(async requirementId => {
-            const requirement = await QualificationCompetenceRequirement.findByPk(requirementId);
+            const requirement = await QualificationCompetenceRequirement.findByPk(requirementId, {
+                transaction: res.locals._transaction 
+            });
 
             if (requirement === null) 
                 throw Error("Unknown requirement id");
 
-            await createdProject.addCompetenceRequirement(requirement)
+            await createdProject.addCompetenceRequirement(requirement, {
+                transaction: res.locals._transaction 
+            });
         }));
 
         await createdProject.reload({
@@ -150,7 +171,8 @@ router.post("/", async (req, res, next) => {
                         attributes: []
                     }
                 }
-            ],
+            ], 
+            transaction: res.locals._transaction 
         });
 
         res.json(createdProject);
@@ -167,6 +189,7 @@ router.put("/:id", async (req, res, next) => {
 
         const updatedProject = await QualificationProject.findByPk(req.params.id, {
             include: [QualificationProject.associations.parts, QualificationProject.associations.tags, QualificationProject.associations.competenceRequirements],
+            transaction: res.locals._transaction 
         });
 
         await updatedProject.update({
@@ -175,15 +198,23 @@ router.put("/:id", async (req, res, next) => {
             materials: updatedProjectFields.materials,
             duration: updatedProjectFields.duration,
             isActive: updatedProjectFields.isActive,
+        }, {
+            transaction: res.locals._transaction 
         });
 
 
-        const projectRemovedFromParts = updatedProject.parts.filter(part => !updatedProjectFields.includedInParts.includes(part.id)).map(part => part.id)
-        const projectAddedToParts = updatedProjectFields.includedInParts.filter(id => !updatedProject.parts.map(part => part.id).includes(id))
+        const projectRemovedFromParts = updatedProject.parts.filter(part => !updatedProjectFields.includedInParts.includes(part.id)).map(part => part.id);
+        const projectAddedToParts = updatedProjectFields.includedInParts.filter(id => !updatedProject.parts.map(part => part.id).includes(id));
 
-        const projectPartLinks = await QualificationProjectPartLinks.findAll({ where: { qualificationProjectId: req.params.id }})
+        const projectPartLinks = await QualificationProjectPartLinks.findAll({
+            where: { qualificationProjectId: req.params.id },
+            transaction: res.locals._transaction 
+        });
 
-        await QualificationProjectPartLinks.destroy({ where: { qualificationUnitPartId: projectRemovedFromParts, qualificationProjectId: req.params.id }});
+        await QualificationProjectPartLinks.destroy({
+            where: { qualificationUnitPartId: projectRemovedFromParts, qualificationProjectId: req.params.id },
+            transaction: res.locals._transaction 
+        });
 
         await Promise.all(projectRemovedFromParts.map(async partId => {
             await QualificationProjectPartLinks.update(
@@ -192,26 +223,44 @@ router.put("/:id", async (req, res, next) => {
                     where: {
                         qualificationUnitPartId: partId,
                         partOrderIndex: { [Op.gt]: projectPartLinks.find(link => link.qualificationUnitPartId == partId).partOrderIndex }
-                    }
+                    },
+                    transaction: res.locals._transaction
                 }
             );
         }));
 
         await Promise.all(projectAddedToParts.map(async partId => {
-            const lastPartOrderIndex = await QualificationProjectPartLinks.count({ where: { qualificationUnitPartId: partId } });
+            const lastPartOrderIndex = await QualificationProjectPartLinks.count({
+                where: { qualificationUnitPartId: partId },
+                transaction: res.locals._transaction
+            });
 
             await QualificationProjectPartLinks.create({
                 qualificationUnitPartId: partId,
                 qualificationProjectId: updatedProject.id,
                 partOrderIndex: lastPartOrderIndex,
+            }, {
+                transaction: res.locals._transaction
             });
         }));
         
-        await QualificationProjectTagLinks.destroy({ where: { qualificationProjectId: req.params.id } });
-        await updatedProject.addTags(updatedProjectFields.tags);
+        await QualificationProjectTagLinks.destroy({
+            where: { qualificationProjectId: req.params.id }, 
+            transaction: res.locals._transaction
+        });
 
-        await CompetenceRequirementsInProjects.destroy({ where: { projectId: req.params.id } });
-        await updatedProject.addCompetenceRequirements(updatedProjectFields.competenceRequirements)
+        await updatedProject.addTags(updatedProjectFields.tags, {
+            transaction: res.locals._transaction
+        });
+
+        await CompetenceRequirementsInProjects.destroy({
+            where: { projectId: req.params.id },
+            transaction: res.locals._transaction
+        });
+
+        await updatedProject.addCompetenceRequirements(updatedProjectFields.competenceRequirements, {
+            transaction: res.locals._transaction
+        });
 
         await updatedProject.reload({
             include: [
@@ -234,6 +283,7 @@ router.put("/:id", async (req, res, next) => {
                     }
                 }
             ],
+            transaction: res.locals._transaction
         });
 
         res.json(updatedProject);
