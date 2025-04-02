@@ -1,5 +1,5 @@
 import express from "express";
-import { QualificationProject, QualificationProjectPartLinks, QualificationUnitPart } from "sequelize-models";
+import { QualificationProject, QualificationProjectPartLinks, QualificationUnitPart, sequelize } from "sequelize-models";
 import { beginTransaction, commitTransaction } from "../utils/middleware";
 
 const router = express();
@@ -37,12 +37,6 @@ router.get("/:id", beginTransaction, async (req, res, next) => {
 
 router.get("/:id/projects", beginTransaction, async (req, res, next) => {
     try {
-        const projectIdsInOrder = (await QualificationProjectPartLinks.findAll({
-            where: { qualificationUnitPartId: req.params.id },
-            order: [["partOrderIndex", "ASC"]],
-            transaction: res.locals._transaction
-        })).map(link => link.qualificationProjectId);
-
         const projects = await QualificationProject.findAll({
             include: [{
                 association: QualificationProject.associations.parts,
@@ -52,11 +46,12 @@ router.get("/:id/projects", beginTransaction, async (req, res, next) => {
             }, {
                 association: QualificationProject.associations.tags
             }],
+            order: sequelize.literal("\"parts->qualification_projects_parts_relations\".\"part_order_index\" ASC"),
             transaction: res.locals._transaction
         });
-
-        res.json(projectIdsInOrder.map(projectId => projects.find(project => project.id == projectId)));
         
+        res.json(projects);
+
         next();
     } catch (e) {
         next(e)
