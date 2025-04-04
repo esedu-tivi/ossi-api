@@ -38,3 +38,7 @@ To run other [commands](https://github.com/sequelize/umzug?tab=readme-ov-file#cl
 ```
 docker compose run --rm db-migrations node migrator <command>
 ```
+If you want sample data in the database, run seeds:
+```
+docker compose run --rm db-migrations node seeder up
+```

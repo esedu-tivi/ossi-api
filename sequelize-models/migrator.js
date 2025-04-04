@@ -1,3 +1,3 @@
-import { umzug } from './dist/sequelize.js';
+import { migrator } from './dist/sequelize.js';
 
-umzug.runAsCLI();
+migrator.runAsCLI();
