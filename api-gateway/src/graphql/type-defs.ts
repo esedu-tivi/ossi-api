@@ -192,7 +192,7 @@ const typeDefs = `#graphql
         createPart(part: CreatePartInput!): QualificationUnitPart!
         updateProject(id: ID!, project: UpdateProjectInput!): QualificationProject!
         updatePart(id: ID!, part: CreatePartInput!): QualificationUnitPart!
-        updatePartOrder(id: ID!, partOrder: [ID!]!): Empty!
+        updatePartOrder(unitId: ID!, partOrder: [ID!]!): Empty!
         createProjectTag(name: String!): QualificationProjectTag!
         
         # remove once not needed
