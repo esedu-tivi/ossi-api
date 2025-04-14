@@ -1,6 +1,6 @@
 import express, { json } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { Student, Teacher, User, UserAuthorityScope } from "sequelize-models";
+import { sequelize, Student, Teacher, User, UserAuthorityScope } from "sequelize-models";
 
 const router = express.Router()
 
@@ -15,13 +15,15 @@ interface IdTokenPayload extends JwtPayload {
 router.use(json())
 
 // intended for basic ossi login, job supervisor scopes should be created in a seperate endpoint?
-router.post("/login", async (req, res) => { 
-    const idToken = jwt.decode(req.body.idToken) as IdTokenPayload
+router.post("/login", async (req, res) => {
+    const transaction = await sequelize.transaction();
+
+    const idToken = jwt.decode(req.body.idToken) as IdTokenPayload;
 
     // idToken verification
     // if (idTokenIsNotValid) { return res.status(401) }
 
-    const isUserInDatabase = await User.findOne({ where: { oid: idToken.oid }}) != null;
+    const isUserInDatabase = await User.findOne({ where: { oid: idToken.oid }, transaction }) != null;
     const userScope = idToken.upn.endsWith("@esedulainen.fi") ? UserAuthorityScope.Student : UserAuthorityScope.Teacher;
     
     // create user and teacher or student rows for nonexistant user
@@ -34,7 +36,7 @@ router.post("/login", async (req, res) => {
             phoneNumber: "",
             scope: userScope,
             archived: false,
-        });
+        }, { transaction });
 
         if (userScope == UserAuthorityScope.Student) {
             await Student.create({
@@ -42,18 +44,18 @@ router.post("/login", async (req, res) => {
                 groupId: idToken.jobTitle,
                 qualificationTitleId: 0, // TODO
                 qualificationId: 0
-            });
+            }, { transaction });
         } else if (userScope == UserAuthorityScope.Teacher) {
             await Teacher.create({
                 id: createdUser.id,
                 teachingQualificationTitleId: null,
                 teachingQualificationId: 0 // TODO
-            });
+            }, { transaction });
         }
     }
 
-    const user = await User.findOne({ where: { oid: idToken.oid }})
-    const profile = userScope == UserAuthorityScope.Student ? await Student.findByPk(user.id) : await Teacher.findByPk(user.id)
+    const user = await User.findOne({ where: { oid: idToken.oid }, transaction });
+    const profile = userScope == UserAuthorityScope.Student ? await Student.findByPk(user.id, { transaction }) : await Teacher.findByPk(user.id, { transaction });
 
     const userData = {
         ...profile, 
@@ -73,6 +75,8 @@ router.post("/login", async (req, res) => {
         }),
         user: userData
     });
+
+    await transaction.commit();
 });
 
 export const AuthRouter = router;
