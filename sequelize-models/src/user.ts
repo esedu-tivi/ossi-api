@@ -23,11 +23,12 @@ User.init({
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
   },
   oid: {
     type: DataTypes.UUID,
     allowNull: false,
+    unique: true,
   },
   firstName: {
     type: DataTypes.STRING(128),

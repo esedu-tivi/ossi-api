@@ -58,15 +58,13 @@ router.post("/login", async (req, res) => {
     const profile = userScope == UserAuthorityScope.Student ? await Student.findByPk(user.id, { transaction }) : await Teacher.findByPk(user.id, { transaction });
 
     const userData = {
-        ...profile, 
-        ...{
-            id: user.id,
-            firstName: idToken.given_name,
-            lastName: idToken.family_name,
-            email: idToken.upn,
-            scope: userScope,
-            profile: profile
-        }
+        id: user.id,
+        oid: user.oid,
+        firstName: idToken.given_name,
+        lastName: idToken.family_name,
+        email: idToken.upn,
+        scope: userScope,
+        profile: profile
     };
 
     res.json({

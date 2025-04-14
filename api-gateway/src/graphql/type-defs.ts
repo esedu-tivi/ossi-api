@@ -32,6 +32,7 @@ const typeDefs = `#graphql
 
     type AuthUserData { 
         id: ID!
+        oid: ID!
         firstName: String!
         lastName: String!
         email: String!
