@@ -8,6 +8,8 @@ services:
   authapi:
     build:
       context: ./auth-api
+      additional_contexts:
+        sequelize-models: ./sequelize-models
     env_file: ".env"
   studentmanagementapi:
     build:

@@ -8,13 +8,35 @@ const typeDefs = `#graphql
     
     type AuthResponse {
         token: String!
-        user: User!
+        user: AuthUserData!
         scope: AuthorityScope!
     }
     
     # should use status wrapper type for responses
     type Empty {
         status: String!
+    }
+
+    type AuthStudentProfile {
+        groupId: String!
+        qualificationTitleId: Int
+        qualificationId: Int!
+    }
+
+    type AuthTeacherProfile {
+        teachingQualificationTitleId: Int
+        teachingQualificationId: Int!
+    }
+
+    union AuthProfile = AuthStudentProfile | AuthTeacherProfile
+
+    type AuthUserData { 
+        id: ID!
+        firstName: String!
+        lastName: String!
+        email: String!
+        scope: AuthorityScope!
+        profile: AuthProfile!
     }
 
     interface User {

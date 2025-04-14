@@ -10,6 +10,7 @@ export enum UserAuthorityScope {
 
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare id: CreationOptional<number>;
+  declare oid: string;
   declare firstName: string;
   declare lastName: string;
   declare email: string;
@@ -23,6 +24,10 @@ User.init({
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true
+  },
+  oid: {
+    type: DataTypes.UUID,
+    allowNull: false,
   },
   firstName: {
     type: DataTypes.STRING(128),

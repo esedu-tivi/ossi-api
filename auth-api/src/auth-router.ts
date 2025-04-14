@@ -1,5 +1,6 @@
 import express, { json } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import { Student, Teacher, User, UserAuthorityScope } from "sequelize-models";
 
 const router = express.Router()
 
@@ -7,29 +8,70 @@ interface IdTokenPayload extends JwtPayload {
     oid: string,
     given_name: string,
     family_name: string,
+    jobTitle: string,
     upn: string,
 }
 
 router.use(json())
 
-router.post("/login", (req, res) => { 
+// intended for basic ossi login, job supervisor scopes should be created in a seperate endpoint?
+router.post("/login", async (req, res) => { 
     const idToken = jwt.decode(req.body.idToken) as IdTokenPayload
 
     // idToken verification
-    // adding user to database
+    // if (idTokenIsNotValid) { return res.status(401) }
 
-    const user = {
-        id: idToken.oid,
-        firstName: idToken.given_name,
-        lastName: idToken.family_name,
-        email: idToken.upn,
+    const isUserInDatabase = await User.findOne({ where: { oid: idToken.oid }}) != null;
+    const userScope = idToken.upn.endsWith("@esedulainen.fi") ? UserAuthorityScope.Student : UserAuthorityScope.Teacher;
+    
+    // create user and teacher or student rows for nonexistant user
+    if (!isUserInDatabase) {
+        const createdUser = await User.create({
+            oid: idToken.oid,
+            firstName: idToken.given_name,
+            lastName: idToken.family_name,
+            email: idToken.upn,
+            phoneNumber: "",
+            scope: userScope,
+            archived: false,
+        });
+
+        if (userScope == UserAuthorityScope.Student) {
+            await Student.create({
+                id: createdUser.id,
+                groupId: idToken.jobTitle,
+                qualificationTitleId: 0, // TODO
+                qualificationId: 0
+            });
+        } else if (userScope == UserAuthorityScope.Teacher) {
+            await Teacher.create({
+                id: createdUser.id,
+                teachingQualificationTitleId: null,
+                teachingQualificationId: 0 // TODO
+            });
+        }
     }
 
+    const user = await User.findOne({ where: { oid: idToken.oid }})
+    const profile = userScope == UserAuthorityScope.Student ? await Student.findByPk(user.id) : await Teacher.findByPk(user.id)
+
+    const userData = {
+        ...profile, 
+        ...{
+            id: user.id,
+            firstName: idToken.given_name,
+            lastName: idToken.family_name,
+            email: idToken.upn,
+            scope: userScope,
+            profile: profile
+        }
+    };
+
     res.json({
-        token: jwt.sign(user, process.env.JWT_SECRET_KEY ?? "", {
+        token: jwt.sign(userData, process.env.JWT_SECRET_KEY ?? "", {
             expiresIn: "1d"
         }),
-        user: user
+        user: userData
     });
 });
 

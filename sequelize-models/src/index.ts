@@ -10,7 +10,7 @@ export { QualificationCompetenceRequirement } from "./qualification-competence-r
 export { CompetenceRequirementsInProjects } from "./competence-requirements-in-projects.js";
 export { Qualification } from "./qualification.js";
 export { QualificationTitle } from "./qualification-title.js";
-export { User } from "./user.js";
+export { User, UserAuthorityScope } from "./user.js";
 export { Student } from "./student.js";
 export { Teacher } from "./teacher.js";
 export { QualificationUnit } from "./qualification-unit.js";
