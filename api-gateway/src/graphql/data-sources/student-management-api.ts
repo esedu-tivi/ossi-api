@@ -13,6 +13,13 @@ class StudentManagementAPI extends RESTDataSource {
         request.headers.authorization = this.token;
     }
 
+    async setStudentQualificationCompletion(id, qualificationCompletion) { 
+        return this.post(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/${id}/qualification_completion`,
+            { body: { qualificationCompletion }}
+        );
+    }
+
     async getProjects() {
         return this.get(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/qualification/projects"

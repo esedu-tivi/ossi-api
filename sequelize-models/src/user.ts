@@ -2,10 +2,10 @@ import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, 
 import { sequelize } from "./sequelize";
 
 export enum UserAuthorityScope {
-  Student = 'student',
-  Teacher = 'teacher',
-  JobSupervisor = 'job supervisor',
-  Admin = 'admin'
+  Student = 'STUDENT',
+  Teacher = 'TEACHER',
+  JobSupervisor = 'JOB_SUPERVISOR',
+  Admin = 'ADMIN'
 }
 
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {

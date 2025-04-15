@@ -5,6 +5,11 @@ const typeDefs = `#graphql
         JOB_SUPERVISOR
         ADMIN
     }
+
+    enum QualificationCompletion {
+        FULL_COMPLETION
+        PARTIAL_COMPLETION
+    }
     
     type AuthResponse {
         token: String!
@@ -19,6 +24,7 @@ const typeDefs = `#graphql
 
     type AuthStudentProfile {
         groupId: String!
+        qualificationCompletion: QualificationCompletion
         qualificationTitleId: Int
         qualificationId: Int!
     }
@@ -211,6 +217,11 @@ const typeDefs = `#graphql
 
     type Mutation {
         login(idToken: String!): AuthResponse
+       
+        # this mutation can only be done once by a student, while a student's qualification completion is not set
+        # assigns TVP for the student automatically, if FullCompletion is chosen
+        setStudentQualificationCompletion(studentId: ID!, qualificationCompletion: QualificationCompletion!): Empty!
+
         createProject(project: CreateProjectInput!): QualificationProject!
         createPart(part: CreatePartInput!): QualificationUnitPart!
         updateProject(id: ID!, project: UpdateProjectInput!): QualificationProject!

@@ -43,6 +43,7 @@ router.post("/login", async (req, res) => {
             await Student.create({
                 id: createdUser.id,
                 groupId: idToken.jobTitle,
+                qualificationCompletion: null,
                 qualificationTitleId: 0, // TODO
                 qualificationId: 0
             }, { transaction });
