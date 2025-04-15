@@ -17,13 +17,14 @@ router.use(json())
 // intended for basic ossi login, job supervisor scopes should be created in a seperate endpoint?
 router.post("/login", async (req, res) => {
     const transaction = await sequelize.transaction();
+    await sequelize.query("LOCK TABLE \"users\" IN ACCESS EXCLUSIVE MODE", { transaction });
 
     const idToken = jwt.decode(req.body.idToken) as IdTokenPayload;
 
     // idToken verification
     // if (idTokenIsNotValid) { return res.status(401) }
 
-    const isUserInDatabase = await User.findOne({ where: { oid: idToken.oid }, transaction, lock: true }) != null;
+    const isUserInDatabase = await User.findOne({ where: { oid: idToken.oid }, transaction }) != null;
     const userScope = idToken.upn.endsWith("@esedulainen.fi") ? UserAuthorityScope.Student : UserAuthorityScope.Teacher;
     
     // create user and teacher or student rows for nonexistant user
