@@ -23,7 +23,7 @@ router.post("/login", async (req, res) => {
     // idToken verification
     // if (idTokenIsNotValid) { return res.status(401) }
 
-    const isUserInDatabase = await User.findOne({ where: { oid: idToken.oid }, transaction }) != null;
+    const isUserInDatabase = await User.findOne({ where: { oid: idToken.oid }, transaction, lock: true }) != null;
     const userScope = idToken.upn.endsWith("@esedulainen.fi") ? UserAuthorityScope.Student : UserAuthorityScope.Teacher;
     
     // create user and teacher or student rows for nonexistant user
