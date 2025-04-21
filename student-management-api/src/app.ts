@@ -6,12 +6,14 @@ import { ProjectsRouter } from "./handlers/projects-router.js";
 import { UnitsRouter } from "./handlers/units-router.js";
 import { ProjectTagsRouter } from "./handlers/project-tags-router.js"
 import { errorHandler } from './utils/middleware.js';
+import { TeacherRouter } from './handlers/teacher-router.js';
 
 const app = express();
 
 app.use(json());
 
 app.use("/students", StudentRouter);
+app.use("/teachers", TeacherRouter);
 app.use("/qualification/projects/tags", ProjectTagsRouter)
 app.use("/qualification/projects", ProjectsRouter);
 app.use("/qualification/parts", PartsRouter);

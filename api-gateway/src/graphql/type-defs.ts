@@ -6,6 +6,12 @@ const typeDefs = `#graphql
         ADMIN
     }
 
+    enum UserType {
+        STUDENT
+        TEACHER
+        JOB_SUPERVISOR
+    }
+
     enum QualificationCompletion {
         FULL_COMPLETION
         PARTIAL_COMPLETION
@@ -13,46 +19,11 @@ const typeDefs = `#graphql
     
     type AuthResponse {
         token: String!
-        user: AuthUserData!
-        scope: AuthorityScope!
     }
     
     # should use status wrapper type for responses
     type Empty {
         status: String!
-    }
-
-    type AuthStudentProfile {
-        groupId: String!
-        qualificationCompletion: QualificationCompletion
-        qualificationTitleId: Int
-        qualificationId: Int!
-    }
-
-    type AuthTeacherProfile {
-        teachingQualificationTitleId: Int
-        teachingQualificationId: Int!
-    }
-
-    union AuthProfile = AuthStudentProfile | AuthTeacherProfile
-
-    type AuthUserData { 
-        id: ID!
-        oid: ID!
-        firstName: String!
-        lastName: String!
-        email: String!
-        scope: AuthorityScope!
-        profile: AuthProfile!
-    }
-
-    interface User {
-        id: ID!
-        firstName: String!
-        lastName: String!
-        email: String!
-        phoneNumber: String
-        archived: Boolean!
     }
 
     type LocalizedString {
@@ -117,37 +88,38 @@ const typeDefs = `#graphql
         tags: [QualificationProjectTag!]!
     }
 
+    interface User { 
+        id: ID!
+        firstName: String!
+        lastName: String!
+        email: String!
+        archived: Boolean!
+    }
+
     type Student implements User {
         id: ID!
         firstName: String!
         lastName: String!
         email: String!
         archived: Boolean!
-        phoneNumber: String
-        
-        """
-        selectedQualificationUnits: [QualificationUnit!]!
-        currentlyUndertakenQualificationProjects: [UndertakenQualificationProject!]!
-        """
-
         groupId: String!
+        qualificationCompletion: QualificationCompletion
         studyingQualification: Qualification
         studyingQualificationTitle: QualificationTitle
+        assignedQualificationUnits: [QualificationUnit!]!
     }
-    
+
     type Teacher implements User {
         id: ID!
         firstName: String!
         lastName: String!
         email: String!
         archived: Boolean!
-        phoneNumber: String
 
+        # todo
         teachingQualification: Qualification
-        followingStudents: [Student!]!
+        teachingQualificationTitle: QualificationTitle
     }
-
-    union CurrentUser = Student | Teacher
 
     type ProjectReturnNotification {
         id: ID!
@@ -166,7 +138,9 @@ const typeDefs = `#graphql
     union Notification = ProjectReturnNotification | ProjectUpdateNotification
 
     type Query {
-        me: CurrentUser!
+        me: User!
+        amISetUp: Boolean!
+
         students: [Student!]!
 
         units: [QualificationUnit!]!
@@ -215,12 +189,18 @@ const typeDefs = `#graphql
         parentQualificationUnit: ID!
     }
 
+    input StudentSetupInput {
+        qualificationId: ID!
+        qualificationCompletion: QualificationCompletion!
+    }
+
     type Mutation {
         login(idToken: String!): AuthResponse
        
-        # this mutation can only be done once by a student, while a student's qualification completion is not set
+        # this mutation can only be done once by a student, while a student's profile has not been set up
         # assigns TVP for the student automatically, if FullCompletion is chosen
-        setStudentQualificationCompletion(studentId: ID!, qualificationCompletion: QualificationCompletion!): Empty!
+        # after performing this mutation a new token should be generated
+        setUpStudent(studentId: ID!, studentSetupInput: StudentSetupInput!): Empty!
 
         createProject(project: CreateProjectInput!): QualificationProject!
         createPart(part: CreatePartInput!): QualificationUnitPart!

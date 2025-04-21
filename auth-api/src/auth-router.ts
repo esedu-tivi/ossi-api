@@ -31,6 +31,7 @@ router.post("/login", async (req, res) => {
     if (!isUserInDatabase) {
         const createdUser = await User.create({
             oid: idToken.oid,
+            isSetUp: false,
             firstName: idToken.given_name,
             lastName: idToken.family_name,
             email: idToken.upn,
@@ -44,14 +45,14 @@ router.post("/login", async (req, res) => {
                 id: createdUser.id,
                 groupId: idToken.jobTitle,
                 qualificationCompletion: null,
-                qualificationTitleId: 0, // TODO
-                qualificationId: 0
+                qualificationTitleId: null, // TODO
+                qualificationId: null
             }, { transaction });
         } else if (userScope == UserAuthorityScope.Teacher) {
             await Teacher.create({
                 id: createdUser.id,
                 teachingQualificationTitleId: null,
-                teachingQualificationId: 0 // TODO
+                teachingQualificationId: null // TODO
             }, { transaction });
         }
     }
@@ -62,9 +63,8 @@ router.post("/login", async (req, res) => {
     const userData = {
         id: user.id,
         oid: user.oid,
-        firstName: idToken.given_name,
-        lastName: idToken.family_name,
-        email: idToken.upn,
+        isSetUp: user.isSetUp,
+        type: idToken.upn.endsWith("@esedulainen.fi") ? "STUDENT" : "TEACHER",
         scope: userScope,
         profile: profile
     };
@@ -73,7 +73,6 @@ router.post("/login", async (req, res) => {
         token: jwt.sign(userData, process.env.JWT_SECRET_KEY ?? "", {
             expiresIn: "1d"
         }),
-        user: userData
     });
 
     await transaction.commit();

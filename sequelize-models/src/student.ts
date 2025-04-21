@@ -1,6 +1,7 @@
-import { DataTypes, ForeignKey, InferAttributes, InferCreationAttributes, Model } from "sequelize";
+import { Association, DataTypes, ForeignKey, InferAttributes, InferCreationAttributes, Model, NonAttribute } from "sequelize";
 import { sequelize } from "./sequelize";
 import { User } from "./user";
+import { QualificationUnit } from "./qualification-unit";
 
 export enum QualificationCompletion {
   FullCompletion = 'FULL_COMPLETION',
@@ -12,7 +13,13 @@ export class Student extends Model<InferAttributes<Student>, InferCreationAttrib
   declare groupId: string;
   declare qualificationCompletion: QualificationCompletion | null;
   declare qualificationTitleId: number | null;
-  declare qualificationId: number;
+  declare qualificationId: number | null;
+
+  declare assignedUnits?: NonAttribute<QualificationUnit[]>;
+
+  declare static associations: { 
+    assignedUnits: Association<Student, QualificationUnit>;
+  };
 }
 
 Student.init({
@@ -35,11 +42,12 @@ Student.init({
     allowNull: true
   },
   qualificationTitleId: {
-    type: DataTypes.INTEGER
+    type: DataTypes.INTEGER,
+    allowNull: true
   },
   qualificationId: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: true
   }
 }, {
   tableName: 'students',

@@ -9,7 +9,12 @@ const studyingQualificationTitle: Resolver<{ id: number }, null> = async (parent
     return await context.dataSources.studentManagementAPI.getStudentStudyingQualificationTitle(parent.id);
 }
 
+const assignedQualificationUnits: Resolver<{ id: number }, null> = async (parent, _, context) => {
+    return await context.dataSources.studentManagementAPI.getStudentAssignedQualificationUnits(parent.id);
+}
+
 export const Student = {
     studyingQualification,
-    studyingQualificationTitle
+    studyingQualificationTitle,
+    assignedQualificationUnits
 }

@@ -1,6 +1,20 @@
 import axios from "axios"
 import { Resolver } from "../resolver.js"
 
+const me: Resolver<null, null> = async (_, __, context) => {
+    if (context.user.type == "STUDENT") {
+        return await context.dataSources.studentManagementAPI.getStudent(context.user.id);
+    } else if (context.user.type == "TEACHER") {
+        return await context.dataSources.studentManagementAPI.getTeacher(context.user.id);
+    }
+
+    throw Error();
+}
+
+const amISetUp: Resolver<null, null> = async (_, __, context) => {
+    return context.user.isSetUp;
+}
+
 const students: Resolver<null, null> = async (parent, _, context) => {
     if (false) { //(!context.user || context.userScope != "TEACHER" || context.userScope != "ADMIN") {
         throw Error()
@@ -46,6 +60,8 @@ const notifications: Resolver<null, null> = async (_, args, context) => {
 }
 
 export const Query = {
+    me,
+    amISetUp,
     students,
     units,
     parts,

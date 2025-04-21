@@ -13,10 +13,22 @@ class StudentManagementAPI extends RESTDataSource {
         request.headers.authorization = this.token;
     }
 
-    async setStudentQualificationCompletion(id, qualificationCompletion) { 
+    async getStudent(id) {
+        return this.get(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/${id}`,
+        );
+    }
+
+    async getTeacher(id) {
+        return this.get(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/teachers/${id}`,
+        )
+    }
+
+    async setUpStudent(id, studentSetupData) { 
         return this.post(
-            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/${id}/qualification_completion`,
-            { body: { qualificationCompletion }}
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/${id}/student_setup`,
+            { body: studentSetupData }
         );
     }
 
@@ -137,6 +149,12 @@ class StudentManagementAPI extends RESTDataSource {
     async getStudentStudyingQualificationTitle(id) {
         return this.get(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/${id}/studying_qualification_title`
+        );
+    }
+
+    async getStudentAssignedQualificationUnits(id) {
+        return this.get(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/${id}/assigned_qualification_units`
         );
     }
 }

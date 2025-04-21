@@ -6,8 +6,8 @@ const login = async (parent, args, context, info) => {
     return response.data;
 }
 
-const setStudentQualificationCompletion = async (parent, args, context, info) => {
-    return await context.dataSources.studentManagementAPI.setStudentQualificationCompletion(args.studentId, args.qualificationCompletion);
+const setUpStudent = async (parent, args, context, info) => {
+    return await context.dataSources.studentManagementAPI.setUpStudent(args.studentId, args.studentSetupInput);
 }
 
 const createProject = async (parent, args, context, info) => {
@@ -42,7 +42,7 @@ const debugSendNotification = async (parent, args, context, info) => {
 
 export const Mutation = {
     login,
-    setStudentQualificationCompletion,
+    setUpStudent,
     createProject,
     createPart,
     updateProject,

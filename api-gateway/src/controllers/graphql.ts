@@ -20,8 +20,8 @@ const resolvers = {
     Notification: {
         __resolveType: (notification) => notification.kind
     },
-    AuthProfile: {
-        __resolveType: (profile) => profile.teachingQualificationTitleId ? "AuthTeacherProfile" : "AuthStudentProfile"
+    User: {
+        __resolveType: (user) => user.qualificationCompletion ? "Student" : "Teacher"
     },
     Query,
     Mutation,

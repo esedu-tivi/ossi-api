@@ -11,6 +11,7 @@ export enum UserAuthorityScope {
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare id: CreationOptional<number>;
   declare oid: string;
+  declare isSetUp: boolean;
   declare firstName: string;
   declare lastName: string;
   declare email: string;
@@ -29,6 +30,12 @@ User.init({
     type: DataTypes.UUID,
     allowNull: false,
     unique: true,
+  },
+  isSetUp: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+    field: "is_set_up"
   },
   firstName: {
     type: DataTypes.STRING(128),
