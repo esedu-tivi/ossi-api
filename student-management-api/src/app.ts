@@ -1,5 +1,5 @@
 import express, { json } from 'express';
-import { StudentRouter } from './student-router.js';
+import { StudentRouter } from './handlers/student-router.js';
 import { QualificationRouter } from './handlers/qualification-router.js';
 import { PartsRouter } from "./handlers/parts-router.js";
 import { ProjectsRouter } from "./handlers/projects-router.js";

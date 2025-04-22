@@ -1,5 +1,5 @@
 import express from "express";
-import { pool } from "./postgres-pool.js";
+import { pool } from "../postgres-pool.js";
 import jwt from "jsonwebtoken";
 import { AssignedQualificationUnitsForStudents, Qualification, QualificationTitle, QualificationUnit, Student, User } from "sequelize-models";
 import { QualificationCompletion } from "sequelize-models/dist/student.js";
