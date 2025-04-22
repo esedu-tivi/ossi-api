@@ -7,9 +7,10 @@ import { QualificationCompletion } from "sequelize-models/dist/student.js";
 const router = express.Router();
 
 router.get("/", async (req, res) => {
-    const queryResponse = await pool.query("SELECT u.id, u.first_name as \"firstName\", u.last_name as \"lastName\", u.email, u.phone_number as \"phoneNumber\", u.archived, s.group_id as \"groupId\" FROM users AS u INNER JOIN students AS s ON u.id = s.user_id");
+    const students = await Student.findAll();
+    const users = await User.findAll({ where: { id: students.map(student => student.id) } });
 
-    res.json(queryResponse.rows);
+    res.json(students.map(student => ({ ...student.toJSON(), ...users.find(user => user.id == student.id).toJSON() })));
 });
 
 router.get("/:id/", async (req, res) => {
