@@ -12,13 +12,13 @@ interface IdTokenPayload extends JwtPayload {
 }
 
 async function getPemCertificate(idToken) { 
-    const jwks = await axios.get("https://login.microsoftonline.com/common/discovery/keys") as any;
+    const jwks = (await axios.get("https://login.microsoftonline.com/common/discovery/keys")).data;
 
     const idTokenKid = jwt.decode(idToken, { complete: true }).header.kid;
     
-    const jwksKey = jwks.keys.find(key => key.kid == idTokenKid);
+    const jwksKey = jwks["keys"].find(key => key.kid == idTokenKid);
 
-    return "-----BEGIN CERTIFICATE-----" + jwksKey.x5c[0] + "-----END CERTIFICATE-----";
+    return "-----BEGIN CERTIFICATE-----\n" + jwksKey.x5c[0] + "\n-----END CERTIFICATE-----";
 }
 
 const router = express.Router();
@@ -33,7 +33,7 @@ router.post("/login", async (req, res) => {
     let idToken: IdTokenPayload;
     try {
         const pem = await getPemCertificate(req.body.idToken);
-        idToken = jwt.verify(req.body.idToken, pem) as IdTokenPayload;
+        idToken = jwt.verify(req.body.idToken, pem, { algorithms: ["RS256"] }) as IdTokenPayload;
     } catch (e) {
         console.log(e);
         return res.status(401);
