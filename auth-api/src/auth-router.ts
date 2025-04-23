@@ -16,7 +16,7 @@ async function getPemCertificate(idToken) {
 
     const idTokenKid = jwt.decode(idToken, { complete: true }).header.kid;
     
-    const jwksKey = jwks.find(jwk => jwk.kid == idTokenKid);
+    const jwksKey = jwks.keys.find(key => key.kid == idTokenKid);
 
     return "-----BEGIN CERTIFICATE-----" + jwksKey.x5c[0] + "-----END CERTIFICATE-----";
 }
