@@ -1,8 +1,7 @@
+import axios from "axios";
 import express, { json } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { sequelize, Student, Teacher, User, UserAuthorityScope } from "sequelize-models";
-
-const router = express.Router()
 
 interface IdTokenPayload extends JwtPayload {
     oid: string,
@@ -12,17 +11,33 @@ interface IdTokenPayload extends JwtPayload {
     upn: string,
 }
 
-router.use(json())
+async function getPemCertificate(idToken) { 
+    const jwks = await axios.get("https://login.microsoftonline.com/common/discovery/keys") as any;
+
+    const idTokenKid = jwt.decode(idToken, { complete: true }).header.kid;
+    
+    const jwksKey = jwks.find(jwk => jwk.kid == idTokenKid);
+
+    return "-----BEGIN CERTIFICATE-----" + jwksKey.x5c[0] + "-----END CERTIFICATE-----";
+}
+
+const router = express.Router();
+
+router.use(json());
 
 // intended for basic ossi login, job supervisor scopes should be created in a seperate endpoint?
 router.post("/login", async (req, res) => {
     const transaction = await sequelize.transaction();
     await sequelize.query("LOCK TABLE \"users\" IN ACCESS EXCLUSIVE MODE", { transaction });
-
-    const idToken = jwt.decode(req.body.idToken) as IdTokenPayload;
-
-    // idToken verification
-    // if (idTokenIsNotValid) { return res.status(401) }
+    
+    let idToken: IdTokenPayload;
+    try {
+        const pem = await getPemCertificate(req.body.idToken);
+        idToken = jwt.verify(req.body.idToken, pem) as IdTokenPayload;
+    } catch (e) {
+        console.log(e);
+        return res.status(401);
+    }
 
     const isUserInDatabase = await User.findOne({ where: { oid: idToken.oid }, transaction }) != null;
     const userScope = idToken.upn.endsWith("@esedulainen.fi") ? UserAuthorityScope.Student : UserAuthorityScope.Teacher;
