@@ -3,6 +3,7 @@ import { pool } from "../postgres-pool.js";
 import jwt from "jsonwebtoken";
 import { AssignedQualificationUnitsForStudents, Qualification, QualificationTitle, QualificationUnit, Student, User } from "sequelize-models";
 import { QualificationCompletion } from "sequelize-models/dist/student.js";
+import { beginTransaction, commitTransaction } from "../utils/middleware.js";
 
 const router = express.Router();
 
@@ -41,32 +42,67 @@ router.get("/:id/assigned_qualification_units", async (req, res) => {
     res.json(units);
 });
 
-router.post("/:id/student_setup", async (req, res) => {
-    const user = jwt.decode(req.headers.authorization) as any;
-    const { qualificationCompletion, qualificationId } = req.body;
+router.post("/:id/student_setup", beginTransaction, async (req, res, next) => {
+    try {
+        const user = jwt.decode(req.headers.authorization) as any;
+        const { qualificationCompletion, qualificationId } = req.body;
 
-    if (new Number(req.params.id) != user.id || user.type != "STUDENT" || user.isSetUp) {
-        return res.status(403);
-    }
+        if (req.params.id != user.id) {
+            res.json({
+                status: 401,
+                success: false,
+                message: "The user requesting student setup does not match with the student."
+            });
+            
+            throw Error();
+        }
 
-    await Student.update({
-        qualificationCompletion: qualificationCompletion,
-        qualificationId: qualificationId,
-    }, { where: { id: user.id }});
+        if (user.type != "STUDENT") { 
+            res.json({
+                status: 401,
+                success: false,
+                message: "The user requesting student setup is not a student."
+            });
+ 
+            throw Error();
+        }
 
-    // assigning TVP for the new student, should make this more modular, if other vocations start using Ossi
-    if (qualificationCompletion == "FULL_COMPLETION") {
-        await AssignedQualificationUnitsForStudents.create({
-            studentId: user.id,
-            qualificationUnitId: 6779606
+        if (user.isSetUp) {
+            res.json({
+                status: 401,
+                success: false,
+                message: "The student has already been set up."
+            });
+
+            throw Error();
+        }
+
+        await Student.update({
+            qualificationCompletion: qualificationCompletion,
+            qualificationId: qualificationId,
+        }, { where: { id: user.id }, transaction: res.locals._transaction });
+
+        // assigning TVP for the new student, should make this more modular, if other vocations start using Ossi
+        if (qualificationCompletion == "FULL_COMPLETION") {
+            await AssignedQualificationUnitsForStudents.create({
+                studentId: user.id,
+                qualificationUnitId: 6779606
+            }, { transaction: res.locals._transaction });
+        }
+
+        await User.update({
+            isSetUp: true
+        }, { where: { id: user.id }, transaction: res.locals._transaction });
+
+        res.json({
+            status: 200,
+            success: true
         });
+
+        next();
+    } catch (e) {
+        next(e)
     }
-
-    await User.update({
-        isSetUp: true
-    }, { where: { id: user.id }});
-
-    res.json({ status: "ok" })
-});
+}, commitTransaction);
 
 export const StudentRouter = router;

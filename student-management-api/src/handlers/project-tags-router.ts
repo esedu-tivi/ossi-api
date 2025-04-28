@@ -26,7 +26,11 @@ router.post("/", beginTransaction, async (req, res, next) => {
             transaction: res.locals._transaction 
         });
 
-        res.json(tag);
+        res.json({
+            status: 200,
+            success: true,
+            tag: tag
+        });
         
         next();
     } catch (e) {

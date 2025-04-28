@@ -160,7 +160,6 @@ const typeDefs = `#graphql
         name: String!
         description: String!
         materials: String!
-        # osaamiset: [ID!]
         duration: Int!
         includedInParts: [ID!]!
         competenceRequirements: [ID!]!
@@ -172,7 +171,6 @@ const typeDefs = `#graphql
         name: String!
         description: String!
         materials: String!
-        # osaamiset: [ID!]
         duration: Int!
         includedInParts: [ID!]!
         competenceRequirements: [ID!]!
@@ -193,21 +191,75 @@ const typeDefs = `#graphql
         qualificationId: ID!
         qualificationCompletion: QualificationCompletion!
     }
+    
+    type LoginResponse {
+        status: Int!
+        success: Boolean!
+        message: String
+        token: String
+    }
+
+    type SetUpStudentResponse {
+        status: Int!
+        success: Boolean!
+        message: String
+    }
+
+    type CreatePartResponse {
+        status: Int!
+        success: Boolean!
+        message: String
+        part: QualificationUnitPart
+    }
+
+    type CreateProjectResponse {
+        status: Int!
+        success: Boolean!
+        message: String
+        project: QualificationProject
+    }
+
+    type UpdatePartResponse {
+        status: Int!
+        success: Boolean!
+        message: String
+        part: QualificationUnitPart
+    }
+
+    type UpdateProjectResponse {
+        status: Int!
+        success: Boolean!
+        message: String
+        part: QualificationProject
+    }
+
+    type UpdatePartOrderResponse {
+        status: Int!
+        success: Boolean!
+        message: String
+    }
+
+    type CreateProjectTagResponse {
+        status: Int!
+        success: Boolean!
+        message: String
+        tag: QualificationProjectTag
+    } 
 
     type Mutation {
-        login(idToken: String!): AuthResponse
+        login(idToken: String!): LoginResponse!
        
         # this mutation can only be done once by a student, while a student's profile has not been set up
         # assigns TVP for the student automatically, if FullCompletion is chosen
         # after performing this mutation a new token should be generated
-        setUpStudent(studentId: ID!, studentSetupInput: StudentSetupInput!): Empty!
+        setUpStudent(studentId: ID!, studentSetupInput: StudentSetupInput!): SetUpStudentResponse!
 
-        createProject(project: CreateProjectInput!): QualificationProject!
-        createPart(part: CreatePartInput!): QualificationUnitPart!
-        updateProject(id: ID!, project: UpdateProjectInput!): QualificationProject!
-        updatePart(id: ID!, part: CreatePartInput!): QualificationUnitPart!
-        updatePartOrder(unitId: ID!, partOrder: [ID!]!): Empty!
-        createProjectTag(name: String!): QualificationProjectTag!
+        createProject(project: CreateProjectInput!): CreateProjectResponse!
+        updateProject(id: ID!, project: UpdateProjectInput!): UpdateProjectResponse!
+        createPart(part: CreatePartInput!): CreatePartResponse!
+        updatePart(id: ID!, part: CreatePartInput!): UpdatePartResponse!
+        updatePartOrder(unitId: ID!, partOrder: [ID!]!): UpdatePartOrderResponse!
+        createProjectTag(name: String!): CreateProjectTagResponse!
         
         # remove once not needed
         debugSendNotification(recipients: [ID!]!, notification: String!): Int!
