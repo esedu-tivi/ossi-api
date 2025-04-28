@@ -13,16 +13,16 @@ import { QualificationProject } from '../graphql/resolvers/project.js';
 import { QualificationUnitPart } from '../graphql/resolvers/part.js';
 import { QualificationUnit } from '../graphql/resolvers/unit.js';
 import { StudentManagementAPI } from '../graphql/data-sources/student-management-api.js';
+import { User } from '../graphql/resolvers/user.js';
+import { Notification } from '../graphql/resolvers/notification.js';
+import { makeExecutableSchema } from 'graphql-tools';
+import { authenticatedAsStudentDirectiveTransformer, authenticatedAsTeacherDirectiveTransformer, authenticatedDirectiveTransformer } from '../graphql/directive-transformers.js';
 
 const graphqlRouter = express.Router();
 
 const resolvers = {
-    Notification: {
-        __resolveType: (notification) => notification.kind
-    },
-    User: {
-        __resolveType: (user) => user.qualificationCompletion ? "Student" : "Teacher"
-    },
+    Notification,
+    User,
     Query,
     Mutation,
     Student,
@@ -31,10 +31,16 @@ const resolvers = {
     QualificationUnit,
 }
 
-const server = new ApolloServer<ApolloContext>({
+let schema = makeExecutableSchema({
     typeDefs,
     resolvers
 });
+
+schema = authenticatedDirectiveTransformer(schema);
+schema = authenticatedAsTeacherDirectiveTransformer(schema);
+schema = authenticatedAsStudentDirectiveTransformer(schema);
+
+const server = new ApolloServer<ApolloContext>({ schema });
 
 await server.start();
 

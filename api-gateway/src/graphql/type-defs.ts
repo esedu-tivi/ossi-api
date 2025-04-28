@@ -1,4 +1,8 @@
 const typeDefs = `#graphql
+    directive @authenticated on FIELD_DEFINITION
+    directive @authenticatedAsTeacher on FIELD_DEFINITION
+    directive @authenticatedAsStudent on FIELD_DEFINITION
+    
     enum AuthorityScope {
         STUDENT
         TEACHER
@@ -138,22 +142,22 @@ const typeDefs = `#graphql
     union Notification = ProjectReturnNotification | ProjectUpdateNotification
 
     type Query {
-        me: User!
-        amISetUp: Boolean!
+        me: User! @authenticated
+        amISetUp: Boolean! @authenticated
 
-        students: [Student!]!
+        students: [Student!]! @authenticatedAsTeacher
 
-        units: [QualificationUnit!]!
+        units: [QualificationUnit!]! @authenticated
 
-        parts: [QualificationUnitPart!]!
-        part(id: ID!): QualificationUnitPart
+        parts: [QualificationUnitPart!]! @authenticated
+        part(id: ID!): QualificationUnitPart @authenticated
 
-        projects: [QualificationProject!]!
-        project(id: ID!): QualificationProject
+        projects: [QualificationProject!]! @authenticated
+        project(id: ID!): QualificationProject @authenticated
 
-        projectTags: [QualificationProjectTag!]!
+        projectTags: [QualificationProjectTag!]! @authenticated
 
-        notifications: [Notification!]!
+        notifications: [Notification!]! @authenticated
     }
 
     input CreateProjectInput {
@@ -252,14 +256,14 @@ const typeDefs = `#graphql
         # this mutation can only be done once by a student, while a student's profile has not been set up
         # assigns TVP for the student automatically, if FullCompletion is chosen
         # after performing this mutation a new token should be generated
-        setUpStudent(studentId: ID!, studentSetupInput: StudentSetupInput!): SetUpStudentResponse!
+        setUpStudent(studentId: ID!, studentSetupInput: StudentSetupInput!): SetUpStudentResponse! @authenticatedAsStudent
 
-        createProject(project: CreateProjectInput!): CreateProjectResponse!
-        updateProject(id: ID!, project: UpdateProjectInput!): UpdateProjectResponse!
-        createPart(part: CreatePartInput!): CreatePartResponse!
-        updatePart(id: ID!, part: CreatePartInput!): UpdatePartResponse!
-        updatePartOrder(unitId: ID!, partOrder: [ID!]!): UpdatePartOrderResponse!
-        createProjectTag(name: String!): CreateProjectTagResponse!
+        createProject(project: CreateProjectInput!): CreateProjectResponse! @authenticatedAsTeacher
+        updateProject(id: ID!, project: UpdateProjectInput!): UpdateProjectResponse! @authenticatedAsTeacher
+        createPart(part: CreatePartInput!): CreatePartResponse! @authenticatedAsTeacher
+        updatePart(id: ID!, part: CreatePartInput!): UpdatePartResponse! @authenticatedAsTeacher
+        updatePartOrder(unitId: ID!, partOrder: [ID!]!): UpdatePartOrderResponse! @authenticatedAsTeacher
+        createProjectTag(name: String!): CreateProjectTagResponse! @authenticatedAsTeacher
         
         # remove once not needed
         debugSendNotification(recipients: [ID!]!, notification: String!): Int!

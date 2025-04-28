@@ -9,6 +9,7 @@
   "dependencies": {
     "@apollo/datasource-rest": "^6.4.1",
     "@apollo/server": "^4.11.0",
+    "@graphql-tools/utils": "^10.8.6",
     "@types/axios": "^0.9.36",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
@@ -17,6 +18,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
+    "graphql-tools": "^9.0.18",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.13.0",
     "sequelize-models": "file:../sequelize-models",
