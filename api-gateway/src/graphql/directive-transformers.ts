@@ -9,7 +9,7 @@ export const authenticatedDirectiveTransformer = (schema) => {
                 const { resolve } = fieldConfig;
 
                 fieldConfig.resolve = async (parent, args, context, info) => {
-                    if (!context.user) {
+                    if (!context.user && process.env.DISABLE_ROLE_BASED_ACCESS_CONTROL == "false") {
                         return {
                             status: 401,
                             message: "Not authenticated.",
@@ -35,7 +35,7 @@ export const authenticatedAsTeacherDirectiveTransformer = (schema) => {
                 const { resolve } = fieldConfig;
 
                 fieldConfig.resolve = async (parent, args, context, info) => {
-                    if (context.user?.type != "TEACHER") {
+                    if (context.user?.type != "TEACHER" && process.env.DISABLE_ROLE_BASED_ACCESS_CONTROL == "false") {
                         return {
                             status: 401,
                             message: "Not authorized.",
@@ -61,7 +61,7 @@ export const authenticatedAsStudentDirectiveTransformer = (schema) => {
                 const { resolve } = fieldConfig;
 
                 fieldConfig.resolve = async (parent, args, context, info) => {
-                    if (context.user?.type != "TEACHER") {
+                    if (context.user?.type != "TEACHER" && process.env.DISABLE_ROLE_BASED_ACCESS_CONTROL == "false") {
                         return {
                             status: 401,
                             message: "Not authorized.",
