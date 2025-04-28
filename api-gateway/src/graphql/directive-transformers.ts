@@ -61,7 +61,7 @@ export const authenticatedAsStudentDirectiveTransformer = (schema) => {
                 const { resolve } = fieldConfig;
 
                 fieldConfig.resolve = async (parent, args, context, info) => {
-                    if (context.user?.type != "TEACHER" && process.env.DISABLE_ROLE_BASED_ACCESS_CONTROL == "false") {
+                    if (context.user?.type != "STUDENT" && process.env.DISABLE_ROLE_BASED_ACCESS_CONTROL == "false") {
                         return {
                             status: 401,
                             message: "Not authorized.",
