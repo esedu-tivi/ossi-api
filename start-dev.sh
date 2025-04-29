@@ -11,7 +11,7 @@ echo "📦 Building sequelize-models..."
 cd sequelize-models/
 rm -rf dist/
 npm install
-# Varmista että typescript on asennettu
+# Make sure TypeScript is installed
 if ! [ -d "node_modules/typescript" ]; then
   echo "Installing TypeScript..."
   npm install --save-dev typescript

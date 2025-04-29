@@ -1,17 +1,20 @@
 services:
   api:
+    container_name: ossi-api-gateway
     build:
       context: ./api-gateway
     ports:
       - "3000:3000"
     env_file: ".env"
   authapi:
+    container_name: ossi-auth-api
     build:
       context: ./auth-api
       additional_contexts:
         sequelize-models: ./sequelize-models
     env_file: ".env"
   studentmanagementapi:
+    container_name: ossi-student-management-api
     build:
       context: ./student-management-api
       additional_contexts:
@@ -21,26 +24,29 @@ services:
       db-migrations:
         condition: service_completed_successfully
   notificationserver:
+    container_name: ossi_notification_server
     ports:
       - "3001:3000"
     build:
       context: ./notification-server
     env_file: ".env"
   db:
+    container_name: ossi-postgres
     image: docker.io/postgres
     restart: always
     environment:
       POSTGRES_PASSWORD: postgres
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - ossi-db-data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5442:5442"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
       interval: 2s
       retries: 5
       start_period: 1s
   db-migrations:
+    container_name: ossi-db-migrations
     build:
       context: ./sequelize-models
     depends_on:
@@ -48,6 +54,7 @@ services:
         condition: service_healthy
     command: node migrator up
   pgadmin:
+    container_name: ossi-pgadmin
     restart: always
     image: docker.io/dpage/pgadmin4
     environment:
@@ -57,10 +64,11 @@ services:
     ports:
       - "5433:80"
   mongo:
+    container_name: ossi_mongodb
     image: docker.io/mongo
     restart: always
     #environment:
     #  MONGO_INITDB_ROOT_USERNAME: root
     #  MONGO_INITDB_ROOT_PASSWORD: mongo
 volumes:
-  db-data:
+  ossi-db-data:

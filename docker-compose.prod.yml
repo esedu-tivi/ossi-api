@@ -1,0 +1,149 @@
+version: '3.8'
+
+services:
+  api:
+    restart: always
+    # Poista development-ympäristön debug-asetukset
+    environment:
+      NODE_ENV: production
+    # Rajoita resurssien käyttöä
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    # Lisää healthcheck tuotantoympäristöön
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  authapi:
+    restart: always
+    environment:
+      NODE_ENV: production
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  studentmanagementapi:
+    restart: always
+    environment:
+      NODE_ENV: production
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  notificationserver:
+    restart: always
+    environment:
+      NODE_ENV: production
+    # Tuotannossa käytä vain sisäisiä portteja, ei ulkoisia, jos proxy hoitaa liikenteen
+    ports:
+      - "127.0.0.1:3001:3000"  # Rajoita pääsy vain localhost:iin
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  db:
+    restart: always
+    # Tuotannossa käytä vahvempia salasanoja
+    environment:
+      POSTGRES_PASSWORD: ${INTERNAL_DB_PASSWORD}
+    # Tuotannossa käytä pysyvää tallennustilaa
+    volumes:
+      - /var/lib/postgresql/data:/var/lib/postgresql/data
+    # Tuotannossa älä julkaise tietokantaa suoraan ulospäin
+    ports:
+      - "127.0.0.1:5432:5432"  # Rajoita pääsy vain localhost:iin
+    # Lisää resurssirajoitukset
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+
+  db-migrations:
+    restart: on-failure
+    environment:
+      NODE_ENV: production
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # Poista pgadmin tuotantoympäristöstä
+  pgadmin:
+    profiles: ["development"]  # Tämä palvelu ladataan vain kehitysprofiililla
+
+  # Mongo-tietokanta tuotantoympäristössä turvallisuusasetuksin
+  mongo:
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    volumes:
+      - /var/lib/mongodb:/data/db
+    # Tuotannossa älä julkaise MongoDB:tä suoraan ulospäin
+    ports:
+      - "127.0.0.1:27017:27017"  # Rajoita pääsy vain localhost:iin
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+    # Lisää MongoDB-autentikaatio
+    command: ["--auth"]
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# Määritä nimetyt volyymit tuotantoympäristöä varten
+volumes:
+  db-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/postgresql/data
