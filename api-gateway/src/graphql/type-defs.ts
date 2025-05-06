@@ -39,6 +39,7 @@ const typeDefs = `#graphql
     type QualificationTitle {
         id: Int!
         name: String!
+        mandatoryUnits: [QualificationUnit!]!
     }
 
     type Qualification {
@@ -146,6 +147,8 @@ const typeDefs = `#graphql
         amISetUp: Boolean! @authenticated
 
         students: [Student!]! @authenticatedAsTeacher
+
+        titles: [QualificationTitle!]! @authenticated
 
         units: [QualificationUnit!]! @authenticated
 

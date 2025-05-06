@@ -43,10 +43,28 @@ async function getExternalQualificationData(qualificationId: number) {
                 }, [])
         ], []);
 
+    const qualificationTitles = response
+        .data["tutkintonimikkeet"]
+        .map(title => ({
+            id: title["id"],
+            name: title["nimi"]["fi"]
+        }));
+
+    const mandatoryQualificationTitleUnits = response
+        .data["suoritustavat"][0]["rakenne"]["osat"][0]["osat"]
+        .filter(vocation => vocation["nimi"]["en"] != "Compulsory unit" && vocation["nimi"]["en"] != "Optional units") // filter out TVP and optional
+        .map(vocation => vocation["osat"][0]["osat"].map(titleUnit => ({
+            titleId: qualificationTitles.find(title => title.name == vocation["nimi"]["fi"]).id,
+            unitId: qualificationUnitsMapped.find(unit => unit.name == titleUnit["nimi"]["fi"]).id
+        })))
+        .flat();
+
     return {
         units: qualificationUnitsMapped,
         competenceRequirementGroups: qualificationCompetenceRequirementGroupsMapped,
-        competenceRequirements: qualificationCompetenceRequirementDescriptionsList,
+        competenceRequirements: qualificationCompetenceRequirementDescriptionsList, 
+        qualificationTitles: qualificationTitles,
+        mandatoryQualificationTitleUnits: mandatoryQualificationTitleUnits
     };
 }
 

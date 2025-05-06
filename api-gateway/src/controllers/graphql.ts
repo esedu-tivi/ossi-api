@@ -17,6 +17,7 @@ import { User } from '../graphql/resolvers/user.js';
 import { Notification } from '../graphql/resolvers/notification.js';
 import { makeExecutableSchema } from 'graphql-tools';
 import { authenticatedAsStudentDirectiveTransformer, authenticatedAsTeacherDirectiveTransformer, authenticatedDirectiveTransformer } from '../graphql/directive-transformers.js';
+import { QualificationTitle } from '../graphql/resolvers/title.js';
 
 const graphqlRouter = express.Router();
 
@@ -26,6 +27,7 @@ const resolvers = {
     Query,
     Mutation,
     Student,
+    QualificationTitle,
     QualificationUnitPart,
     QualificationProject,
     QualificationUnit,

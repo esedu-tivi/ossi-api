@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import app from "./app";
-import { QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationUnit } from 'sequelize-models';
+import { MandatoryQualificationUnitsForTitle, Qualification, QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationTitle, QualificationUnit } from 'sequelize-models';
 import { getExternalQualificationData } from './utils/eperuste';
 
 (async () => {
@@ -11,6 +11,9 @@ import { getExternalQualificationData } from './utils/eperuste';
         await QualificationUnit.bulkCreate(qualificationData.units);
         await QualificationCompetenceRequirements.bulkCreate(qualificationData.competenceRequirementGroups);
         await QualificationCompetenceRequirement.bulkCreate(qualificationData.competenceRequirements);
+        await QualificationTitle.bulkCreate(qualificationData.qualificationTitles.map(title => ({ ...title, qualificationId: 7861752 })));
+        await MandatoryQualificationUnitsForTitle.bulkCreate(qualificationData.mandatoryQualificationTitleUnits);
+        console.log(await MandatoryQualificationUnitsForTitle.findAll())
     }
 
     app.listen(3000);

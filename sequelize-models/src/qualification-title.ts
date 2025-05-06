@@ -1,11 +1,18 @@
-import { CreationOptional, DataTypes, ForeignKey, InferAttributes, InferCreationAttributes, Model } from "sequelize";
+import { Association, CreationOptional, DataTypes, ForeignKey, InferAttributes, InferCreationAttributes, Model, NonAttribute } from "sequelize";
 import { sequelize } from "./sequelize";
 import { Qualification } from "./qualification";
+import { QualificationUnit } from "./qualification-unit";
 
 export class QualificationTitle extends Model<InferAttributes<QualificationTitle>, InferCreationAttributes<QualificationTitle>> {
   declare id: CreationOptional<number>;
   declare qualificationId: ForeignKey<Qualification['id']>;
   declare name: string;
+  
+  declare units?: NonAttribute<QualificationUnit[]>;
+  
+  declare static associations: { 
+    units: Association<QualificationTitle, QualificationUnit>
+  };
 }
 
 QualificationTitle.init({

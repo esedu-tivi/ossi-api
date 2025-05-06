@@ -15,15 +15,16 @@ const amISetUp: Resolver<null, null> = async (_, __, context) => {
     return context.user.isSetUp;
 }
 
-const students: Resolver<null, null> = async (parent, _, context) => {
-    if (false) { //(!context.user || context.userScope != "TEACHER" || context.userScope != "ADMIN") {
-        throw Error()
-    }
-    
+const students: Resolver<null, null> = async (parent, _, context) => { 
     const response = await axios.get(process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/students");
 
     return response.data;
 }
+
+const titles: Resolver<null, null> = async (parent, _, context) => { 
+    return await context.dataSources.studentManagementAPI.getTitles();
+}
+
 
 const units: Resolver<null, null> = async (_, __, context) => {
     return await context.dataSources.studentManagementAPI.getUnits();
@@ -64,6 +65,7 @@ export const Query = {
     amISetUp,
     students,
     units,
+    titles,
     parts,
     projects,
     part,
