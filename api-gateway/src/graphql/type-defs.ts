@@ -128,14 +128,14 @@ const typeDefs = `#graphql
 
     type ProjectReturnNotification {
         id: ID!
-        projectId: ID!
+        project: QualificationProject!
         projectSubmitterStudentId: ID!
         hasBeenRead: Boolean!
     }
 
     type ProjectUpdateNotification {
-        id: ID!
-        projectId: ID!
+        id: ID! 
+        project: QualificationProject!
         updateMessage: String!
         hasBeenRead: Boolean!
     }

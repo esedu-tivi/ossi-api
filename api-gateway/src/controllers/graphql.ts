@@ -18,11 +18,15 @@ import { Notification } from '../graphql/resolvers/notification.js';
 import { makeExecutableSchema } from 'graphql-tools';
 import { authenticatedAsStudentDirectiveTransformer, authenticatedAsTeacherDirectiveTransformer, authenticatedDirectiveTransformer } from '../graphql/directive-transformers.js';
 import { QualificationTitle } from '../graphql/resolvers/title.js';
+import { ProjectReturnNotification } from '../graphql/resolvers/project-return-notification.js';
+import { ProjectUpdateNotification } from '../graphql/resolvers/project-update-notification.js';
 
 const graphqlRouter = express.Router();
 
 const resolvers = {
     Notification,
+    ProjectReturnNotification,
+    ProjectUpdateNotification,
     User,
     Query,
     Mutation,
