@@ -34,6 +34,16 @@ const createProjectTag = async (parent, args, context, info) => {
     return await context.dataSources.studentManagementAPI.createProjectTag({ tagName: args.name });
 }
 
+const markNotificationAsRead = async (parent, args, context, info) => {
+    const response = await axios.post(process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/notification/${args.id}/mark_as_read`, {}, {
+        headers: {
+            "Authorization": context.token
+        }
+    });
+
+    return response.data;
+}
+
 const debugSendNotification = async (parent, args, context, info) => {
     const response = await axios.post(process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/send_notification`, { recipients: args.recipients, notification: JSON.parse(args.notification) });
 
@@ -49,5 +59,6 @@ export const Mutation = {
     updatePart,
     updatePartOrder,
     createProjectTag,
+    markNotificationAsRead,
     debugSendNotification,
 }

@@ -33,21 +33,77 @@ const app = express();
 
 app.use(json());
 
-app.get("/get_unread_notification_count", (req, res) => {
+app.get("/get_unread_notification_count", async (req, res) => {
+    const user = jsonwebtoken.decode(req.headers.authorization) as any;
 
+    return res.json({
+        success: true,
+        status: 200,
+        count: await Notification.countDocuments({ recipient: user.id, hasBeenRead: false })
+    });
 });
 
-app.get("/notification/:id", (req, res) => {
+app.get("/notification/:id", async (req, res) => {
+    const user = jsonwebtoken.decode(req.headers.authorization) as any;
 
+    const notification = await Notification.findOne({
+        _id: req.params.id,
+        recipient: user.id
+    });
+
+    if (!notification) {
+        return res.json({
+            success: false,
+            status: 404,
+            message: "Notification not found"
+        });
+    }
+
+    return res.json({
+        success: true,
+        status: 200,
+        notification: notification
+    });
 });
 
 app.get("/get_notifications", async (req, res) => {
-    const id = req.headers.authorization;
+    const user = jsonwebtoken.decode(req.headers.authorization) as any;
 
-    return res.json(await Notification.find({}));
+    const notifications = await Notification.find({
+        recipient: user.id
+    });
+
+    return res.json({
+        success: true,
+        status: 200,
+        notifications: notifications
+    });
 });
 
-// Should not be exposed on the internet
+app.post("/notification/:id/mark_as_read", async (req, res) => {
+    const user = jsonwebtoken.decode(req.headers.authorization) as any;
+
+    const notification = await Notification.findOneAndUpdate({
+        _id: req.params.id,
+        recipient: user.id
+    }, {
+        hasBeenRead: true
+    });
+    
+    if (!notification) {
+        return res.json({
+            success: false,
+            status: 404,
+            message: "Notification not found"
+        });
+    }
+
+    return res.json({
+        success: true,
+        status: 200 
+    });
+});
+
 app.post("/send_notification", (req, res) => {
     const recipients = req.body.recipients;
     const requestNotification = req.body.notification;

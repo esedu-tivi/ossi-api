@@ -142,6 +142,27 @@ const typeDefs = `#graphql
 
     union Notification = ProjectReturnNotification | ProjectUpdateNotification
 
+    type NotificationsResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+        notifications: [Notification!]
+    }
+
+    type NotificationResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+        notification: Notification
+    }
+ 
+    type UnreadNotificationCountResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+        count: Int
+    }
+
     type Query {
         me: User! @authenticated
         amISetUp: Boolean! @authenticated
@@ -160,7 +181,9 @@ const typeDefs = `#graphql
 
         projectTags: [QualificationProjectTag!]! @authenticated
 
-        notifications: [Notification!]! @authenticated
+        notifications: NotificationsResponse @authenticated
+        notification(id: ID!): NotificationResponse! @authenticated
+        unreadNotificationCount: UnreadNotificationCountResponse! @authenticated 
     }
 
     input CreateProjectInput {
@@ -251,7 +274,13 @@ const typeDefs = `#graphql
         success: Boolean!
         message: String
         tag: QualificationProjectTag
-    } 
+    }
+    
+    type MarkNotificationAsReadResponse {
+        status: Int!
+        success: Boolean!
+        message: String
+    }
 
     type Mutation {
         login(idToken: String!): LoginResponse!
@@ -267,6 +296,8 @@ const typeDefs = `#graphql
         updatePart(id: ID!, part: CreatePartInput!): UpdatePartResponse! @authenticatedAsTeacher
         updatePartOrder(unitId: ID!, partOrder: [ID!]!): UpdatePartOrderResponse! @authenticatedAsTeacher
         createProjectTag(name: String!): CreateProjectTagResponse! @authenticatedAsTeacher
+
+        markNotificationAsRead(id: ID!): MarkNotificationAsReadResponse!
         
         # remove once not needed
         debugSendNotification(recipients: [ID!]!, notification: String!): Int!

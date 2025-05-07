@@ -15,7 +15,8 @@ interface ApolloContext {
         studentManagementAPI: StudentManagementAPI,
 //        activityAPI: ActivityAPI,
 //        authAPI: AuthAPI,
-    }
+    },
+    token: string
 }
 
 export { ApolloContext, UserContext };

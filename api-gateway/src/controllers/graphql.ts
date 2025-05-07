@@ -57,7 +57,8 @@ graphqlRouter.use('/', cors<cors.CorsRequest>(), express.json(), expressMiddlewa
                 user: jwt.verify(req.headers.authorization, config.JWT_SECRET_KEY) as UserContext,
                 dataSources: {
                     studentManagementAPI: new StudentManagementAPI({ token: req.headers.authorization })
-                }
+                },
+                token: req.headers.authorization
             }
         }
         
@@ -66,7 +67,8 @@ graphqlRouter.use('/', cors<cors.CorsRequest>(), express.json(), expressMiddlewa
             user: null,
             dataSources: {
                 studentManagementAPI: new StudentManagementAPI({ token: req.headers.authorization })
-            }
+            },
+            token: null
         }
     }
 }))
