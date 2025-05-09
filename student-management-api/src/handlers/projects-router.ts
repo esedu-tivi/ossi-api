@@ -12,7 +12,11 @@ router.get("/", beginTransaction, async (req, res, next) => {
             transaction: res.locals._transaction 
         });
 
-        res.json(projects);
+        res.json({
+            status: 200,
+            success: true,
+            projects: projects
+        });
         
         next();
     } catch (e) {
@@ -30,7 +34,11 @@ router.get("/:id", beginTransaction, async (req, res, next) => {
             transaction: res.locals._transaction 
         });
 
-        res.json(project);
+        res.json({
+            status: 200,
+            success: true,
+            project: project
+        });
 
         next();
     } catch (e) {

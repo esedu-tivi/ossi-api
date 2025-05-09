@@ -11,7 +11,11 @@ router.get("/", beginTransaction, async (req, res, next) => {
             transaction: res.locals._transaction
         });
 
-        res.json(units);
+        res.json({
+            status: 200,
+            success: true,
+            units: units
+        });
         
         next();
     } catch (e) {

@@ -167,24 +167,80 @@ const typeDefs = `#graphql
         count: Int
     }
 
+    type MeResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+        user: User
+    }
+
+    type AmISetUpResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+        amISetUp: Boolean!
+    }
+    
+    type StudentsResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+        students: [Student!]
+    }
+    
+    type TitlesResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+        titles: [QualificationTitle!]
+    }
+    
+    type UnitsResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+        units: [QualificationUnit!]
+    }
+    
+    type PartsResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+        parts: [QualificationUnitPart!]
+    }
+    
+    type PartResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+        part: QualificationUnitPart
+    }
+    
+    type ProjectsResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+        projects: [QualificationProject!]
+    }
+    
+    type ProjectTagsResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+        projectTags: [QualificationProjectTag!]
+    }
+
     type Query {
         me: User! @authenticated
         amISetUp: Boolean! @authenticated
-
         students: [Student!]! @authenticatedAsTeacher
-
         titles: [QualificationTitle!]! @authenticated
-
         units: [QualificationUnit!]! @authenticated
-
         parts: [QualificationUnitPart!]! @authenticated
         part(id: ID!): QualificationUnitPart @authenticated
-
         projects: [QualificationProject!]! @authenticated
         project(id: ID!): QualificationProject @authenticated
-
         projectTags: [QualificationProjectTag!]! @authenticated
-
         notifications: NotificationsResponse @authenticated
         notification(id: ID!): NotificationResponse! @authenticated
         unreadNotificationCount: UnreadNotificationCountResponse! @authenticated 
@@ -301,7 +357,7 @@ const typeDefs = `#graphql
         updatePartOrder(unitId: ID!, partOrder: [ID!]!): UpdatePartOrderResponse! @authenticatedAsTeacher
         createProjectTag(name: String!): CreateProjectTagResponse! @authenticatedAsTeacher
 
-        markNotificationAsRead(id: ID!): MarkNotificationAsReadResponse!
+        markNotificationAsRead(id: ID!): MarkNotificationAsReadResponse! @authenticated
         
         # remove once not needed
         debugSendNotification(recipients: [ID!]!, notification: String!): Int!

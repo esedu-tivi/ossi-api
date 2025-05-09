@@ -8,7 +8,11 @@ router.get("/", beginTransaction, async (req, res, next) => {
     try {
         const tags = await QualificationProjectTag.findAll({ transaction: res.locals._transaction });
 
-        res.json(tags);
+        res.json({
+            status: 200,
+            success: true,
+            tags: tags
+        });
 
         next();
     } catch (e) {

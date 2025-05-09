@@ -1,7 +1,7 @@
 import express from "express";
 import { pool } from "../postgres-pool.js";
 import jwt from "jsonwebtoken";
-import { AssignedQualificationUnitsForStudents, Qualification, QualificationTitle, QualificationUnit, Student, User } from "sequelize-models";
+import { AssignedQualificationUnitsForStudents, MandatoryQualificationUnitsForTitle, Qualification, QualificationTitle, QualificationUnit, Student, User } from "sequelize-models";
 import { QualificationCompletion } from "sequelize-models/dist/student.js";
 import { beginTransaction, commitTransaction } from "../utils/middleware.js";
 
@@ -11,14 +11,22 @@ router.get("/", async (req, res) => {
     const students = await Student.findAll();
     const users = await User.findAll({ where: { id: students.map(student => student.id) } });
 
-    res.json(students.map(student => ({ ...student.toJSON(), ...users.find(user => user.id == student.id).toJSON() })));
+    res.json({
+        status: 200,
+        success: true,
+        students: students.map(student => ({ ...student.toJSON(), ...users.find(user => user.id == student.id).toJSON() }))
+    });
 });
 
 router.get("/:id/", async (req, res) => {
     const user = await User.findByPk(req.params.id);
     const student = await Student.findByPk(req.params.id);
 
-    res.json({ ...user.toJSON(), ...student.toJSON() });
+    res.json({
+        status: 200,
+        success: true,
+        student: { ...user.toJSON(), ...student.toJSON() }
+    });
 });
 
 router.get("/:id/studying_qualification", async (req, res) => {
@@ -40,6 +48,51 @@ router.get("/:id/assigned_qualification_units", async (req, res) => {
     const units = await QualificationUnit.findAll({ where: { id: unitIds } });
 
     res.json(units);
+});
+
+router.post("/:id/qualification_title", beginTransaction, async (req, res, next) => {
+    try {
+        const { qualificationTitleId } = req.body;
+
+        await Student.update({ qualificationTitleId: qualificationTitleId },
+            {
+                transaction: res.locals._transaction,
+                where: { id: req.params.id }
+            }
+        );
+
+        const student = await Student.findByPk(req.params.id);
+
+        // revert previous title units
+        if (student.qualificationTitleId != null) {
+            const previousTitleUnits = (await MandatoryQualificationUnitsForTitle.findAll({
+                where: {
+                    titleId: student.qualificationTitleId
+                }
+            })).map(unitsForTitle => unitsForTitle.unitId);
+
+            await AssignedQualificationUnitsForStudents.destroy({
+                where: {
+                    studentId: req.params.id,
+                    qualificationUnitId: previousTitleUnits
+                }
+            });
+        }
+
+        const titleUnits = await MandatoryQualificationUnitsForTitle.findAll({ where: { titleId: qualificationTitleId }, transaction: res.locals._transaction });
+
+        await AssignedQualificationUnitsForStudents.bulkCreate(titleUnits.map(titleUnit => ({
+            studentId: parseInt(req.params.id),
+            qualificationUnitId: titleUnit.unitId
+        })), { transaction: res.locals._transaction});
+
+        res.json({
+            status: 200,
+            success: true,
+        });
+    } catch (e) {
+        next(e);
+    }
 });
 
 router.post("/:id/student_setup", beginTransaction, async (req, res, next) => {

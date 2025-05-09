@@ -6,11 +6,15 @@ const router = express();
 
 router.get("/", beginTransaction, async (req, res, next) => {
     try {
-        const part = await QualificationUnitPart.findAll({
+        const parts = await QualificationUnitPart.findAll({
             transaction: res.locals._transaction
         });
 
-        res.json(part);
+        res.json({
+            status: 200,
+            success: true,
+            parts: parts
+        });
         
         next();
     } catch (e) {
@@ -27,7 +31,11 @@ router.get("/:id", beginTransaction, async (req, res, next) => {
             transaction: res.locals._transaction
         });
 
-        res.json(part);
+        res.json({
+            status: 200,
+            success: true,
+            part: part
+        });
         
         next();
     } catch (e) {
