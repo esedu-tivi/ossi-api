@@ -1,4 +1,6 @@
 const typeDefs = `#graphql
+    scalar DateTime
+
     directive @authenticated on FIELD_DEFINITION
     directive @authenticatedAsTeacher on FIELD_DEFINITION
     directive @authenticatedAsStudent on FIELD_DEFINITION
@@ -131,6 +133,7 @@ const typeDefs = `#graphql
         project: QualificationProject!
         projectSubmitterStudentId: ID!
         hasBeenRead: Boolean!
+        time: DateTime!
     }
 
     type ProjectUpdateNotification {
@@ -138,6 +141,7 @@ const typeDefs = `#graphql
         project: QualificationProject!
         updateMessage: String!
         hasBeenRead: Boolean!
+        time: DateTime!
     }
 
     union Notification = ProjectReturnNotification | ProjectUpdateNotification

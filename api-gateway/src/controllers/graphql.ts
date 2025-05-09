@@ -20,10 +20,12 @@ import { authenticatedAsStudentDirectiveTransformer, authenticatedAsTeacherDirec
 import { QualificationTitle } from '../graphql/resolvers/title.js';
 import { ProjectReturnNotification } from '../graphql/resolvers/project-return-notification.js';
 import { ProjectUpdateNotification } from '../graphql/resolvers/project-update-notification.js';
+import { dateTimeScalar } from '../graphql/scalars/datetime.js';
 
 const graphqlRouter = express.Router();
 
 const resolvers = {
+    DateTime: dateTimeScalar,
     Notification,
     ProjectReturnNotification,
     ProjectUpdateNotification,
