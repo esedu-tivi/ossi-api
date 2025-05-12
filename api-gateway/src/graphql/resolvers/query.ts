@@ -16,8 +16,14 @@ const amISetUp: Resolver<null, null> = async (_, __, context) => {
 }
 
 const students: Resolver<null, null> = async (parent, _, context) => { 
-    const response = await axios.get(process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/students");
+	const data = await context.dataSources.studentManagementAPI.getStudents();
+		// stopgap filter to discard status and success elements from object
+	console.log('students', data);
+	return data.students;
 
+	const response = await axios.get(
+		process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + '/students'
+	);
     return response.data;
 }
 
@@ -31,16 +37,24 @@ const units: Resolver<null, null> = async (_, __, context) => {
 }
 
 const parts: Resolver<null, null> = async (_, __, context) => {
+	const data = await context.dataSources.studentManagementAPI.getParts();
+	// stopgap filter to discard status and success elements from object
+	return data.parts;
     return await context.dataSources.studentManagementAPI.getParts();
 }
 
 const projects: Resolver<null, null> = async (_, __, context) => {
+	const data = await context.dataSources.studentManagementAPI.getProjects();
+	// stopgap filter to discard status and success elements from object
+	return data.projects;
     return await context.dataSources.studentManagementAPI.getProjects();
 }
 
 const part: Resolver<null, { id: number }> = async (_, args, context) => {
-    return await context.dataSources.studentManagementAPI.getPart(args.id);
-}
+	const data= await context.dataSources.studentManagementAPI.getPart(args.id);
+	// stopgap filter to discard status and success elements from object
+    return data.part
+};
 
 const project: Resolver<null, { id: number }> = async (_, args, context) => {
     return await context.dataSources.studentManagementAPI.getProject(args.id);
@@ -51,7 +65,9 @@ const projectTags: Resolver<null, null> = async (_, args, context) => {
 }
 
 const notifications: Resolver<null, null> = async (_, args, context) => {
-    const response = await axios.get(process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/get_notifications`, {
+	const response = await axios.get(
+		process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/get_notifications`,
+		{
         headers: {
             "Authorization": context.token
         }
