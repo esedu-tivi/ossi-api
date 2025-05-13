@@ -3,16 +3,22 @@ import { Resolver } from "../resolver.js"
 
 const me: Resolver<null, null> = async (_, __, context) => {
     if (context.user.type == "STUDENT") {
-        return await context.dataSources.studentManagementAPI.getStudent(context.user.id);
+        const response = await context.dataSources.studentManagementAPI.getStudent(context.user.id);
+        return { ...response, user: response.student };
     } else if (context.user.type == "TEACHER") {
-        return await context.dataSources.studentManagementAPI.getTeacher(context.user.id);
+        const response = await context.dataSources.studentManagementAPI.getTeacher(context.user.id);
+        return { ...response, user: response.teacher };
     }
 
     throw Error();
 }
 
 const amISetUp: Resolver<null, null> = async (_, __, context) => {
-    return context.user.isSetUp;
+    return {
+        status: 200,
+        success: true,
+        amISetUp: context.user.isSetUp
+    };
 }
 
 const students: Resolver<null, null> = async (parent, _, context) => { 

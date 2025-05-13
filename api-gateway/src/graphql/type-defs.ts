@@ -222,6 +222,13 @@ const typeDefs = `#graphql
         message: String
         projects: [QualificationProject!]
     }
+
+    type ProjectResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+        project: QualificationProject
+    }
     
     type ProjectTagsResponse {
         success: Boolean!
@@ -231,17 +238,17 @@ const typeDefs = `#graphql
     }
 
     type Query {
-        me: User! @authenticated
-        amISetUp: Boolean! @authenticated
-        students: [Student!]! @authenticatedAsTeacher
-        titles: [QualificationTitle!]! @authenticated
-        units: [QualificationUnit!]! @authenticated
-        parts: [QualificationUnitPart!]! @authenticated
-        part(id: ID!): QualificationUnitPart @authenticated
-        projects: [QualificationProject!]! @authenticated
-        project(id: ID!): QualificationProject @authenticated
-        projectTags: [QualificationProjectTag!]! @authenticated
-        notifications: NotificationsResponse @authenticated
+        me: MeResponse! @authenticated
+        amISetUp: AmISetUpResponse! @authenticated
+        students: StudentsResponse! @authenticatedAsTeacher
+        titles: TitlesResponse! @authenticated
+        units: UnitsResponse! @authenticated
+        parts: PartsResponse! @authenticated
+        part(id: ID!): PartResponse! @authenticated
+        projects: ProjectsResponse! @authenticated
+        project(id: ID!): ProjectResponse! @authenticated
+        projectTags: ProjectTagsResponse! @authenticated
+        notifications: NotificationsResponse! @authenticated
         notification(id: ID!): NotificationResponse! @authenticated
         unreadNotificationCount: UnreadNotificationCountResponse! @authenticated 
     }
