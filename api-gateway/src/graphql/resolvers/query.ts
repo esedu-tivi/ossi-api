@@ -31,7 +31,6 @@ const titles: Resolver<null, null> = async (parent, _, context) => {
     return await context.dataSources.studentManagementAPI.getTitles();
 }
 
-
 const units: Resolver<null, null> = async (_, __, context) => {
     return await context.dataSources.studentManagementAPI.getUnits();
 }
