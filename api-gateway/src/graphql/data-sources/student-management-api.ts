@@ -24,7 +24,11 @@ class StudentManagementAPI extends RESTDataSource {
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/qualification/titles/${id}/mandatory_units`,
         );
     }
-
+	async getStudents() {
+		return this.get(
+			process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + '/students'
+		);
+	}
     async getStudent(id) {
         return this.get(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/${id}`,
