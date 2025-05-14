@@ -3,6 +3,10 @@ import express, { json } from 'express';
 import jsonwebtoken from "jsonwebtoken";
 import mongoose from "mongoose";
 import { Notification } from 'pg';
+import redis from 'redis';
+
+const redisClient = redis.createClient({ url: "redis://redis:6379" });
+const redisSubscriber = redisClient.duplicate();
 
 mongoose.connect("mongodb://mongo:27017/");
 
@@ -104,6 +108,8 @@ app.post("/notification/:id/mark_as_read", async (req, res) => {
     });
 });
 
+
+
 app.post("/send_notification", (req, res) => {
     const recipients = req.body.recipients;
     const requestNotification = req.body.notification;
@@ -129,4 +135,31 @@ app.post("/send_notification", (req, res) => {
     res.json({});
 });
 
-app.listen(3000)
+const notificationSubscriberHandler = async (notificationPayload) => {
+    const { recipients, notification } = JSON.parse(notificationPayload);
+
+    let notifications;
+
+    if (notification.type == "ProjectReturn") {
+        notifications = recipients.map(recipient => new ProjectReturnNotification({
+            recipient,
+            ...notification
+        }));
+    } else if (notification.type == "ProjectUpdate") {
+        notifications = recipients.map(recipient => new ProjectUpdateNotification({
+            recipient,
+            ...notification
+        }));
+    } else {
+        throw Error();
+    }
+
+    notifications.forEach(async notification => await notification.save())
+};
+
+(async () => {
+    app.listen(3000);
+
+    await redisSubscriber.connect();
+    await redisSubscriber.subscribe("notification", notificationSubscriberHandler);
+})();

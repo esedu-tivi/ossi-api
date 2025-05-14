@@ -1,7 +1,8 @@
 import express from "express";
 import { Op, Sequelize } from "sequelize";
-import { CompetenceRequirementsInProjects, QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationProject, QualificationProjectPartLinks, QualificationProjectTag, QualificationProjectTagLinks, QualificationUnitPart, sequelize } from "sequelize-models";
+import { CompetenceRequirementsInProjects, QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationProject, QualificationProjectPartLinks, QualificationProjectTag, QualificationProjectTagLinks, QualificationUnitPart, sequelize, Student } from "sequelize-models";
 import { beginTransaction, commitTransaction } from "../utils/middleware";
+import { redisPublisher } from "../redis";
 
 const router = express();
 
@@ -304,6 +305,22 @@ router.put("/:id", beginTransaction, async (req, res, next) => {
             success: true,
             project: updatedProject
         });
+
+        // TODO: implement to only notify students that are doing the project
+        if (updatedProjectFields.notifyStudents) {
+            const students = await Student.findAll();
+
+            const notificationPayload = {
+                recipients: students.map(student => student.id),
+                notification: {
+                    type: "ProjectUpdate",
+                    projectId: updatedProject.id,
+                    updateMessage: "Projektia päivitetty"
+                }
+            };
+
+            redisPublisher.publish('notification', JSON.stringify(notificationPayload));
+        }
         
         next();
     } catch (e) {

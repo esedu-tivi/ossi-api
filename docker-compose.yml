@@ -20,12 +20,17 @@ services:
     depends_on:
       db-migrations:
         condition: service_completed_successfully
+      redis:
+        condition: service_healthy
   notificationserver:
     ports:
       - "3001:3000"
     build:
       context: ./notification-server
     env_file: ".env"
+    depends_on:
+      redis:
+        condition: service_healthy
   db:
     image: docker.io/postgres
     restart: always
@@ -62,5 +67,8 @@ services:
     #environment:
     #  MONGO_INITDB_ROOT_USERNAME: root
     #  MONGO_INITDB_ROOT_PASSWORD: mongo
+  redis:
+    image: docker.io/redis
+    restart: always
 volumes:
   db-data:
