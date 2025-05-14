@@ -327,7 +327,7 @@ const typeDefs = `#graphql
         status: Int!
         success: Boolean!
         message: String
-        part: QualificationProject
+        project: QualificationProject
     }
 
     type UpdatePartOrderResponse {
