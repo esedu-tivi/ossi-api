@@ -10,7 +10,7 @@ In order to run and develop the backend you must have installed:
 Note: If using Node.js, version 22.11.0 (latest LTS version currently) is recommended.
 
 # Build and run
-Within the directories `api-gateway`, `student-management-api` and `auth-api` run:
+Within the directories `api-gateway`, `student-management-api`, `notification-server`, `messaging-server` and `auth-api` run:
 ```
 npm install
 ```

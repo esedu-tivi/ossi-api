@@ -82,6 +82,7 @@ router.post("/login", async (req, res) => {
     const userData = {
         id: user.id,
         oid: user.oid,
+        email: user.email,
         isSetUp: user.isSetUp,
         type: idToken.upn.endsWith("@esedulainen.fi") ? "STUDENT" : "TEACHER",
         scope: userScope,

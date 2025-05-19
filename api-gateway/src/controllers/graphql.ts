@@ -3,7 +3,7 @@ import { expressMiddleware } from '@apollo/server/express4';
 import cors from 'cors';
 import express from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
-import { typeDefs } from '../graphql/type-defs.js';
+import typeDefs from '../graphql/type-defs.js';
 import { Mutation } from '../graphql/resolvers/mutation.js';
 import { Query } from '../graphql/resolvers/query.js';
 import { config } from '../config.js';
@@ -21,6 +21,7 @@ import { QualificationTitle } from '../graphql/resolvers/title.js';
 import { ProjectReturnNotification } from '../graphql/resolvers/project-return-notification.js';
 import { ProjectUpdateNotification } from '../graphql/resolvers/project-update-notification.js';
 import { dateTimeScalar } from '../graphql/scalars/datetime.js';
+import { MessagingResolvers } from '../graphql/resolvers/messaging.js';
 
 const graphqlRouter = express.Router();
 
@@ -30,14 +31,20 @@ const resolvers = {
     ProjectReturnNotification,
     ProjectUpdateNotification,
     User,
-    Query,
-    Mutation,
+    Query: {
+        ...Query,
+        ...MessagingResolvers.Query,
+    },
+    Mutation: {
+        ...Mutation,
+        ...MessagingResolvers.Mutation,
+    },
     Student,
     QualificationTitle,
     QualificationUnitPart,
     QualificationProject,
     QualificationUnit,
-}
+};
 
 let schema = makeExecutableSchema({
     typeDefs,
@@ -55,6 +62,7 @@ await server.start();
 graphqlRouter.use('/', cors<cors.CorsRequest>(), express.json(), expressMiddleware(server, {
     context: async ({ req }) => {
         if (req.headers.authorization) {
+            const user = jwt.verify(req.headers.authorization, config.JWT_SECRET_KEY) as UserContext;
             return { 
                 user: jwt.verify(req.headers.authorization, config.JWT_SECRET_KEY) as UserContext,
                 dataSources: {
@@ -73,6 +81,6 @@ graphqlRouter.use('/', cors<cors.CorsRequest>(), express.json(), expressMiddlewa
             token: null
         }
     }
-}))
+}));
 
 export { graphqlRouter };

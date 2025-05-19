@@ -122,8 +122,6 @@ const typeDefs = `#graphql
         lastName: String!
         email: String!
         archived: Boolean!
-
-        # todo
         teachingQualification: Qualification
         teachingQualificationTitle: QualificationTitle
     }
@@ -251,6 +249,10 @@ const typeDefs = `#graphql
         notifications: NotificationsResponse! @authenticated
         notification(id: ID!): NotificationResponse! @authenticated
         unreadNotificationCount: UnreadNotificationCountResponse! @authenticated 
+        conversations: [Conversation!]!
+        conversation(id: ID!): Conversation
+        messages(conversationId: ID!): [Message!]!
+        searchUsers(query: String!): [BasicUser!]!
     }
 
     input CreateProjectInput {
@@ -368,7 +370,32 @@ const typeDefs = `#graphql
         
         # remove once not needed
         debugSendNotification(recipients: [ID!]!, notification: String!): Int!
+
+        createConversation(participantIds: [ID!]!): Conversation!
+        sendMessage(conversationId: ID!, content: String!): Message!
+        markMessageAsRead(messageId: ID!): Message!
+    }
+
+    type Subscription {
+        messageReceived(conversationId: ID!): Message!
+        conversationUpdated(userId: ID!): Conversation!
+    }
+
+    type Message {
+        id: ID!
+        conversationId: ID!
+        sender: BasicUser!
+        content: String!
+        readBy: [BasicUser!]!
+        createdAt: String!
+    }
+
+    type Conversation {
+        id: ID!
+        participants: [BasicUser!]!
+        lastMessage: Message
+        createdAt: String!
     }
 `
 
-export { typeDefs }
+export default typeDefs

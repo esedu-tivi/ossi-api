@@ -5,12 +5,23 @@ services:
     ports:
       - "3000:3000"
     env_file: ".env"
+    depends_on:
+      - messagingserver
+      - studentmanagementapi
+      - notificationserver
+      - authapi
+    networks:
+      - app-network
   authapi:
     build:
       context: ./auth-api
       additional_contexts:
         sequelize-models: ./sequelize-models
     env_file: ".env"
+    networks:
+      - app-network
+    depends_on:
+      - db
   studentmanagementapi:
     build:
       context: ./student-management-api
@@ -22,6 +33,8 @@ services:
         condition: service_completed_successfully
       redis:
         condition: service_healthy
+    networks:
+      - app-network
   notificationserver:
     ports:
       - "3001:3000"
@@ -31,6 +44,23 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+      mongo:
+        condition: service_healthy
+    networks:
+      - app-network
+  messagingserver:
+    build:
+      context: ./messaging-server
+    ports:
+      - "3002:3000"
+    environment:
+      - PORT=3000
+    env_file: ".env"
+    networks:
+      - app-network
+    depends_on:
+      - mongo
+      - redis
   db:
     image: docker.io/postgres
     restart: always
@@ -52,6 +82,17 @@ services:
       db:
         condition: service_healthy
     command: node migrator up
+    networks:
+      - app-network
+  mongo:
+    image: docker.io/mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
   pgadmin:
     restart: always
     image: docker.io/dpage/pgadmin4
@@ -61,16 +102,18 @@ services:
       PGADMIN_LISTEN_ADDRESS: 0.0.0.0
     ports:
       - "5433:80"
-  mongo:
-    image: docker.io/mongo
-    restart: always
-    #environment:
-    #  MONGO_INITDB_ROOT_USERNAME: root
-    #  MONGO_INITDB_ROOT_PASSWORD: mongo
   redis:
     image: docker.io/redis
     restart: always
     healthcheck:
        test: ["CMD", "redis-cli","ping"]
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
 volumes:
   db-data:
+  mongo-data:
