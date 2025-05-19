@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { publisher, subscriber } from '../../redis-client.js';
 import { PubSub } from 'graphql-subscriptions';
-import { Context } from '../context.js';
+import { ApolloContext } from '../context.js';
 
 const messagingPubSub = new PubSub();
 let redisSubscriptionInitialized = false;
@@ -21,7 +21,7 @@ const initializeRedisSubscription = () => {
 
 export const MessagingResolvers = {
     Query: {
-        conversations: async (_, __, context: Context) => {
+        conversations: async (_, __, context: ApolloContext) => {
             try {
                 if (!context.user?.email) {
                     return [];
@@ -49,7 +49,7 @@ export const MessagingResolvers = {
                 return [];
             }
         },
-        messages: async (_, { conversationId }, context: Context) => {
+        messages: async (_, { conversationId }, context: ApolloContext) => {
             try {
                 if (!context.user?.email) {
                     return [];
@@ -78,7 +78,7 @@ export const MessagingResolvers = {
                 return [];
             }
         },
-        searchUsers: async (_, { query }, context: Context) => {
+        searchUsers: async (_, { query }, context: ApolloContext) => {
             try {
                 console.log('API Gateway searching users with query:', query);
                 console.log('Context:', context);
@@ -150,7 +150,7 @@ export const MessagingResolvers = {
                 throw error;
             }
         },
-        sendMessage: async (_, { conversationId, content }, context: Context) => {
+        sendMessage: async (_, { conversationId, content }, context: ApolloContext) => {
             try {
                 if (!context.user?.email) {
                     throw new Error('User not authenticated');
