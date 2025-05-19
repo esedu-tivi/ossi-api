@@ -252,7 +252,7 @@ const typeDefs = `#graphql
         conversations: [Conversation!]!
         conversation(id: ID!): Conversation
         messages(conversationId: ID!): [Message!]!
-        searchUsers(query: String!): [BasicUser!]!
+        searchUsers(query: String!): [User!]!
     }
 
     input CreateProjectInput {
@@ -384,15 +384,15 @@ const typeDefs = `#graphql
     type Message {
         id: ID!
         conversationId: ID!
-        sender: BasicUser!
+        sender: User!
         content: String!
-        readBy: [BasicUser!]!
+        readBy: [User!]!
         createdAt: String!
     }
 
     type Conversation {
         id: ID!
-        participants: [BasicUser!]!
+        participants: [User!]!
         lastMessage: Message
         createdAt: String!
     }
