@@ -70,5 +70,7 @@ services:
   redis:
     image: docker.io/redis
     restart: always
+    healthcheck:
+       test: ["CMD", "redis-cli","ping"]
 volumes:
   db-data:
