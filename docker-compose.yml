@@ -10,16 +10,12 @@ services:
       - studentmanagementapi
       - notificationserver
       - authapi
-    networks:
-      - app-network
   authapi:
     build:
       context: ./auth-api
       additional_contexts:
         sequelize-models: ./sequelize-models
     env_file: ".env"
-    networks:
-      - app-network
     depends_on:
       - db
   studentmanagementapi:
@@ -33,8 +29,6 @@ services:
         condition: service_completed_successfully
       redis:
         condition: service_healthy
-    networks:
-      - app-network
   notificationserver:
     ports:
       - "3001:3000"
@@ -46,8 +40,6 @@ services:
         condition: service_healthy
       mongo:
         condition: service_healthy
-    networks:
-      - app-network
   messagingserver:
     build:
       context: ./messaging-server
@@ -56,8 +48,6 @@ services:
     environment:
       - PORT=3000
     env_file: ".env"
-    networks:
-      - app-network
     depends_on:
       redis:
         condition: service_healthy
@@ -84,8 +74,6 @@ services:
       db:
         condition: service_healthy
     command: node migrator up
-    networks:
-      - app-network
   mongo:
     image: docker.io/mongo
     restart: always
@@ -95,8 +83,6 @@ services:
       - mongo-data:/data/db
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-    networks:
-      - app-network
   pgadmin:
     restart: always
     image: docker.io/dpage/pgadmin4
@@ -111,12 +97,6 @@ services:
     restart: always
     healthcheck:
        test: ["CMD", "redis-cli","ping"]
-    networks:
-      - app-network
-
-networks:
-  app-network:
-    driver: bridge
 
 volumes:
   db-data:
