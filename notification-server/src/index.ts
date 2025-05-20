@@ -2,36 +2,13 @@ import 'dotenv/config'
 import express, { json } from 'express';
 import jsonwebtoken from "jsonwebtoken";
 import mongoose from "mongoose";
-import { Notification } from 'pg';
 import redis from 'redis';
+import { Notification, ProjectReturnNotification, ProjectUpdateNotification } from './models/notification';
 
 const redisClient = redis.createClient({ url: "redis://redis:6379" });
 const redisSubscriber = redisClient.duplicate();
 
 mongoose.connect("mongodb://mongo:27017/");
-
-const notificationSchema = new mongoose.Schema({
-    recipient: String,
-    hasBeenRead: { type: Boolean, default: false },
-    time: { type: Date, default: Date.now },
-}, { discriminatorKey: "kind" });
-
-const Notification = mongoose.model('Notification', notificationSchema);
-
-notificationSchema.set("toJSON", {
-    transform: (document, returnedObject) => {
-        returnedObject.id = returnedObject._id
-        delete returnedObject.__v;
-        delete returnedObject._id;
-    }
-});
-
-const ProjectReturnNotification = Notification.discriminator("ProjectReturnNotification",
-    new mongoose.Schema({ projectId: Number, returnerStudentId: String }, { discriminatorKey: "kind" }));
-
-const ProjectUpdateNotification = Notification.discriminator("ProjectUpdateNotification",
-    new mongoose.Schema({ projectId: Number, updateMessage: String }, { discriminatorKey: "kind" }
-));
 
 const app = express();
 
