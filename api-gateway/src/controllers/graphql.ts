@@ -3,48 +3,84 @@ import { expressMiddleware } from '@apollo/server/express4';
 import cors from 'cors';
 import express from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
-import { typeDefs } from '../graphql/type-defs.js';
+import typeDefs from '../graphql/type-defs.js';
 import { Mutation } from '../graphql/resolvers/mutation.js';
 import { Query } from '../graphql/resolvers/query.js';
 import { config } from '../config.js';
+import { Student } from '../graphql/resolvers/student.js';
+import { ApolloContext, UserContext } from '../graphql/context.js';
+import { QualificationProject } from '../graphql/resolvers/project.js';
+import { QualificationUnitPart } from '../graphql/resolvers/part.js';
+import { QualificationUnit } from '../graphql/resolvers/unit.js';
+import { StudentManagementAPI } from '../graphql/data-sources/student-management-api.js';
+import { User } from '../graphql/resolvers/user.js';
+import { Notification } from '../graphql/resolvers/notification.js';
+import { makeExecutableSchema } from 'graphql-tools';
+import { authenticatedAsStudentDirectiveTransformer, authenticatedAsTeacherDirectiveTransformer, authenticatedDirectiveTransformer } from '../graphql/directive-transformers.js';
+import { QualificationTitle } from '../graphql/resolvers/title.js';
+import { ProjectReturnNotification } from '../graphql/resolvers/project-return-notification.js';
+import { ProjectUpdateNotification } from '../graphql/resolvers/project-update-notification.js';
+import { dateTimeScalar } from '../graphql/scalars/datetime.js';
+import { MessagingResolvers } from '../graphql/resolvers/messaging.js';
 
 const graphqlRouter = express.Router();
 
-interface UserContext extends JwtPayload {
-    id: string,
-    firstName: string,
-    lastName: string,
-    email: string
-} 
-
-interface Context {
-    user: UserContext | null
-}
-
 const resolvers = {
-    Query,
-    Mutation
-}
+    DateTime: dateTimeScalar,
+    Notification,
+    ProjectReturnNotification,
+    ProjectUpdateNotification,
+    User,
+    Query: {
+        ...Query,
+        ...MessagingResolvers.Query,
+    },
+    Mutation: {
+        ...Mutation,
+        ...MessagingResolvers.Mutation,
+    },
+    Student,
+    QualificationTitle,
+    QualificationUnitPart,
+    QualificationProject,
+    QualificationUnit,
+};
 
-const server = new ApolloServer<Context>({
+let schema = makeExecutableSchema({
     typeDefs,
     resolvers
 });
+
+schema = authenticatedDirectiveTransformer(schema);
+schema = authenticatedAsTeacherDirectiveTransformer(schema);
+schema = authenticatedAsStudentDirectiveTransformer(schema);
+
+const server = new ApolloServer<ApolloContext>({ schema });
 
 await server.start();
 
 graphqlRouter.use('/', cors<cors.CorsRequest>(), express.json(), expressMiddleware(server, {
     context: async ({ req }) => {
         if (req.headers.authorization) {
+            const user = jwt.verify(req.headers.authorization, config.JWT_SECRET_KEY) as UserContext;
             return { 
-                user: jwt.verify(req.headers.authorization, config.JWT_SECRET_KEY) as UserContext
+                user: jwt.verify(req.headers.authorization, config.JWT_SECRET_KEY) as UserContext,
+                dataSources: {
+                    studentManagementAPI: new StudentManagementAPI({ token: req.headers.authorization })
+                },
+                token: req.headers.authorization
             }
         }
-
+        
+        // todo
         return {
-            user: null
+            user: null,
+            dataSources: {
+                studentManagementAPI: new StudentManagementAPI({ token: req.headers.authorization })
+            },
+            token: null
         }
     }
-}))
+}));
 
 export { graphqlRouter };

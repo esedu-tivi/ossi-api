@@ -1,34 +1,64 @@
-import jwt, { JwtPayload } from "jsonwebtoken"
-import { config } from "../../config.js"
-
-interface IdTokenPayload extends JwtPayload {
-    oid: string,
-    given_name: string,
-    family_name: string,
-    upn: string,
-}
+import axios from "axios"
 
 const login = async (parent, args, context, info) => {
-    const idToken = jwt.decode(args.idToken) as IdTokenPayload
+    const response = await axios.post(process.env.INTERNAL_AUTH_API_URL + "/login", { idToken: args.idToken });
+    
+    return response.data;
+}
 
-    // idToken verification
-    // adding user to database
+const setUpStudent = async (parent, args, context, info) => {
+    return await context.dataSources.studentManagementAPI.setUpStudent(args.studentId, args.studentSetupInput);
+}
 
-    const user = {
-        id: idToken.oid,
-        firstName: idToken.given_name,
-        lastName: idToken.family_name,
-        email: idToken.upn,
-    }
+const createProject = async (parent, args, context, info) => {
+    return await context.dataSources.studentManagementAPI.createProject(args.project);
+}
 
-    return {
-        token: jwt.sign(user, config.JWT_SECRET_KEY, {
-            expiresIn: "1d"
-        }),
-        user: user
-    }
+const createPart = async (parent, args, context, info) => {
+    return await context.dataSources.studentManagementAPI.createPart(args.part);
+}
+
+const updateProject = async (parent, args, context, info) => {
+    return await context.dataSources.studentManagementAPI.updateProject(args.id, args.project);
+}
+
+const updatePart = async (parent, args, context, info) => {
+    return await context.dataSources.studentManagementAPI.updatePart(args.id, args.part);
+}
+
+const updatePartOrder = async (parent, args, context, info) => {
+    return await context.dataSources.studentManagementAPI.updatePartOrder(args.unitId, { partOrder: args.partOrder });
+}
+
+const createProjectTag = async (parent, args, context, info) => {
+    return await context.dataSources.studentManagementAPI.createProjectTag({ tagName: args.name });
+}
+
+const markNotificationAsRead = async (parent, args, context, info) => {
+    const response = await axios.post(process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/notification/${args.id}/mark_as_read`, {}, {
+        headers: {
+            "Authorization": context.token
+        }
+    });
+
+    return response.data;
+}
+
+const debugSendNotification = async (parent, args, context, info) => {
+    const response = await axios.post(process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/send_notification`, { recipients: args.recipients, notification: JSON.parse(args.notification) });
+
+    return response.status;
 }
 
 export const Mutation = {
-    login
+    login,
+    setUpStudent,
+    createProject,
+    createPart,
+    updateProject,
+    updatePart,
+    updatePartOrder,
+    createProjectTag,
+    markNotificationAsRead,
+    debugSendNotification,
 }
