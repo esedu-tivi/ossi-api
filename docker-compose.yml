@@ -6,6 +6,11 @@ services:
     ports:
       - "3000:3000"
     env_file: ".env"
+    depends_on:
+      - messagingserver
+      - studentmanagementapi
+      - notificationserver
+      - authapi
   authapi:
     container_name: ossi-auth-api
     build:
@@ -13,6 +18,8 @@ services:
       additional_contexts:
         sequelize-models: ./sequelize-models
     env_file: ".env"
+    depends_on:
+      - db
   studentmanagementapi:
     container_name: ossi-student-management-api
     build:
@@ -23,6 +30,8 @@ services:
     depends_on:
       db-migrations:
         condition: service_completed_successfully
+      redis:
+        condition: service_healthy
   notificationserver:
     container_name: ossi_notification_server
     ports:
@@ -30,6 +39,24 @@ services:
     build:
       context: ./notification-server
     env_file: ".env"
+    depends_on:
+      redis:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+  messagingserver:
+    build:
+      context: ./messaging-server
+    ports:
+      - "3002:3000"
+    environment:
+      - PORT=3000
+    env_file: ".env"
+    depends_on:
+      redis:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
   db:
     container_name: ossi-postgres
     image: docker.io/postgres
@@ -53,6 +80,15 @@ services:
       db:
         condition: service_healthy
     command: node migrator up
+  mongo:
+    image: docker.io/mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
   pgadmin:
     container_name: ossi-pgadmin
     restart: always
@@ -63,12 +99,12 @@ services:
       PGADMIN_LISTEN_ADDRESS: 0.0.0.0
     ports:
       - "5433:80"
-  mongo:
-    container_name: ossi_mongodb
-    image: docker.io/mongo
+  redis:
+    image: docker.io/redis
     restart: always
-    #environment:
-    #  MONGO_INITDB_ROOT_USERNAME: root
-    #  MONGO_INITDB_ROOT_PASSWORD: mongo
+    healthcheck:
+       test: ["CMD", "redis-cli","ping"]
+
 volumes:
-  ossi-db-data:
+  db-data:
+  mongo-data:

@@ -11,7 +11,11 @@ router.get("/", beginTransaction, async (req, res, next) => {
             transaction: res.locals._transaction
         });
 
-        res.json(units);
+        res.json({
+            status: 200,
+            success: true,
+            units: units
+        });
         
         next();
     } catch (e) {
@@ -66,7 +70,13 @@ router.post("/:id/part_order", beginTransaction, async (req, res, next) => {
             });
 
             if (part.qualificationUnitId != unitId) {
-                throw Error("updating a part order that doesn't belong to the specified unit")
+                res.json({
+                    status: 400,
+                    success: false,
+                    message: "Updating a part order that doesn't belong to the specified unit."
+                });
+
+                throw Error();
             }
 
             await part.update({ unitOrderIndex: index }, { 
@@ -74,12 +84,15 @@ router.post("/:id/part_order", beginTransaction, async (req, res, next) => {
             });
         }
 
-        res.json({ status: "ok" })
+        res.json({
+            status: 200,
+            success: true
+        });
         
         next();
     } catch (e) {
         next(e)
     }
-}, commitTransaction)
+}, commitTransaction);
 
 export const UnitsRouter = router;

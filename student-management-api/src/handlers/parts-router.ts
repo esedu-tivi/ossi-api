@@ -6,11 +6,15 @@ const router = express();
 
 router.get("/", beginTransaction, async (req, res, next) => {
     try {
-        const part = await QualificationUnitPart.findAll({
+        const parts = await QualificationUnitPart.findAll({
             transaction: res.locals._transaction
         });
 
-        res.json(part);
+        res.json({
+            status: 200,
+            success: true,
+            parts: parts
+        });
         
         next();
     } catch (e) {
@@ -27,7 +31,11 @@ router.get("/:id", beginTransaction, async (req, res, next) => {
             transaction: res.locals._transaction
         });
 
-        res.json(part);
+        res.json({
+            status: 200,
+            success: true,
+            part: part
+        });
         
         next();
     } catch (e) {
@@ -102,8 +110,12 @@ router.post("/", beginTransaction, async (req, res, next) => {
                 transaction: res.locals._transaction
             });
         }
-
-        res.json(part);
+        
+        res.json({
+            status: 200,
+            success: true,
+            part: part            
+        })
         
         next();
     } catch (e) {
@@ -118,6 +130,14 @@ router.put("/:id", beginTransaction, async (req, res, next) => {
         const updatedPart = await QualificationUnitPart.findByPk(req.params.id, {
             transaction: res.locals._transaction
         });
+
+        if (updatedPart == null) {
+            res.json({
+                status: 404,
+                success: false,
+                message: "Part not found."
+            });
+        }
 
         await updatedPart.update({
             name: updatedPartFields.name,
@@ -145,7 +165,11 @@ router.put("/:id", beginTransaction, async (req, res, next) => {
             transaction: res.locals._transaction
         });
 
-        res.json(updatedPart);
+        res.json({
+            status: 200,
+            success: true,
+            part: updatedPart
+        });
         
         next();
     } catch (e) {

@@ -15,3 +15,4 @@ export { Student } from "./student.js";
 export { Teacher } from "./teacher.js";
 export { QualificationUnit } from "./qualification-unit.js";
 export { AssignedQualificationUnitsForStudents } from "./assigned-qualification-parts-for-students.js";
+export { MandatoryQualificationUnitsForTitle } from "./mandatory-qualification-units-for-title.js";

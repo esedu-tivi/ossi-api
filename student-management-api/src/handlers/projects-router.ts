@@ -1,7 +1,8 @@
 import express from "express";
 import { Op, Sequelize } from "sequelize";
-import { CompetenceRequirementsInProjects, QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationProject, QualificationProjectPartLinks, QualificationProjectTag, QualificationProjectTagLinks, QualificationUnitPart, sequelize } from "sequelize-models";
+import { CompetenceRequirementsInProjects, QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationProject, QualificationProjectPartLinks, QualificationProjectTag, QualificationProjectTagLinks, QualificationUnitPart, sequelize, Student } from "sequelize-models";
 import { beginTransaction, commitTransaction } from "../utils/middleware";
+import { redisPublisher } from "../redis";
 
 const router = express();
 
@@ -12,7 +13,11 @@ router.get("/", beginTransaction, async (req, res, next) => {
             transaction: res.locals._transaction 
         });
 
-        res.json(projects);
+        res.json({
+            status: 200,
+            success: true,
+            projects: projects
+        });
         
         next();
     } catch (e) {
@@ -30,7 +35,11 @@ router.get("/:id", beginTransaction, async (req, res, next) => {
             transaction: res.locals._transaction 
         });
 
-        res.json(project);
+        res.json({
+            status: 200,
+            success: true,
+            project: project
+        });
 
         next();
     } catch (e) {
@@ -78,8 +87,15 @@ router.post("/", beginTransaction, async (req, res, next) => {
                 transaction: res.locals._transaction 
             });
 
-            if (part === null)
-                throw Error("Unknown part id");
+            if (part === null) {
+                res.json({
+                    status: 400,
+                    success: false,
+                    message: "Unknown part ID."
+                });
+
+                throw Error();
+            }
 
             const lastPartOrderIndex = await QualificationProjectPartLinks.count({ 
                 where: { qualificationUnitPartId: partId },
@@ -100,9 +116,15 @@ router.post("/", beginTransaction, async (req, res, next) => {
                 transaction: res.locals._transaction 
             });
 
-            if (tag === null)
-                // rollback transaction
-                throw Error("Unknown tag id");
+            if (tag === null) {
+                res.json({
+                    status: 400,
+                    success: false,
+                    message: "Unknown tag ID."
+                });
+
+                throw Error();
+            }
 
             await createdProject.addTag(tag, {
                 transaction: res.locals._transaction 
@@ -114,8 +136,15 @@ router.post("/", beginTransaction, async (req, res, next) => {
                 transaction: res.locals._transaction 
             });
 
-            if (requirement === null) 
-                throw Error("Unknown requirement id");
+            if (requirement === null) {
+                res.json({
+                    status: 400,
+                    success: false,
+                    message: "Unknown requirement ID."
+                });
+
+                throw Error();
+            }
 
             await createdProject.addCompetenceRequirement(requirement, {
                 transaction: res.locals._transaction 
@@ -146,7 +175,11 @@ router.post("/", beginTransaction, async (req, res, next) => {
             transaction: res.locals._transaction 
         });
 
-        res.json(createdProject);
+        res.json({
+            status: 200,
+            success: true,
+            project: createdProject
+        });
         
         next();
     } catch (e) {
@@ -162,6 +195,16 @@ router.put("/:id", beginTransaction, async (req, res, next) => {
             include: [QualificationProject.associations.parts, QualificationProject.associations.tags, QualificationProject.associations.competenceRequirements],
             transaction: res.locals._transaction 
         });
+
+        if (updatedProject == null) {
+            res.json({
+                status: 404,
+                success: false,
+                message: "Project not found."
+            })
+
+            throw Error();
+        }
 
         await updatedProject.update({
             name: updatedProjectFields.name,
@@ -257,7 +300,27 @@ router.put("/:id", beginTransaction, async (req, res, next) => {
             transaction: res.locals._transaction
         });
 
-        res.json(updatedProject);
+        res.json({
+            status: 200,
+            success: true,
+            project: updatedProject
+        });
+
+        // TODO: implement to only notify students that are doing the project
+        if (updatedProjectFields.notifyStudents) {
+            const students = await Student.findAll();
+
+            const notificationPayload = {
+                recipients: students.map(student => student.id),
+                notification: {
+                    type: "ProjectUpdate",
+                    projectId: updatedProject.id,
+                    updateMessage: "Projektia päivitetty"
+                }
+            };
+
+            redisPublisher.publish('notification', JSON.stringify(notificationPayload));
+        }
         
         next();
     } catch (e) {

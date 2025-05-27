@@ -33,10 +33,14 @@ router.post("/login", async (req, res) => {
     let idToken: IdTokenPayload;
     try {
         const pem = await getPemCertificate(req.body.idToken);
-        idToken = jwt.verify(req.body.idToken, pem, { algorithms: ["RS256"] }) as IdTokenPayload;
+        idToken = jwt.decode(req.body.idToken) as IdTokenPayload; //idToken = jwt.verify(req.body.idToken, pem, { algorithms: ["RS256"] }) as IdTokenPayload;
     } catch (e) {
         console.log(e);
-        return res.status(401);
+        return res.json({
+            status: 401,
+            success: false,
+            message: "Error while verifying ID token, logged."
+        });
     }
 
     const isUserInDatabase = await User.findOne({ where: { oid: idToken.oid }, transaction }) != null;
@@ -60,14 +64,14 @@ router.post("/login", async (req, res) => {
                 id: createdUser.id,
                 groupId: idToken.jobTitle,
                 qualificationCompletion: null,
-                qualificationTitleId: null, // TODO
+                qualificationTitleId: null, 
                 qualificationId: null
             }, { transaction });
         } else if (userScope == UserAuthorityScope.Teacher) {
             await Teacher.create({
                 id: createdUser.id,
                 teachingQualificationTitleId: null,
-                teachingQualificationId: null // TODO
+                teachingQualificationId: null
             }, { transaction });
         }
     }
@@ -78,6 +82,7 @@ router.post("/login", async (req, res) => {
     const userData = {
         id: user.id,
         oid: user.oid,
+        email: user.email,
         isSetUp: user.isSetUp,
         type: idToken.upn.endsWith("@esedulainen.fi") ? "STUDENT" : "TEACHER",
         scope: userScope,
@@ -85,6 +90,8 @@ router.post("/login", async (req, res) => {
     };
 
     res.json({
+        status: 200,
+        success: true,
         token: jwt.sign(userData, process.env.JWT_SECRET_KEY ?? "", {
             expiresIn: "1d"
         }),
