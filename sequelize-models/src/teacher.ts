@@ -5,7 +5,7 @@ import { User } from "./user";
 export class Teacher extends Model<InferAttributes<Teacher>, InferCreationAttributes<Teacher>> {
   declare id: ForeignKey<User['id']>;
   declare teachingQualificationTitleId: number | null;
-  declare teachingQualificationId: number;
+  declare teachingQualificationId: number | null;
 }
 
 Teacher.init({
@@ -20,18 +20,13 @@ Teacher.init({
     }
   },
   teachingQualificationTitleId: {
-    type: DataTypes.INTEGER
+    type: DataTypes.INTEGER,
   },
   teachingQualificationId: {
     type: DataTypes.INTEGER,
-    allowNull: false
   }
 }, {
   tableName: 'teachers',
-  underscored: true,
   timestamps: false,
   sequelize
 })
-
-Teacher.belongsTo(User);
-User.hasOne(Teacher);
