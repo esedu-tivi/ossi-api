@@ -1,7 +1,7 @@
 import express from "express";
 import { pool } from "../postgres-pool.js";
 import jwt from "jsonwebtoken";
-import { AssignedQualificationUnitsForStudents, MandatoryQualificationUnitsForTitle, Qualification, QualificationTitle, QualificationUnit, Student, User } from "sequelize-models";
+import { AssignedQualificationUnitsForStudents, AssignedProjectsForStudents, MandatoryQualificationUnitsForTitle, Qualification, QualificationProject, QualificationTitle, QualificationUnit, Student, User, } from "sequelize-models";
 import { QualificationCompletion } from "sequelize-models/dist/student.js";
 import { beginTransaction, commitTransaction } from "../utils/middleware.js";
 
@@ -50,6 +50,15 @@ router.get("/:id/assigned_qualification_units", async (req, res) => {
     res.json(units);
 });
 
+router.get("/:id/assigned_projects", async (req, res) => {
+    console.log("log project ", req.params)
+    const projectIds = (await AssignedQualificationUnitsForStudents.findAll({ where: { studentId: req.params.id } })).map(set => set.qualificationUnitId);
+    const projects = await AssignedQualificationUnitsForStudents.findAll({});
+    console.log("project returns ", projects)
+    res.json(projects);
+});
+
+
 router.post("/:id/qualification_title", beginTransaction, async (req, res, next) => {
     try {
         const { qualificationTitleId } = req.body;
@@ -84,7 +93,7 @@ router.post("/:id/qualification_title", beginTransaction, async (req, res, next)
         await AssignedQualificationUnitsForStudents.bulkCreate(titleUnits.map(titleUnit => ({
             studentId: parseInt(req.params.id),
             qualificationUnitId: titleUnit.unitId
-        })), { transaction: res.locals._transaction});
+        })), { transaction: res.locals._transaction });
 
         res.json({
             status: 200,
@@ -94,6 +103,53 @@ router.post("/:id/qualification_title", beginTransaction, async (req, res, next)
         next(e);
     }
 });
+router.post("/assignProjectToStudent", beginTransaction, async (req, res, next) => {
+    try {
+        console.log("assign to backend ", req.body)
+        await AssignedProjectsForStudents.create({
+            studentId: parseInt(req.body.studentId),
+            projectId: parseInt(req.body.projectId)
+        }, { transaction: res.locals._transaction },)
+
+
+        const student = await Student.findByPk(req.body.studentId)
+        console.log(student)
+        res.json({
+            status: 200,
+            success: true,
+            message: "",
+        });
+    } catch (e) {
+        console.log("projectAssign error: ", e)
+        next(e);
+    }
+})
+router.put("/updateStudentProject", beginTransaction, async (req, res, next) => {
+    console.log("updateProject: ", req.body)
+    try {
+        // WIP DOESN*T WORK
+        // await AssignedProjectsForStudents.update({
+        //     studentId: parseInt(req.body.studentId),
+        //     projectId: parseInt(req.body.projectId),
+        //     startDate: req.body.startDate,
+        //     deadlineDate: req.body.deadline,
+        //     projectPlan: req.body.projectPlan,
+        //     projectReport: req.body.projectReport,
+        //     teacherComment: req.body.teacherComment,
+        //     projectStatus: req.body.projectStatus,
+        // }, { transaction: res.locals._transaction },)
+        res.json({
+            status: 200,
+            success: true,
+            message: "WIP",
+
+        });
+    } catch (e) {
+        console.log("projectUpdate error: ", e)
+        next(e);
+    }
+})
+
 
 router.post("/:id/student_setup", beginTransaction, async (req, res, next) => {
     try {
@@ -106,17 +162,17 @@ router.post("/:id/student_setup", beginTransaction, async (req, res, next) => {
                 success: false,
                 message: "The user requesting student setup does not match with the student."
             });
-            
+
             throw Error();
         }
 
-        if (user.type != "STUDENT") { 
+        if (user.type != "STUDENT") {
             res.json({
                 status: 401,
                 success: false,
                 message: "The user requesting student setup is not a student."
             });
- 
+
             throw Error();
         }
 

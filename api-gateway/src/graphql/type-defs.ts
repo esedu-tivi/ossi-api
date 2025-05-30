@@ -22,6 +22,13 @@ const typeDefs = `#graphql
         FULL_COMPLETION
         PARTIAL_COMPLETION
     }
+
+    enum ProjectStatus {
+        WORKING
+        RETURNED
+        ACCEPTED
+        REJECTED
+    }
     
     type AuthResponse {
         token: String!
@@ -114,6 +121,7 @@ const typeDefs = `#graphql
         studyingQualification: Qualification
         studyingQualificationTitle: QualificationTitle
         assignedQualificationUnits: [QualificationUnit!]!
+        assignedProjects: [QualificationProject!]!
     }
 
     type Teacher implements User {
@@ -290,6 +298,17 @@ const typeDefs = `#graphql
         qualificationId: ID!
         qualificationCompletion: QualificationCompletion!
     }
+
+    input AssignProject {
+        student: ID!
+        project: ID!
+    }
+    # update WIP
+    input UpdateStudentProject {
+        student: ID!
+        project: ID!
+        projectUpdate: UpdateProjectInput!
+    }
     
     type LoginResponse {
         status: Int!
@@ -344,7 +363,20 @@ const typeDefs = `#graphql
         message: String
         tag: QualificationProjectTag
     }
-    
+
+    type AssignResponse {
+        status: Int!
+        success: Boolean!
+        message: String
+        }
+
+    # update WIP
+    type ProjectUpdateResponse {
+        status: Int!
+        success: Boolean!
+        message: String
+    }
+
     type MarkNotificationAsReadResponse {
         status: Int!
         success: Boolean!
@@ -365,6 +397,9 @@ const typeDefs = `#graphql
         updatePart(id: ID!, part: CreatePartInput!): UpdatePartResponse! @authenticatedAsTeacher
         updatePartOrder(unitId: ID!, partOrder: [ID!]!): UpdatePartOrderResponse! @authenticatedAsTeacher
         createProjectTag(name: String!): CreateProjectTagResponse! @authenticatedAsTeacher
+        assignProjectToStudent(studentId: ID! , projectId:ID! ): AssignResponse!  @authenticated
+        # update WIP
+        updateStudentProject(studentId: ID! , projectId:ID!, project: UpdateStudentProject! ) : ProjectUpdateResponse @authenticated
 
         markNotificationAsRead(id: ID!): MarkNotificationAsReadResponse! @authenticated
         

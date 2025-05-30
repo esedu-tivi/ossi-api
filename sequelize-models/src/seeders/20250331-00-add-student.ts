@@ -3,7 +3,7 @@ import type { Migration } from '../sequelize';
 export const up: Migration = async ({ context: queryInterface }) => {
 	await queryInterface.bulkInsert('users', [
 		{
-			id: 1,
+			id: 3,
 			oid: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
 			first_name: 'etunimi',
 			last_name: 'sukunimi',
@@ -14,11 +14,12 @@ export const up: Migration = async ({ context: queryInterface }) => {
 	]);
 	await queryInterface.bulkInsert('students', [
 		{
-			user_id: 1,
+			user_id: 3,
 			group_id: 'TiVi23A',
 			qualification_title_id: 10224,
-			qualification_id: 7861752
-		}
+			qualification_id: 7861752,
+		},
+
 	]);
 };
 export const down: Migration = async ({ context: queryInterface }) => {
