@@ -1,7 +1,7 @@
 import express from "express";
 import { pool } from "../postgres-pool.js";
 import jwt from "jsonwebtoken";
-import { AssignedQualificationUnitsForStudents, MandatoryQualificationUnitsForTitle, Qualification, QualificationTitle, QualificationUnit, Student, User } from "sequelize-models";
+import { AssignedQualificationUnitsForStudents, AssignedProjectsForStudents, MandatoryQualificationUnitsForTitle, Qualification, QualificationProject, QualificationTitle, QualificationUnit, Student, User, sequelize, } from "sequelize-models";
 import { QualificationCompletion } from "sequelize-models/dist/student.js";
 import { beginTransaction, commitTransaction } from "../utils/middleware.js";
 
@@ -50,6 +50,16 @@ router.get("/:id/assigned_qualification_units", async (req, res) => {
     res.json(units);
 });
 
+router.get("/:id/assigned_projects", async (req, res) => {
+    //table assigned_projects_for_students
+    console.log("Student id ", req.params)
+    const assignedProjects = await AssignedProjectsForStudents.findAll({ where: { studentId: req.params.id } });
+    // const projects = await QualificationProject.findAll({ where: { id: projectIds } });
+    console.log("project returns ", assignedProjects)
+    res.json(assignedProjects);
+});
+
+
 router.post("/:id/qualification_title", beginTransaction, async (req, res, next) => {
     try {
         const { qualificationTitleId } = req.body;
@@ -84,7 +94,7 @@ router.post("/:id/qualification_title", beginTransaction, async (req, res, next)
         await AssignedQualificationUnitsForStudents.bulkCreate(titleUnits.map(titleUnit => ({
             studentId: parseInt(req.params.id),
             qualificationUnitId: titleUnit.unitId
-        })), { transaction: res.locals._transaction});
+        })), { transaction: res.locals._transaction });
 
         res.json({
             status: 200,
@@ -94,6 +104,66 @@ router.post("/:id/qualification_title", beginTransaction, async (req, res, next)
         next(e);
     }
 });
+router.post("/assignProjectToStudent", beginTransaction, async (req, res, next) => {
+    try {
+
+        console.log("assign to backend ", req.body)
+        await AssignedProjectsForStudents.create({
+            studentId: parseInt(req.body.studentId),
+            projectId: parseInt(req.body.projectId)
+        }, { transaction: res.locals._transaction },)
+        const student = await Student.findByPk(req.body.studentId)
+        console.log(student)
+        res.json({
+            status: 200,
+            success: true,
+            message: "",
+        });
+    } catch (e) {
+        console.log("projectAssign error: ", e)
+        next(e);
+    }
+})
+router.put("/updateStudentProject", async (req, res, next) => {
+    //https://sequelize.org/docs/v6/other-topics/transactions/#managed-transactions
+    try {
+        console.log("updateProject: ", req.body)
+        const update = req.body.update
+
+        const updateFields = Object.fromEntries(
+            Object.entries(update).filter(([_, entry]) => entry !== undefined))
+        console.log(updateFields)
+
+        const updatedStudentProject = await sequelize.transaction(async t => {
+
+            const studentProject = AssignedProjectsForStudents.update(
+                updateFields,
+                {
+                    where: {
+                        studentId: parseInt(req.body.studentId),
+                        projectId: parseInt(req.body.projectId)
+                    }, transaction: res.locals._transaction,
+                    returning: true
+                })
+            // .then(function (result) { console.log("mutations ", result, result[0], result[1]) })
+            // console.log("changed lines ", result)
+            console.log("using data ", req.body)
+            return studentProject
+        })
+        console.log(updatedStudentProject)
+
+        res.json({
+            status: 200,
+            success: true,
+            message: `Succesfully updated project`,
+
+        });
+    } catch (e) {
+        console.log("projectUpdate error: ", e)
+        next(e);
+    }
+},)
+
 
 router.post("/:id/student_setup", beginTransaction, async (req, res, next) => {
     try {
@@ -106,17 +176,17 @@ router.post("/:id/student_setup", beginTransaction, async (req, res, next) => {
                 success: false,
                 message: "The user requesting student setup does not match with the student."
             });
-            
+
             throw Error();
         }
 
-        if (user.type != "STUDENT") { 
+        if (user.type != "STUDENT") {
             res.json({
                 status: 401,
                 success: false,
                 message: "The user requesting student setup is not a student."
             });
- 
+
             throw Error();
         }
 

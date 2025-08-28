@@ -21,11 +21,11 @@ const amISetUp: Resolver<null, null> = async (_, __, context) => {
     };
 }
 
-const students: Resolver<null, null> = async (parent, _, context) => { 
-	return await context.dataSources.studentManagementAPI.getStudents();
+const students: Resolver<null, null> = async (parent, _, context) => {
+    return await context.dataSources.studentManagementAPI.getStudents();
 }
 
-const titles: Resolver<null, null> = async (parent, _, context) => { 
+const titles: Resolver<null, null> = async (parent, _, context) => {
     return await context.dataSources.studentManagementAPI.getTitles();
 }
 
@@ -41,8 +41,14 @@ const projects: Resolver<null, null> = async (_, __, context) => {
     return await context.dataSources.studentManagementAPI.getProjects();
 }
 
+const assignedProjects: Resolver<null, null> = async (_, args, context) => {
+    console.log("requesting assigned projects", args, context)
+    return await context.dataSources.studentManagementAPI.getStudentAssignedProjects(args);
+
+};
+
 const part: Resolver<null, { id: number }> = async (_, args, context) => {
-	return await context.dataSources.studentManagementAPI.getPart(args.id);
+    return await context.dataSources.studentManagementAPI.getPart(args.id);
 };
 
 const project: Resolver<null, { id: number }> = async (_, args, context) => {
@@ -53,15 +59,18 @@ const projectTags: Resolver<null, null> = async (_, args, context) => {
     return await context.dataSources.studentManagementAPI.getProjectTags();
 }
 
+
+
+
 const notifications: Resolver<null, null> = async (_, args, context) => {
-	const response = await axios.get(
-		process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/get_notifications`,
-		{
-        headers: {
-            "Authorization": context.token
-        }
-    });
- 
+    const response = await axios.get(
+        process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/get_notifications`,
+        {
+            headers: {
+                "Authorization": context.token
+            }
+        });
+
     return response.data;
 }
 
@@ -71,7 +80,7 @@ const notification: Resolver<null, { id: number }> = async (_, args, context) =>
             "Authorization": context.token
         }
     });
- 
+
     return response.data;
 }
 
@@ -81,7 +90,7 @@ const unreadNotificationCount: Resolver<null, null> = async (_, args, context) =
             "Authorization": context.token
         }
     });
- 
+
     return response.data;
 }
 
@@ -91,7 +100,7 @@ const conversations: Resolver<null, null> = async (_, __, context) => {
             console.log('No user email in context');
             return [];
         }
-        
+
         const response = await axios.post(
             `${process.env.INTERNAL_MESSAGING_SERVER_URL}/graphql`,
             {
@@ -121,7 +130,7 @@ const conversations: Resolver<null, null> = async (_, __, context) => {
                 },
             }
         );
-        
+
         console.log('API Gateway response:', response.data);
         return response.data?.data?.conversations || [];
     } catch (error) {
@@ -138,6 +147,7 @@ export const Query = {
     titles,
     parts,
     projects,
+    assignedProjects,
     part,
     project,
     projectTags,

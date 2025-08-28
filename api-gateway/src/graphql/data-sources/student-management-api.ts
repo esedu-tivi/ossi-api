@@ -24,11 +24,11 @@ class StudentManagementAPI extends RESTDataSource {
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/qualification/titles/${id}/mandatory_units`,
         );
     }
-	async getStudents() {
-		return this.get(
-			process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + '/students'
-		);
-	}
+    async getStudents() {
+        return this.get(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + '/students'
+        );
+    }
     async getStudent(id) {
         return this.get(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/${id}`,
@@ -41,7 +41,7 @@ class StudentManagementAPI extends RESTDataSource {
         )
     }
 
-    async setUpStudent(id, studentSetupData) { 
+    async setUpStudent(id, studentSetupData) {
         return this.post(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/${id}/student_setup`,
             { body: studentSetupData }
@@ -62,7 +62,7 @@ class StudentManagementAPI extends RESTDataSource {
 
     async createProject(project) {
         return this.post(
-            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/qualification/projects", 
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/qualification/projects",
             { body: project }
         );
     }
@@ -94,7 +94,7 @@ class StudentManagementAPI extends RESTDataSource {
 
     async createPart(part) {
         return this.post(
-            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/qualification/parts", 
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/qualification/parts",
             { body: part }
         );
     }
@@ -171,6 +171,31 @@ class StudentManagementAPI extends RESTDataSource {
     async getStudentAssignedQualificationUnits(id) {
         return this.get(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/${id}/assigned_qualification_units`
+        );
+    }
+
+    async getStudentAssignedProjects(studentId) {
+        console.log("managementApi get student projects ", studentId)
+        const res = await this.get(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/${studentId}/assigned_projects`
+        );
+        console.log(res)
+
+        return res
+    }
+
+    async assignProjectToStudent(args) {
+        console.log("managementApi assign project", args)
+
+        return this.post(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/assignProjectToStudent`, { body: args }
+        );
+    }
+
+    async updateStudentProject(args) {
+        console.log("managementApi update project", args)
+        return this.put(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/updateStudentProject`, { body: args }
         );
     }
 }

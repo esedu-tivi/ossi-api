@@ -1,3 +1,4 @@
+
 const typeDefs = `#graphql
     scalar DateTime
 
@@ -84,7 +85,7 @@ const typeDefs = `#graphql
     }
 
     type QualificationProject {
-        id: Int!
+        id: ID!
         name: String!
         description: String!
         duration: String!
@@ -93,6 +94,16 @@ const typeDefs = `#graphql
         includedInQualificationUnitParts: [QualificationUnitPart!]!
         competenceRequirements: [VocationalCompetenceRequirementDescription!]!
         tags: [QualificationProjectTag!]!
+    }
+
+    type AssignedProjects{
+        projectId:ID
+        projectStatus: ProjectStatus!
+        startDate: DateTime
+        deadlineDate: DateTime
+        projectPlan: String
+        projectReport: String
+        teacherComment: String
     }
 
     interface User { 
@@ -114,6 +125,7 @@ const typeDefs = `#graphql
         studyingQualification: Qualification
         studyingQualificationTitle: QualificationTitle
         assignedQualificationUnits: [QualificationUnit!]!
+        assignedProjects: [AssignedProjects!]
     }
 
     type Teacher implements User {
@@ -246,6 +258,7 @@ const typeDefs = `#graphql
         projects: ProjectsResponse! @authenticated
         project(id: ID!): ProjectResponse! @authenticated
         projectTags: ProjectTagsResponse! @authenticated
+        assignedProjects: AssignedProjects @authenticated
         notifications: NotificationsResponse! @authenticated
         notification(id: ID!): NotificationResponse! @authenticated
         unreadNotificationCount: UnreadNotificationCountResponse! @authenticated 
@@ -267,15 +280,15 @@ const typeDefs = `#graphql
     }
 
     input UpdateProjectInput {
-        name: String!
-        description: String!
-        materials: String!
-        duration: Int!
-        includedInParts: [ID!]!
-        competenceRequirements: [ID!]!
-        tags: [ID!]!
-        isActive: Boolean!
-        notifyStudents: Boolean!
+        name: String
+        description: String
+        materials: String
+        duration: Int
+        includedInParts: [ID!]
+        competenceRequirements: [ID!]
+        tags: [ID!]
+        isActive: Boolean
+        notifyStudents: Boolean
     }
 
     input CreatePartInput {
@@ -289,6 +302,21 @@ const typeDefs = `#graphql
     input StudentSetupInput {
         qualificationId: ID!
         qualificationCompletion: QualificationCompletion!
+    }
+
+    input AssignProject {
+        student: ID!
+        project: ID!
+    }
+    # update WIP
+    input UpdateStudentProjectInput {
+        projectId:ID
+        projectStatus: ProjectStatus
+        startDate: DateTime
+        deadlineDate: DateTime
+        projectPlan: String
+        projectReport: String
+        teacherComment: String
     }
     
     type LoginResponse {
@@ -365,6 +393,9 @@ const typeDefs = `#graphql
         updatePart(id: ID!, part: CreatePartInput!): UpdatePartResponse! @authenticatedAsTeacher
         updatePartOrder(unitId: ID!, partOrder: [ID!]!): UpdatePartOrderResponse! @authenticatedAsTeacher
         createProjectTag(name: String!): CreateProjectTagResponse! @authenticatedAsTeacher
+        assignProjectToStudent(studentId: ID! , projectId:ID! ): AssignResponse!  @authenticated
+        # update WIP
+        updateStudentProject(studentId: ID! , projectId:ID!, update: UpdateStudentProjectInput!) : ProjectUpdateResponse @authenticated
 
         markNotificationAsRead(id: ID!): MarkNotificationAsReadResponse! @authenticated
         
