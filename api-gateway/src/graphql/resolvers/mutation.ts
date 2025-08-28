@@ -35,7 +35,7 @@ const createProjectTag = async (parent, args, context, info) => {
 }
 
 const markNotificationAsRead = async (parent, args, context, info) => {
-    const response = await axios.post(process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/notification/${args.id}/mark_as_read`, {}, {
+    const response = await axios.post(process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/notifications/${args.id}/mark_as_read`, {}, {
         headers: {
             "Authorization": context.token
         }
@@ -45,7 +45,7 @@ const markNotificationAsRead = async (parent, args, context, info) => {
 }
 
 const debugSendNotification = async (parent, args, context, info) => {
-    const response = await axios.post(process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/send_notification`, { recipients: args.recipients, notification: JSON.parse(args.notification) });
+    const response = await axios.post(process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/notifications/send_notification`, { recipients: args.recipients, notification: JSON.parse(args.notification) });
 
     return response.status;
 }

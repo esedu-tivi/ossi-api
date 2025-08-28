@@ -64,7 +64,7 @@ const projectTags: Resolver<null, null> = async (_, args, context) => {
 
 const notifications: Resolver<null, null> = async (_, args, context) => {
     const response = await axios.get(
-        process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/get_notifications`,
+        process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/notifications/`,
         {
             headers: {
                 "Authorization": context.token
@@ -75,7 +75,7 @@ const notifications: Resolver<null, null> = async (_, args, context) => {
 }
 
 const notification: Resolver<null, { id: number }> = async (_, args, context) => {
-    const response = await axios.get(process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/notification/${args.id}`, {
+    const response = await axios.get(process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/notifications/${args.id}`, {
         headers: {
             "Authorization": context.token
         }
@@ -85,7 +85,7 @@ const notification: Resolver<null, { id: number }> = async (_, args, context) =>
 }
 
 const unreadNotificationCount: Resolver<null, null> = async (_, args, context) => {
-    const response = await axios.get(process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/get_unread_notification_count`, {
+    const response = await axios.get(process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/notifications/unread_notification_count`, {
         headers: {
             "Authorization": context.token
         }
