@@ -95,15 +95,13 @@ router.post("/:id/qualification_title", beginTransaction, async (req, res, next)
             studentId: parseInt(req.params.id),
             qualificationUnitId: titleUnit.unitId
         })), { transaction: res.locals._transaction });
-    })), { transaction: res.locals._transaction });
-
-res.json({
-    status: 200,
-    success: true,
-});
+        res.json({
+            status: 200,
+            success: true,
+        });
     } catch (e) {
-    next(e);
-}
+        next(e);
+    }
 });
 router.post("/assignProjectToStudent", beginTransaction, async (req, res, next) => {
     try {
@@ -227,9 +225,10 @@ router.post("/:id/student_setup", beginTransaction, async (req, res, next) => {
             });
 
             next();
-        } catch (e) {
-            next(e)
         }
-    }, commitTransaction);
+    } catch (e) {
+        next(e)
+    }
+}, commitTransaction);
 
 export const StudentRouter = router;

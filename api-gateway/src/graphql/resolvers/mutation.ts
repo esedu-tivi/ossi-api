@@ -42,10 +42,7 @@ const assignProjectToStudent = async (parent, args, context, info) => {
     return await context.dataSources.studentManagementAPI.assignProjectToStudent(args)
 }
 
-const updateStudentProject = async (parent, args, context, info) => {
-    console.log("WIP log updateStudentProject ", args)
-    return await context.dataSources.studentManagementAPI.updateStudentProject(args)
-}
+
 
 
 const markNotificationAsRead = async (parent, args, context, info) => {
@@ -75,7 +72,6 @@ export const Mutation = {
     updatePartOrder,
     createProjectTag,
     assignProjectToStudent,
-    updateStudentProject,
     markNotificationAsRead,
     debugSendNotification,
 }
