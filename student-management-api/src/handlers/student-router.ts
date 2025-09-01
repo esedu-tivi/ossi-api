@@ -95,14 +95,15 @@ router.post("/:id/qualification_title", beginTransaction, async (req, res, next)
             studentId: parseInt(req.params.id),
             qualificationUnitId: titleUnit.unitId
         })), { transaction: res.locals._transaction });
+    })), { transaction: res.locals._transaction });
 
-        res.json({
-            status: 200,
-            success: true,
-        });
+res.json({
+    status: 200,
+    success: true,
+});
     } catch (e) {
-        next(e);
-    }
+    next(e);
+}
 });
 router.post("/assignProjectToStudent", beginTransaction, async (req, res, next) => {
     try {
@@ -177,55 +178,58 @@ router.post("/:id/student_setup", beginTransaction, async (req, res, next) => {
                 message: "The user requesting student setup does not match with the student."
             });
 
+
             throw Error();
         }
 
         if (user.type != "STUDENT") {
+            if (user.type != "STUDENT") {
+                res.json({
+                    status: 401,
+                    success: false,
+                    message: "The user requesting student setup is not a student."
+                });
+
+
+                throw Error();
+            }
+
+            if (user.isSetUp) {
+                res.json({
+                    status: 401,
+                    success: false,
+                    message: "The student has already been set up."
+                });
+
+                throw Error();
+            }
+
+            await Student.update({
+                qualificationCompletion: qualificationCompletion,
+                qualificationId: qualificationId,
+            }, { where: { id: user.id }, transaction: res.locals._transaction });
+
+            // assigning TVP for the new student, should make this more modular, if other vocations start using Ossi
+            if (qualificationCompletion == "FULL_COMPLETION") {
+                await AssignedQualificationUnitsForStudents.create({
+                    studentId: user.id,
+                    qualificationUnitId: 6779606
+                }, { transaction: res.locals._transaction });
+            }
+
+            await User.update({
+                isSetUp: true
+            }, { where: { id: user.id }, transaction: res.locals._transaction });
+
             res.json({
-                status: 401,
-                success: false,
-                message: "The user requesting student setup is not a student."
+                status: 200,
+                success: true
             });
 
-            throw Error();
+            next();
+        } catch (e) {
+            next(e)
         }
-
-        if (user.isSetUp) {
-            res.json({
-                status: 401,
-                success: false,
-                message: "The student has already been set up."
-            });
-
-            throw Error();
-        }
-
-        await Student.update({
-            qualificationCompletion: qualificationCompletion,
-            qualificationId: qualificationId,
-        }, { where: { id: user.id }, transaction: res.locals._transaction });
-
-        // assigning TVP for the new student, should make this more modular, if other vocations start using Ossi
-        if (qualificationCompletion == "FULL_COMPLETION") {
-            await AssignedQualificationUnitsForStudents.create({
-                studentId: user.id,
-                qualificationUnitId: 6779606
-            }, { transaction: res.locals._transaction });
-        }
-
-        await User.update({
-            isSetUp: true
-        }, { where: { id: user.id }, transaction: res.locals._transaction });
-
-        res.json({
-            status: 200,
-            success: true
-        });
-
-        next();
-    } catch (e) {
-        next(e)
-    }
-}, commitTransaction);
+    }, commitTransaction);
 
 export const StudentRouter = router;

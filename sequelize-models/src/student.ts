@@ -2,6 +2,7 @@ import { Association, DataTypes, ForeignKey, InferAttributes, InferCreationAttri
 import { sequelize } from "./sequelize";
 import { User } from "./user";
 import { QualificationUnit } from "./qualification-unit";
+import { QualificationProject } from "./qualification-project";
 
 export enum QualificationCompletion {
   FullCompletion = 'FULL_COMPLETION',
@@ -16,8 +17,9 @@ export class Student extends Model<InferAttributes<Student>, InferCreationAttrib
   declare qualificationId: number | null;
 
   declare assignedUnits?: NonAttribute<QualificationUnit[]>;
+  declare assignedProjects?: NonAttribute<QualificationProject[]>;
 
-  declare static associations: { 
+  declare static associations: {
     assignedUnits: Association<Student, QualificationUnit>;
   };
 }

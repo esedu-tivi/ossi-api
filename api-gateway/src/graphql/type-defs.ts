@@ -29,6 +29,13 @@ const typeDefs = `#graphql
         FULL_COMPLETION
         PARTIAL_COMPLETION
     }
+
+    enum ProjectStatus {
+        WORKING
+        RETURNED
+        ACCEPTED
+        REJECTED
+    }
     
     type AuthResponse {
         token: String!
@@ -400,7 +407,20 @@ const typeDefs = `#graphql
         message: String
         tag: QualificationProjectTag
     }
-    
+
+    type AssignResponse {
+        status: Int!
+        success: Boolean!
+        message: String
+        }
+
+    # update WIP
+    type ProjectUpdateResponse {
+        status: Int!
+        success: Boolean!
+        message: String
+    }
+
     type MarkNotificationAsReadResponse {
         status: Int!
         success: Boolean!

@@ -27,7 +27,7 @@ export const up: Migration = async ({ context: queryInterface }) => {
       }
     },
     name: {
-      type: DataTypes.STRING(128)
+      type: DataTypes.STRING(256)
     }
   });
 };

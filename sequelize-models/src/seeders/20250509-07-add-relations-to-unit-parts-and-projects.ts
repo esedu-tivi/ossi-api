@@ -3,8 +3,13 @@ import type { Migration } from '../sequelize';
 export const up: Migration = async ({ context: queryInterface }) => {
 	await queryInterface.bulkInsert('qualification_projects_parts_relations', [
 		{
-			qualification_project_id: 1,
-			qualification_unit_part_id:1,
+			qualification_project_id: 679,
+			qualification_unit_part_id: 172,
+			part_order_index: 1,
+		},
+		{
+			qualification_project_id: 681,
+			qualification_unit_part_id: 172,
 			part_order_index: 1,
 		},
 	]);

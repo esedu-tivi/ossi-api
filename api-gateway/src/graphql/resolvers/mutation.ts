@@ -37,6 +37,16 @@ const updatePartOrder = async (parent, args, context, info) => {
 const createProjectTag = async (parent, args, context, info) => {
     return await context.dataSources.studentManagementAPI.createProjectTag({ tagName: args.name });
 }
+const assignProjectToStudent = async (parent, args, context, info) => {
+    console.log("log assignProjectToStudent ", args)
+    return await context.dataSources.studentManagementAPI.assignProjectToStudent(args)
+}
+
+const updateStudentProject = async (parent, args, context, info) => {
+    console.log("WIP log updateStudentProject ", args)
+    return await context.dataSources.studentManagementAPI.updateStudentProject(args)
+}
+
 
 const markNotificationAsRead = async (parent, args, context, info) => {
     const response = await axios.post(process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/notifications/${args.id}/mark_as_read`, {}, {
@@ -64,6 +74,8 @@ export const Mutation = {
     updatePart,
     updatePartOrder,
     createProjectTag,
+    assignProjectToStudent,
+    updateStudentProject,
     markNotificationAsRead,
     debugSendNotification,
 }
