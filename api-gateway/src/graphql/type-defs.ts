@@ -18,6 +18,12 @@ const typeDefs = `#graphql
         TEACHER
         JOB_SUPERVISOR
     }
+    enum ProjectStatus {
+        WORKING
+        RETURNED
+        ACCEPTED
+        REJECTED
+    }
 
     enum QualificationCompletion {
         FULL_COMPLETION
@@ -96,9 +102,9 @@ const typeDefs = `#graphql
         tags: [QualificationProjectTag!]!
     }
 
-    type AssignedProjects{
-        projectId:ID
-        projectStatus: ProjectStatus!
+    type AssignedProjects {
+        projectId:Int
+        projectStatus:ProjectStatus!
         startDate: DateTime
         deadlineDate: DateTime
         projectPlan: String
@@ -124,8 +130,8 @@ const typeDefs = `#graphql
         qualificationCompletion: QualificationCompletion
         studyingQualification: Qualification
         studyingQualificationTitle: QualificationTitle
-        assignedQualificationUnits: [QualificationUnit!]!
-        assignedProjects: [AssignedProjects!]
+        assignedQualificationUnits: [QualificationUnit!]
+        assignedProjects: [AssignedProjects!]!
     }
 
     type Teacher implements User {
@@ -169,7 +175,7 @@ const typeDefs = `#graphql
         message: String
         notification: Notification
     }
- 
+
     type UnreadNotificationCountResponse {
         success: Boolean!
         status: Int!
@@ -237,7 +243,7 @@ const typeDefs = `#graphql
         success: Boolean!
         status: Int!
         message: String
-        project: QualificationProject
+        project: [QualificationProject]
     }
     
     type ProjectTagsResponse {
@@ -245,6 +251,24 @@ const typeDefs = `#graphql
         status: Int!
         message: String
         projectTags: [QualificationProjectTag!]
+    }
+
+    type ProjectResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+        project: [QualificationProject]
+    }
+
+    type AssignResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+    }
+    type ProjectUpdateResponse {
+        success: Boolean!
+        status: Int!
+        message: String
     }
 
     type Query {
@@ -310,7 +334,6 @@ const typeDefs = `#graphql
     }
     # update WIP
     input UpdateStudentProjectInput {
-        projectId:ID
         projectStatus: ProjectStatus
         startDate: DateTime
         deadlineDate: DateTime
@@ -318,7 +341,12 @@ const typeDefs = `#graphql
         projectReport: String
         teacherComment: String
     }
-    
+
+    input studentWorktimeTrackerInput {
+        starTime:DateTime
+        endTime:DateTime
+        description:String
+    }
     type LoginResponse {
         status: Int!
         success: Boolean!

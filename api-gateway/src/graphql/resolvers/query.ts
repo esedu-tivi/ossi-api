@@ -41,11 +41,9 @@ const projects: Resolver<null, null> = async (_, __, context) => {
     return await context.dataSources.studentManagementAPI.getProjects();
 }
 
-const assignedProjects: Resolver<null, null> = async (_, args, context) => {
-    console.log("requesting assigned projects", args, context)
-    return await context.dataSources.studentManagementAPI.getStudentAssignedProjects(args);
 
-};
+
+
 
 const part: Resolver<null, { id: number }> = async (_, args, context) => {
     return await context.dataSources.studentManagementAPI.getPart(args.id);
@@ -64,7 +62,7 @@ const projectTags: Resolver<null, null> = async (_, args, context) => {
 
 const notifications: Resolver<null, null> = async (_, args, context) => {
     const response = await axios.get(
-        process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/notifications/`,
+        process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/get_notifications`,
         {
             headers: {
                 "Authorization": context.token
@@ -75,7 +73,7 @@ const notifications: Resolver<null, null> = async (_, args, context) => {
 }
 
 const notification: Resolver<null, { id: number }> = async (_, args, context) => {
-    const response = await axios.get(process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/notifications/${args.id}`, {
+    const response = await axios.get(process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/notification/${args.id}`, {
         headers: {
             "Authorization": context.token
         }
@@ -85,7 +83,7 @@ const notification: Resolver<null, { id: number }> = async (_, args, context) =>
 }
 
 const unreadNotificationCount: Resolver<null, null> = async (_, args, context) => {
-    const response = await axios.get(process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/notifications/unread_notification_count`, {
+    const response = await axios.get(process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/get_unread_notification_count`, {
         headers: {
             "Authorization": context.token
         }
@@ -147,7 +145,6 @@ export const Query = {
     titles,
     parts,
     projects,
-    assignedProjects,
     part,
     project,
     projectTags,
