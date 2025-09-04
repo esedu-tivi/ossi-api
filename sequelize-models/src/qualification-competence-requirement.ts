@@ -19,7 +19,7 @@ QualificationCompetenceRequirement.init(
             type: DataTypes.INTEGER.UNSIGNED,
             field: "group_id",
         },
-        description: new DataTypes.STRING(128),
+        description: new DataTypes.STRING(1024),
     },
     {
         tableName: "qualification_competence_requirement",

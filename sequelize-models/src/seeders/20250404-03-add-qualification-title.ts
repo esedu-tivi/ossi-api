@@ -15,5 +15,9 @@ export const up: Migration = async ({ context: queryInterface }) => {
   // ]);
 };
 export const down: Migration = async ({ context: queryInterface }) => {
-  await queryInterface.bulkDelete('qualification_titles', null, {});
+  // await queryInterface.removeConstraint("qualification_titles", "mandatory_qualification_units_for_title_title_id_fkey");
+  // // Then delete from referenced table
+  // await queryInterface.bulkDelete('qualification_titles', null, {});
+  // Finally, remove the constraint if it still exists
+  console.log("skip")
 };

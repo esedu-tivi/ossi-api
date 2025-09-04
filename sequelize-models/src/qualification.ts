@@ -13,7 +13,7 @@ Qualification.init({
     primaryKey: true
   },
   name: {
-    type: DataTypes.STRING(128)
+    type: DataTypes.STRING(256)
   }
 }, {
   tableName: "qualifications",

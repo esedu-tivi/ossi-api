@@ -7,10 +7,10 @@ export class QualificationUnit extends Model<InferAttributes<QualificationUnit>,
     declare name: string;
     declare scope: number;
 
-//    declare parts?: NonAttribute<QualificationUnitPart[]>;
+    //    declare parts?: NonAttribute<QualificationUnitPart[]>;
 
     declare static associations: {
-//        parts: Association<QualificationUnit, QualificationUnitPart>;
+        //        parts: Association<QualificationUnit, QualificationUnitPart>;
     }
 }
 
@@ -25,7 +25,7 @@ QualificationUnit.init(
             type: DataTypes.INTEGER.UNSIGNED,
             field: "qualification_id"
         },
-        name: new DataTypes.STRING(128),
+        name: new DataTypes.STRING(256),
         scope: DataTypes.INTEGER.UNSIGNED,
     },
     {

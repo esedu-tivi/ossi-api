@@ -3,6 +3,7 @@ import { sequelize } from "./sequelize.js";
 import { QualificationProjectTag } from "./qualification-project-tags.js";
 import { QualificationUnitPart } from "./qualification-unit-part.js";
 import { QualificationCompetenceRequirement } from "./qualification-competence-requirement.js";
+import { AssignedProjectsForStudents } from "./assigned-qualification-projects-for-students.js";
 
 export class QualificationProject extends Model<InferAttributes<QualificationProject, { omit: "tags" | "parts" }>, InferCreationAttributes<QualificationProject, { omit: "tags" | "parts" }>> {
     declare id: CreationOptional<number>;
@@ -15,7 +16,7 @@ export class QualificationProject extends Model<InferAttributes<QualificationPro
     declare addTag: HasManyAddAssociationMixin<QualificationProjectTag, number>;
     declare addTags: HasManyAddAssociationsMixin<QualificationProjectTag, number>;
     declare removeTags: HasManyRemoveAssociationsMixin<QualificationProjectTag, number>
-    
+
     declare addCompetenceRequirement: HasManyAddAssociationMixin<QualificationCompetenceRequirement, number>;
     declare addCompetenceRequirements: HasManyAddAssociationsMixin<QualificationCompetenceRequirement, number>;
     declare removeCompetenceRequirements: HasManyRemoveAssociationsMixin<QualificationCompetenceRequirement, number>
@@ -57,3 +58,10 @@ QualificationProject.init(
         sequelize
     }
 );
+
+// Association: QualificationProject hasMany AssignedProjectsForStudents
+// QualificationProject.hasMany(AssignedProjectsForStudents, {
+//     foreignKey: "projectId",
+//     sourceKey: "id",
+//     as: "assignedProjects"
+// });

@@ -1,10 +1,11 @@
+import { MandatoryQualificationUnitsForTitle } from '../mandatory-qualification-units-for-title';
 import { QualificationTitle } from '../qualification-title';
 import { QualificationUnit } from '../qualification-unit';
 import type { Migration } from '../sequelize';
 import { DataTypes } from 'sequelize';
 
 export const up: Migration = async ({ context: queryInterface }) => {
-    await queryInterface.createTable('mandatory_qualification_units_for_title', 
+    await queryInterface.createTable('mandatory_qualification_units_for_title',
         {
             unitId: {
                 type: DataTypes.INTEGER,
@@ -26,7 +27,14 @@ export const up: Migration = async ({ context: queryInterface }) => {
             }
         }
     );
+    QualificationTitle.belongsToMany(QualificationUnit, {
+        through: MandatoryQualificationUnitsForTitle,
+        foreignKey: "title_id",
+        otherKey: "unit_id",
+        timestamps: false,
+        onDelete: "CASCADE"
+    });
 };
 export const down: Migration = async ({ context: queryInterface }) => {
-  await queryInterface.dropTable('mandatory_qualification_units_for_title');
+    await queryInterface.dropTable('mandatory_qualification_units_for_title');
 };

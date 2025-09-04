@@ -1,5 +1,4 @@
-
-const typeDefs = `#graphql
+const newLocal = `#graphql
     scalar DateTime
 
     directive @authenticated on FIELD_DEFINITION
@@ -28,13 +27,6 @@ const typeDefs = `#graphql
     enum QualificationCompletion {
         FULL_COMPLETION
         PARTIAL_COMPLETION
-    }
-
-    enum ProjectStatus {
-        WORKING
-        RETURNED
-        ACCEPTED
-        REJECTED
     }
     
     type AuthResponse {
@@ -110,13 +102,14 @@ const typeDefs = `#graphql
     }
 
     type AssignedProjects {
-        projectId:Int
-        projectStatus:ProjectStatus!
+        projectId: ID
+        projectStatus: ProjectStatus
         startDate: DateTime
         deadlineDate: DateTime
         projectPlan: String
         projectReport: String
         teacherComment: String
+        parentProject: QualificationProject
     }
 
     interface User { 
@@ -138,7 +131,7 @@ const typeDefs = `#graphql
         studyingQualification: Qualification
         studyingQualificationTitle: QualificationTitle
         assignedQualificationUnits: [QualificationUnit!]
-        assignedProjects: [AssignedProjects!]!
+        assignedProjects: [AssignedProjects!]
     }
 
     type Teacher implements User {
@@ -244,13 +237,6 @@ const typeDefs = `#graphql
         status: Int!
         message: String
         projects: [QualificationProject!]
-    }
-
-    type ProjectResponse {
-        success: Boolean!
-        status: Int!
-        message: String
-        project: [QualificationProject]
     }
     
     type ProjectTagsResponse {
@@ -408,12 +394,6 @@ const typeDefs = `#graphql
         tag: QualificationProjectTag
     }
 
-    type AssignResponse {
-        status: Int!
-        success: Boolean!
-        message: String
-        }
-
     # update WIP
     type ProjectUpdateResponse {
         status: Int!
@@ -476,5 +456,6 @@ const typeDefs = `#graphql
         createdAt: String!
     }
 `
+const typeDefs = newLocal
 
 export default typeDefs

@@ -175,7 +175,7 @@ class StudentManagementAPI extends RESTDataSource {
     }
 
     async getStudentAssignedProjects(studentId) {
-        console.log("managementApi get student projects ", studentId)
+        console.log("api-api get student projects ", studentId)
         const res = await this.get(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/${studentId}/assigned_projects`
         );
@@ -185,7 +185,7 @@ class StudentManagementAPI extends RESTDataSource {
     }
 
     async assignProjectToStudent(args) {
-        console.log("managementApi assign project", args)
+        console.log("api-api assign project", args)
 
         return this.post(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/assignProjectToStudent`, { body: args }
@@ -193,7 +193,7 @@ class StudentManagementAPI extends RESTDataSource {
     }
 
     async updateStudentProject(args) {
-        console.log("managementApi update project", args)
+        console.log("api-api update project", args)
         return this.put(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/updateStudentProject`, { body: args }
         );

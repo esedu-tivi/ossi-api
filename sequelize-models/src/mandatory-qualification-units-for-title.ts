@@ -42,7 +42,8 @@ QualificationTitle.belongsToMany(QualificationUnit, {
     foreignKey: "title_id",
     otherKey: "unit_id",
     as: "units",
-    timestamps: false
+    timestamps: false,
+    onDelete: "CASCADE"
 });
 
 QualificationUnit.belongsToMany(QualificationTitle, {

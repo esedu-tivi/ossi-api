@@ -15,7 +15,6 @@ export const up: Migration = async ({ context: queryInterface }) => {
         qualificationUnitPartId: {
             type: DataTypes.INTEGER,
             field: "qualification_unit_id",
-            primaryKey: true,
             references: {
                 model: "qualification_units",
                 key: "eperuste_id"
@@ -24,5 +23,5 @@ export const up: Migration = async ({ context: queryInterface }) => {
     });
 };
 export const down: Migration = async ({ context: queryInterface }) => {
-  await queryInterface.dropTable('assigned_qualification_units_for_students');
+    await queryInterface.dropTable('assigned_qualification_units_for_students');
 };

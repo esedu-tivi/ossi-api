@@ -13,6 +13,7 @@ export const up: Migration = async ({ context: queryInterface }) => {
       type: DataTypes.INTEGER,
       field: "project_id",
       allowNull: false,
+
     },
     startDate: {
       type: DataTypes.DATE,
@@ -41,11 +42,28 @@ export const up: Migration = async ({ context: queryInterface }) => {
       field: "teacher_comment",
       allowNull: true,
     },
-    ProjectStatus: {
+    projectStatus: {
       type: DataTypes.ENUM(...Object.values(ProjectStatus)),
       field: "project_status",
       defaultValue: "WORKING",
     }
+  });
+
+  await queryInterface.addConstraint('assigned_projects_for_students', {
+    fields: ["student_id", "project_id"],
+    type: 'primary key',
+    name: 'assigned_projects_for_students_pkey'
+  });
+  await queryInterface.addConstraint('assigned_projects_for_students', {
+    fields: ["project_id"],
+    type: 'foreign key',
+    name: 'fkey_projectId_studentProject',
+    references: {
+      table: 'qualification_projects',
+      field: 'id'
+    },
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE'
   });
 
 
