@@ -141,6 +141,39 @@ router.post("/assignProjectToStudent", beginTransaction, async (req, res, next) 
         next(e);
     }
 })
+router.delete("/unassignProjectFromStudent", async (req, res, next) => {
+    //https://sequelize.org/docs/v6/other-topics/transactions/#managed-transactions
+    try {
+        console.log("removed ", req.body)
+        const unassignedProject = await sequelize.transaction(async t => {
+            const entryToDelete = await AssignedProjectsForStudents.findOne({
+                where: {
+                    studentId: parseInt(req.body.studentId),
+                    projectId: parseInt(req.body.projectId)
+                }
+            })
+            return entryToDelete
+        })
+        if (unassignedProject) {
+            await unassignedProject.destroy();
+            res.json({
+                status: 200,
+                success: true,
+                message: `Successfully unassigned project ${req.body.projectId}`
+            });
+        } else {
+            res.json({
+                status: 404,
+                success: false,
+                message: `No assigned project found for student ${req.body.studentId} and project ${req.body.projectId}`
+            });
+        }
+    } catch (e) {
+        next(e);
+    }
+
+})
+
 router.put("/updateStudentProject", async (req, res, next) => {
     //https://sequelize.org/docs/v6/other-topics/transactions/#managed-transactions
     try {
@@ -162,9 +195,6 @@ router.put("/updateStudentProject", async (req, res, next) => {
                     }, transaction: res.locals._transaction,
                     returning: true
                 })
-            // .then(function (result) { console.log("mutations ", result, result[0], result[1]) })
-            // console.log("changed lines ", result)
-            // console.log("using data ", req.body)
             return studentProject
         })
         // console.log(updatedStudentProject)

@@ -18,10 +18,9 @@ const assignedProjects: Resolver<{ id: number }, null> = async (parent, args, co
     return await context.dataSources.studentManagementAPI.getStudentAssignedProjects(parent.id);
 };
 
-
 export const Student = {
     studyingQualification,
     studyingQualificationTitle,
     assignedQualificationUnits,
-    assignedProjects
+    assignedProjects,
 }

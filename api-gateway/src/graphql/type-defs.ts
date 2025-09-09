@@ -253,15 +253,21 @@ const newLocal = `#graphql
         project: [QualificationProject]
     }
 
-    type AssignResponse {
+    type  StudentAssignResponse {
         success: Boolean!
         status: Int!
         message: String
     }
-    type ProjectUpdateResponse {
+    type StudentProjectUpdateResponse {
         success: Boolean!
         status: Int!
         message: String
+    }
+    type StudentUnassignProjectResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+
     }
 
     type Query {
@@ -335,10 +341,10 @@ const newLocal = `#graphql
         teacherComment: String
     }
 
-    input studentWorktimeTrackerInput {
-        starTime:DateTime
-        endTime:DateTime
-        description:String
+    input StudentWorktimeTrackerInput {
+        startTime: DateTime
+        endTime: DateTime
+        description: String
     }
     type LoginResponse {
         status: Int!
@@ -421,9 +427,10 @@ const newLocal = `#graphql
         updatePart(id: ID!, part: CreatePartInput!): UpdatePartResponse! @authenticatedAsTeacher
         updatePartOrder(unitId: ID!, partOrder: [ID!]!): UpdatePartOrderResponse! @authenticatedAsTeacher
         createProjectTag(name: String!): CreateProjectTagResponse! @authenticatedAsTeacher
-        assignProjectToStudent(studentId: ID! , projectId:ID! ): AssignResponse!  @authenticated
+        assignProjectToStudent(studentId: ID! , projectId:ID! ): StudentAssignResponse!  @authenticated
         # update WIP
-        updateStudentProject(studentId: ID! , projectId:ID!, update: UpdateStudentProjectInput!) : ProjectUpdateResponse @authenticated
+        updateStudentProject(studentId: ID! , projectId:ID!, update: UpdateStudentProjectInput!) : StudentProjectUpdateResponse @authenticated
+        unassignProjectFromStudent(studentId:ID! , projectId:ID!) : StudentUnassignProjectResponse   @authenticated
 
         markNotificationAsRead(id: ID!): MarkNotificationAsReadResponse! @authenticated
         

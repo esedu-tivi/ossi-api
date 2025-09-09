@@ -198,6 +198,15 @@ class StudentManagementAPI extends RESTDataSource {
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/updateStudentProject`, { body: args }
         );
     }
+
+    async unassignProjectFromStudent(args) {
+        console.log("unassigning project ", args)
+        return this.delete(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/unassignProjectFromStudent/`, { body: args }
+        );
+    }
+
+
 }
 
 export { StudentManagementAPI };
