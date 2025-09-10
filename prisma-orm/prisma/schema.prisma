@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -12,4 +6,210 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model SequelizeMeta {
+  name String @id @db.VarChar(255)
+}
+
+model assigned_projects_for_students {
+  student_id             Int
+  project_id             Int
+  start_date             DateTime                                            @db.Timestamptz(6)
+  deadline_date          DateTime?                                           @db.Timestamptz(6)
+  project_plan           String?
+  project_report         String?
+  teacher_comment        String?
+  project_status         enum_assigned_projects_for_students_project_status? @default(WORKING)
+  qualification_projects qualification_projects                              @relation(fields: [project_id], references: [id], map: "fkey_projectId_studentProject")
+
+  @@id([student_id, project_id])
+}
+
+model assigned_qualification_units_for_students {
+  student_id            Int                  @id
+  qualification_unit_id Int?
+  qualification_units   qualification_units? @relation(fields: [qualification_unit_id], references: [eperuste_id], onDelete: NoAction, onUpdate: NoAction, map: "assigned_qualification_units_for_stu_qualification_unit_id_fkey")
+  students              students             @relation(fields: [student_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model competence_requirements_in_projects {
+  qualification_project_id                Int
+  qualification_competence_requirement_id Int
+
+  @@id([qualification_project_id, qualification_competence_requirement_id])
+}
+
+model job_supervisors {
+  user_id                                Int                                      @id
+  users                                  users                                    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  supervised_students_by_job_supervisors supervised_students_by_job_supervisors[] @ignore
+}
+
+model mandatory_qualification_units_for_title {
+  unit_id              Int
+  title_id             Int
+  qualification_titles qualification_titles @relation(fields: [title_id], references: [eperuste_id], onDelete: NoAction, onUpdate: NoAction)
+  qualification_units  qualification_units  @relation(fields: [unit_id], references: [eperuste_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([unit_id, title_id])
+}
+
+model qualification_competence_requirement {
+  eperuste_id Int     @id
+  group_id    Int?
+  description String? @db.VarChar(1024)
+}
+
+model qualification_competence_requirements {
+  eperuste_id           Int                  @id
+  title                 String?              @db.VarChar(128)
+  qualification_unit_id Int?
+  qualification_units   qualification_units? @relation(fields: [qualification_unit_id], references: [eperuste_id], onDelete: NoAction, onUpdate: NoAction, map: "qualification_competence_requirement_qualification_unit_id_fkey")
+}
+
+model qualification_project_tags {
+  id                                    Int                                     @id @default(autoincrement())
+  name                                  String?                                 @db.VarChar(128)
+  qualification_projects_tags_relations qualification_projects_tags_relations[]
+}
+
+model qualification_projects {
+  id                                     Int                                      @id @default(autoincrement())
+  name                                   String?                                  @db.VarChar(128)
+  description                            String?                                  @db.VarChar(1024)
+  materials                              String?                                  @db.VarChar(1024)
+  duration                               Int?
+  is_active                              Boolean?
+  assigned_projects_for_students         assigned_projects_for_students[]
+  qualification_projects_parts_relations qualification_projects_parts_relations[]
+  qualification_projects_tags_relations  qualification_projects_tags_relations[]
+}
+
+model qualification_projects_parts_relations {
+  qualification_project_id   Int
+  qualification_unit_part_id Int
+  part_order_index           Int?
+  qualification_unit_parts   qualification_unit_parts @relation(fields: [qualification_unit_part_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "qualification_projects_parts_re_qualification_unit_part_id_fkey")
+  qualification_projects     qualification_projects   @relation(fields: [qualification_project_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "qualification_projects_parts_rela_qualification_project_id_fkey")
+
+  @@id([qualification_project_id, qualification_unit_part_id])
+}
+
+model qualification_projects_tags_relations {
+  qualification_project_id     Int
+  qualification_project_tag_id Int
+  qualification_project_tags   qualification_project_tags @relation(fields: [qualification_project_tag_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "qualification_projects_tags_r_qualification_project_tag_id_fkey")
+  qualification_projects       qualification_projects     @relation(fields: [qualification_project_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "qualification_projects_tags_relat_qualification_project_id_fkey")
+
+  @@id([qualification_project_id, qualification_project_tag_id])
+}
+
+model qualification_titles {
+  eperuste_id                             Int                                       @id
+  qualification_id                        Int?
+  name                                    String?                                   @db.VarChar(256)
+  mandatory_qualification_units_for_title mandatory_qualification_units_for_title[]
+  qualifications                          qualifications?                           @relation(fields: [qualification_id], references: [eperuste_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model qualification_unit_parts {
+  id                                     Int                                      @id @default(autoincrement())
+  name                                   String?                                  @db.VarChar(128)
+  description                            String?
+  materials                              String?
+  qualification_unit_id                  Int?
+  unit_order_index                       Int?
+  qualification_projects_parts_relations qualification_projects_parts_relations[]
+  qualification_units                    qualification_units?                     @relation(fields: [qualification_unit_id], references: [eperuste_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model qualification_units {
+  eperuste_id                               Int                                         @id
+  qualification_id                          Int?
+  name                                      String?                                     @db.VarChar(128)
+  scope                                     Int?
+  assigned_qualification_units_for_students assigned_qualification_units_for_students[]
+  mandatory_qualification_units_for_title   mandatory_qualification_units_for_title[]
+  qualification_competence_requirements     qualification_competence_requirements[]
+  qualification_unit_parts                  qualification_unit_parts[]
+}
+
+model qualifications {
+  eperuste_id          Int                    @id
+  name                 String?                @db.VarChar(128)
+  qualification_titles qualification_titles[]
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model student_worktime_tracker {
+  student_id  Int
+  project_id  Int
+  start_date  DateTime @db.Timestamptz(6)
+  end_date    DateTime @db.Timestamptz(6)
+  description String?
+
+  @@ignore
+}
+
+model students {
+  user_id                                   Int                                        @id
+  group_id                                  String                                     @db.VarChar(128)
+  qualification_title_id                    Int?
+  qualification_id                          Int?
+  qualification_completion                  enum_students_qualification_completion?
+  assigned_qualification_units_for_students assigned_qualification_units_for_students?
+  users                                     users                                      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  supervised_students_by_job_supervisors    supervised_students_by_job_supervisors[]   @ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model supervised_students_by_job_supervisors {
+  student_id        Int?
+  job_supervisor_id Int?
+  job_supervisors   job_supervisors? @relation(fields: [job_supervisor_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  students          students?        @relation(fields: [student_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@ignore
+}
+
+model teachers {
+  user_id                      Int   @id
+  teachingQualificationTitleId Int?
+  teachingQualificationId      Int?
+  users                        users @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model users {
+  id              Int              @id @default(autoincrement())
+  first_name      String           @db.VarChar(128)
+  last_name       String           @db.VarChar(128)
+  email           String           @db.VarChar(128)
+  phone_number    String           @db.VarChar(128)
+  scope           enum_users_scope
+  archived        Boolean?         @default(false)
+  oid             String           @unique @db.Uuid
+  is_set_up       Boolean          @default(false)
+  job_supervisors job_supervisors?
+  students        students?
+  teachers        teachers?
+}
+
+enum enum_assigned_projects_for_students_project_status {
+  WORKING
+  RETURNED
+  ACCEPTED
+  REJECTED
+}
+
+enum enum_students_qualification_completion {
+  FULL_COMPLETION
+  PARTIAL_COMPLETION
+}
+
+enum enum_users_scope {
+  STUDENT
+  TEACHER
+  JOB_SUPERVISOR
+  ADMIN
 }
