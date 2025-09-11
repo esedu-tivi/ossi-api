@@ -1,5 +1,5 @@
 import { CreationOptional, DataTypes, ForeignKey, InferAttributes, InferCreationAttributes, Model } from "sequelize";
-import { sequelize } from "./sequelize.js";
+import { sequelize } from "../sequelize.js";
 import { QualificationCompetenceRequirements } from "./qualification-competence-requirements.js";
 
 export class QualificationCompetenceRequirement extends Model<InferAttributes<QualificationCompetenceRequirement>, InferCreationAttributes<QualificationCompetenceRequirement>> {

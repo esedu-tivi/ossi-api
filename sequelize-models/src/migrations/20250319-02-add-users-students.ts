@@ -1,6 +1,6 @@
 import type { Migration } from '../sequelize';
 import { DataTypes } from 'sequelize';
-import { UserAuthorityScope } from '../user';
+import { UserAuthorityScope } from '../models/user';
 
 export const up: Migration = async ({ context: queryInterface }) => {
   await queryInterface.createTable('users', {

@@ -1,5 +1,5 @@
 import { Association, CreationOptional, DataTypes, HasManyAddAssociationMixin, HasManyAddAssociationsMixin, HasManyRemoveAssociationsMixin, HasManyRemoveAssociationsMixinOptions, InferAttributes, InferCreationAttributes, Model, NonAttribute } from "sequelize";
-import { sequelize } from "./sequelize.js";
+import { sequelize } from "../sequelize.js";
 import { QualificationProjectTag } from "./qualification-project-tags.js";
 import { QualificationUnitPart } from "./qualification-unit-part.js";
 import { QualificationCompetenceRequirement } from "./qualification-competence-requirement.js";

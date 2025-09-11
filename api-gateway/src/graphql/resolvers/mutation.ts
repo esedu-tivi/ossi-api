@@ -22,7 +22,6 @@ const updateProject = async (parent, args, context, info) => {
     return await context.dataSources.studentManagementAPI.updateProject(args.id, args.project);
 }
 const updateStudentProject = async (parent, args, context, info) => {
-    console.log("managementApi update student project", args)
     return await context.dataSources.studentManagementAPI.updateStudentProject(args)
 
 }
@@ -38,14 +37,17 @@ const createProjectTag = async (parent, args, context, info) => {
     return await context.dataSources.studentManagementAPI.createProjectTag({ tagName: args.name });
 }
 const assignProjectToStudent = async (parent, args, context, info) => {
-    console.log("log assignProjectToStudent ", args)
     return await context.dataSources.studentManagementAPI.assignProjectToStudent(args)
 }
 const unassignProjectFromStudent = async (parent, args, context, info) => {
-    console.log("removing project ", args)
     return await context.dataSources.studentManagementAPI.unassignProjectFromStudent(args)
 }
-
+const createWorktimeEntry = async (parent, args, context, info) => {
+    return await context.dataSources.studentManagementAPI.createWorktimeEntry(args)
+}
+const deleteWorktimeEntry = async (parent, args, context, info) => {
+    return await context.dataSources.studentManagementAPI.deleteWorktimeEntry(args)
+}
 
 
 const markNotificationAsRead = async (parent, args, context, info) => {
@@ -76,6 +78,8 @@ export const Mutation = {
     createProjectTag,
     assignProjectToStudent,
     unassignProjectFromStudent,
+    createWorktimeEntry,
+    deleteWorktimeEntry,
     markNotificationAsRead,
     debugSendNotification,
 }

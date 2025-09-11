@@ -1,5 +1,5 @@
 import { Association, CreationOptional, DataTypes, ForeignKey, HasManyAddAssociationMixin, HasManyAddAssociationsMixin, InferAttributes, InferCreationAttributes, Model, NonAttribute } from "sequelize";
-import { sequelize } from "./sequelize.js";
+import { sequelize } from "../sequelize.js";
 import { QualificationProject } from "./qualification-project.js";
 import { QualificationUnit } from "./qualification-unit.js";
 
@@ -20,10 +20,10 @@ export class QualificationUnitPart extends Model<InferAttributes<QualificationUn
         projects: Association<QualificationUnitPart, QualificationProject>;
         unit: Association<QualificationUnitPart, QualificationUnit>;
     }
-    
+
     toJSON() {
         const modelJSON = super.toJSON();
-        
+
         delete modelJSON.unitOrderIndex;
 
         return modelJSON;

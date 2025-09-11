@@ -1,6 +1,8 @@
-import { MandatoryQualificationUnitsForTitle } from '../mandatory-qualification-units-for-title';
-import { QualificationTitle } from '../qualification-title';
-import { QualificationUnit } from '../qualification-unit';
+import { MandatoryQualificationUnitsForTitle } from '../models/mandatory-qualification-units-for-title';
+// Update the import path if the file is located elsewhere, for example:
+import { QualificationTitle } from '../models/qualification-title';
+// Or ensure that '../qualification-title.ts' exists in the correct directory.
+import { QualificationUnit } from '../models/qualification-unit';
 import type { Migration } from '../sequelize';
 import { DataTypes } from 'sequelize';
 

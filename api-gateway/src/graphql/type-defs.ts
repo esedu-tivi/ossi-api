@@ -341,9 +341,9 @@ const newLocal = `#graphql
         teacherComment: String
     }
 
-    input StudentWorktimeTrackerInput {
-        startTime: DateTime
-        endTime: DateTime
+    input StudentWorktimeInput {
+        startDate: DateTime!
+        endDate: DateTime!
         description: String
     }
     type LoginResponse {
@@ -412,6 +412,11 @@ const newLocal = `#graphql
         success: Boolean!
         message: String
     }
+    type GenericResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+    }
 
     type Mutation {
         login(idToken: String!): LoginResponse!
@@ -425,13 +430,14 @@ const newLocal = `#graphql
         updateProject(id: ID!, project: UpdateProjectInput!): UpdateProjectResponse! @authenticatedAsTeacher
         createPart(part: CreatePartInput!): CreatePartResponse! @authenticatedAsTeacher
         updatePart(id: ID!, part: CreatePartInput!): UpdatePartResponse! @authenticatedAsTeacher
-        updatePartOrder(unitId: ID!, partOrder: [ID!]!): UpdatePartOrderResponse! @authenticatedAsTeacher
+        updatePartOrder(unitId: ID!, partOrder: [ID!]!): GenericResponse! @authenticatedAsTeacher
         createProjectTag(name: String!): CreateProjectTagResponse! @authenticatedAsTeacher
-        assignProjectToStudent(studentId: ID! , projectId:ID! ): StudentAssignResponse!  @authenticated
+        assignProjectToStudent(studentId: ID! , projectId:ID! ): GenericResponse!  @authenticated
         # update WIP
-        updateStudentProject(studentId: ID! , projectId:ID!, update: UpdateStudentProjectInput!) : StudentProjectUpdateResponse @authenticated
-        unassignProjectFromStudent(studentId:ID! , projectId:ID!) : StudentUnassignProjectResponse   @authenticated
-
+        updateStudentProject(studentId: ID! , projectId:ID!, update: UpdateStudentProjectInput!) : GenericResponse @authenticated
+        unassignProjectFromStudent(studentId:ID! , projectId:ID!) : GenericResponse   @authenticated
+        createWorktimeEntry(studentId:ID! , projectId:ID!, entry: StudentWorktimeInput): GenericResponse @authenticated
+        deleteWorktimeEntry(id:ID!): GenericResponse @authenticated
         markNotificationAsRead(id: ID!): MarkNotificationAsReadResponse! @authenticated
         
         # remove once not needed

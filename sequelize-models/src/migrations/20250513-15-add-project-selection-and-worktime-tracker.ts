@@ -1,9 +1,14 @@
 import type { Migration } from '../sequelize';
 import { DataTypes } from 'sequelize';
-import { ProjectStatus } from '../assigned-qualification-projects-for-students';
+import { ProjectStatus } from '../models/assigned-qualification-projects-for-students';
 
 export const up: Migration = async ({ context: queryInterface }) => {
   await queryInterface.createTable('assigned_projects_for_students', {
+    // assignedProjectPkey: {
+    //   type: DataTypes.INTEGER,
+    //   field: "assigned_projects_for_students_pkey",
+    //   allowNull: false
+    // },
     studentId: {
       type: DataTypes.INTEGER,
       field: "student_id",
@@ -54,6 +59,7 @@ export const up: Migration = async ({ context: queryInterface }) => {
     type: 'primary key',
     name: 'assigned_projects_for_students_pkey'
   });
+
   await queryInterface.addConstraint('assigned_projects_for_students', {
     fields: ["project_id"],
     type: 'foreign key',
@@ -92,6 +98,7 @@ export const up: Migration = async ({ context: queryInterface }) => {
       type: DataTypes.TEXT,
     }
   });
+
 
 };
 export const down: Migration = async ({ context: queryInterface }) => {
