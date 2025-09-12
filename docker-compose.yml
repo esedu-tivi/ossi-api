@@ -15,6 +15,7 @@ services:
       context: ./auth-api
       additional_contexts:
         sequelize-models: ./sequelize-models
+        prisma-orm: ./prisma-orm
     env_file: ".env"
     depends_on:
       - db
@@ -23,6 +24,7 @@ services:
       context: ./student-management-api
       additional_contexts:
         sequelize-models: ./sequelize-models
+        prisma-orm: ./prisma-orm
     env_file: ".env"
     depends_on:
       db-migrations:
@@ -67,13 +69,21 @@ services:
       interval: 2s
       retries: 5
       start_period: 1s
+  # db-migrations:
+  #   build:
+  #     context: ./sequelize-models
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   command: node migrator up
   db-migrations:
     build:
-      context: ./sequelize-models
+      context: ./prisma-orm
+    env_file: ".env"
     depends_on:
-      db:
-        condition: service_healthy
-    command: node migrator up
+        db:
+          condition: service_healthy
+    command: npm run migrate:prod
   mongo:
     image: docker.io/mongo
     restart: always

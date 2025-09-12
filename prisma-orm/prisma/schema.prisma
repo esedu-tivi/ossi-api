@@ -1,6 +1,7 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  provider   = "prisma-client"
+  output     = "../generated/prisma"
+  engineType = "client"
 }
 
 datasource db {
@@ -12,204 +13,243 @@ model SequelizeMeta {
   name String @id @db.VarChar(255)
 }
 
-model assigned_projects_for_students {
-  student_id             Int
-  project_id             Int
-  start_date             DateTime                                            @db.Timestamptz(6)
-  deadline_date          DateTime?                                           @db.Timestamptz(6)
-  project_plan           String?
-  project_report         String?
-  teacher_comment        String?
-  project_status         enum_assigned_projects_for_students_project_status? @default(WORKING)
-  qualification_projects qualification_projects                              @relation(fields: [project_id], references: [id], map: "fkey_projectId_studentProject")
+model AssignedProjectsForStudent {
+  studentId             Int                                           @map("student_id")
+  projectId             Int                                           @map("project_id")
+  startDate             DateTime                                      @map("start_date") @db.Timestamptz(6)
+  deadlineDate          DateTime?                                     @map("deadline_date") @db.Timestamptz(6)
+  projectPlan           String?                                       @map("project_plan")
+  projectReport         String?                                       @map("project_report")
+  teacherComment        String?                                       @map("teacher_comment")
+  projectStatus         enumAssignedProjectsForStudentsProjectStatus? @default(WORKING) @map("project_status")
+  qualificationProjects QualificationProject                          @relation(fields: [projectId], references: [id], map: "fkey_projectId_studentProject")
 
-  @@id([student_id, project_id])
+  @@id([studentId, projectId])
+  @@map("assigned_projects_for_students")
 }
 
-model assigned_qualification_units_for_students {
-  student_id            Int                  @id
-  qualification_unit_id Int?
-  qualification_units   qualification_units? @relation(fields: [qualification_unit_id], references: [eperuste_id], onDelete: NoAction, onUpdate: NoAction, map: "assigned_qualification_units_for_stu_qualification_unit_id_fkey")
-  students              students             @relation(fields: [student_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+model AssignedQualificationUnitsForStudent {
+  studentId           Int                @id @map("student_id")
+  qualificationUnitId Int?               @map("qualification_unit_id")
+  qualificationUnits  QualificationUnit? @relation(fields: [qualificationUnitId], references: [eperusteId], onDelete: NoAction, onUpdate: NoAction, map: "assigned_qualification_units_for_stu_qualification_unit_id_fkey")
+  students            Student            @relation(fields: [studentId], references: [userId], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("assigned_qualification_units_for_students")
 }
 
-model competence_requirements_in_projects {
-  qualification_project_id                Int
-  qualification_competence_requirement_id Int
+model CompetenceRequirementsInProject {
+  qualificationProjectId               Int @map("qualification_project_id")
+  qualificationCompetenceRequirementId Int @map("qualification_competence_requirement_id")
 
-  @@id([qualification_project_id, qualification_competence_requirement_id])
+  @@id([qualificationProjectId, qualificationCompetenceRequirementId])
+  @@map("competence_requirements_in_projects")
 }
 
-model job_supervisors {
-  user_id                                Int                                      @id
-  users                                  users                                    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  supervised_students_by_job_supervisors supervised_students_by_job_supervisors[] @ignore
+model JobSupervisor {
+  userId                             Int                                 @id @map("user_id")
+  users                              User                                @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  supervisedStudentsByJobSupervisors SupervisedStudentsByJobSupervisor[] @ignore
+
+  @@map("job_supervisors")
 }
 
-model mandatory_qualification_units_for_title {
-  unit_id              Int
-  title_id             Int
-  qualification_titles qualification_titles @relation(fields: [title_id], references: [eperuste_id], onDelete: NoAction, onUpdate: NoAction)
-  qualification_units  qualification_units  @relation(fields: [unit_id], references: [eperuste_id], onDelete: NoAction, onUpdate: NoAction)
+model MandatoryQualificationUnitsForTitle {
+  unitId              Int                @map("unit_id")
+  titleId             Int                @map("title_id")
+  qualificationTitles QualificationTitle @relation(fields: [titleId], references: [eperusteId], onDelete: NoAction, onUpdate: NoAction)
+  qualificationUnits  QualificationUnit  @relation(fields: [unitId], references: [eperusteId], onDelete: NoAction, onUpdate: NoAction)
 
-  @@id([unit_id, title_id])
+  @@id([unitId, titleId])
+  @@map("mandatory_qualification_units_for_title")
 }
 
-model qualification_competence_requirement {
-  eperuste_id Int     @id
-  group_id    Int?
+model QualificationCompetenceRequirement {
+  eperusteId  Int     @id @map("eperuste_id")
+  groupId     Int?    @map("group_id")
   description String? @db.VarChar(1024)
+
+  @@map("qualification_competence_requirement")
 }
 
-model qualification_competence_requirements {
-  eperuste_id           Int                  @id
-  title                 String?              @db.VarChar(128)
-  qualification_unit_id Int?
-  qualification_units   qualification_units? @relation(fields: [qualification_unit_id], references: [eperuste_id], onDelete: NoAction, onUpdate: NoAction, map: "qualification_competence_requirement_qualification_unit_id_fkey")
+model QualificationCompetenceRequirements {
+  eperusteId          Int                @id @map("eperuste_id")
+  title               String?            @db.VarChar(128)
+  qualificationUnitId Int?               @map("qualification_unit_id")
+  qualificationUnits  QualificationUnit? @relation(fields: [qualificationUnitId], references: [eperusteId], onDelete: NoAction, onUpdate: NoAction, map: "qualification_competence_requirement_qualification_unit_id_fkey")
+
+  @@map("qualification_competence_requirements")
 }
 
-model qualification_project_tags {
-  id                                    Int                                     @id @default(autoincrement())
-  name                                  String?                                 @db.VarChar(128)
-  qualification_projects_tags_relations qualification_projects_tags_relations[]
+model QualificationProjectTag {
+  id                                 Int                                 @id @default(autoincrement())
+  name                               String?                             @db.VarChar(128)
+  qualificationProjectsTagsRelations QualificationProjectsTagsRelation[]
+
+  @@map("qualification_project_tags")
 }
 
-model qualification_projects {
-  id                                     Int                                      @id @default(autoincrement())
-  name                                   String?                                  @db.VarChar(128)
-  description                            String?                                  @db.VarChar(1024)
-  materials                              String?                                  @db.VarChar(1024)
-  duration                               Int?
-  is_active                              Boolean?
-  assigned_projects_for_students         assigned_projects_for_students[]
-  qualification_projects_parts_relations qualification_projects_parts_relations[]
-  qualification_projects_tags_relations  qualification_projects_tags_relations[]
+model QualificationProject {
+  id                                  Int                                  @id @default(autoincrement())
+  name                                String?                              @db.VarChar(128)
+  description                         String?                              @db.VarChar(1024)
+  materials                           String?                              @db.VarChar(1024)
+  duration                            Int?
+  isActive                            Boolean?                             @map("is_active")
+  assignedProjectsForStudents         AssignedProjectsForStudent[]
+  qualificationProjectsPartsRelations QualificationProjectsPartsRelation[]
+  qualificationProjectsTagsRelations  QualificationProjectsTagsRelation[]
+
+  @@map("qualification_projects")
 }
 
-model qualification_projects_parts_relations {
-  qualification_project_id   Int
-  qualification_unit_part_id Int
-  part_order_index           Int?
-  qualification_unit_parts   qualification_unit_parts @relation(fields: [qualification_unit_part_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "qualification_projects_parts_re_qualification_unit_part_id_fkey")
-  qualification_projects     qualification_projects   @relation(fields: [qualification_project_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "qualification_projects_parts_rela_qualification_project_id_fkey")
+model QualificationProjectsPartsRelation {
+  qualificationProjectId  Int                   @map("qualification_project_id")
+  qualificationUnitPartId Int                   @map("qualification_unit_part_id")
+  partOrderIndex          Int?                  @map("part_order_index")
+  qualificationUnitParts  QualificationUnitPart @relation(fields: [qualificationUnitPartId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "qualification_projects_parts_re_qualification_unit_part_id_fkey")
+  qualificationProjects   QualificationProject  @relation(fields: [qualificationProjectId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "qualification_projects_parts_rela_qualification_project_id_fkey")
 
-  @@id([qualification_project_id, qualification_unit_part_id])
+  @@id([qualificationProjectId, qualificationUnitPartId])
+  @@map("qualification_projects_parts_relations")
 }
 
-model qualification_projects_tags_relations {
-  qualification_project_id     Int
-  qualification_project_tag_id Int
-  qualification_project_tags   qualification_project_tags @relation(fields: [qualification_project_tag_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "qualification_projects_tags_r_qualification_project_tag_id_fkey")
-  qualification_projects       qualification_projects     @relation(fields: [qualification_project_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "qualification_projects_tags_relat_qualification_project_id_fkey")
+model QualificationProjectsTagsRelation {
+  qualificationProjectId    Int                     @map("qualification_project_id")
+  qualificationProjectTagId Int                     @map("qualification_project_tag_id")
+  qualificationProjectTags  QualificationProjectTag @relation(fields: [qualificationProjectTagId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "qualification_projects_tags_r_qualification_project_tag_id_fkey")
+  qualificationProjects     QualificationProject    @relation(fields: [qualificationProjectId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "qualification_projects_tags_relat_qualification_project_id_fkey")
 
-  @@id([qualification_project_id, qualification_project_tag_id])
+  @@id([qualificationProjectId, qualificationProjectTagId])
+  @@map("qualification_projects_tags_relations")
 }
 
-model qualification_titles {
-  eperuste_id                             Int                                       @id
-  qualification_id                        Int?
-  name                                    String?                                   @db.VarChar(256)
-  mandatory_qualification_units_for_title mandatory_qualification_units_for_title[]
-  qualifications                          qualifications?                           @relation(fields: [qualification_id], references: [eperuste_id], onDelete: NoAction, onUpdate: NoAction)
+model QualificationTitle {
+  eperusteId                          Int                                   @id @map("eperuste_id")
+  qualificationId                     Int?                                  @map("qualification_id")
+  name                                String?                               @db.VarChar(256)
+  mandatoryQualificationUnitsForTitle MandatoryQualificationUnitsForTitle[]
+  qualifications                      Qualification?                        @relation(fields: [qualificationId], references: [eperusteId], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("qualification_titles")
 }
 
-model qualification_unit_parts {
-  id                                     Int                                      @id @default(autoincrement())
-  name                                   String?                                  @db.VarChar(128)
-  description                            String?
-  materials                              String?
-  qualification_unit_id                  Int?
-  unit_order_index                       Int?
-  qualification_projects_parts_relations qualification_projects_parts_relations[]
-  qualification_units                    qualification_units?                     @relation(fields: [qualification_unit_id], references: [eperuste_id], onDelete: NoAction, onUpdate: NoAction)
+model QualificationUnitPart {
+  id                                  Int                                  @id @default(autoincrement())
+  name                                String?                              @db.VarChar(128)
+  description                         String?
+  materials                           String?
+  qualificationUnitId                 Int?                                 @map("qualification_unit_id")
+  unitOrderIndex                      Int?                                 @map("unit_order_index")
+  qualificationProjectsPartsRelations QualificationProjectsPartsRelation[]
+  qualificationUnits                  QualificationUnit?                   @relation(fields: [qualificationUnitId], references: [eperusteId], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("qualification_unit_parts")
 }
 
-model qualification_units {
-  eperuste_id                               Int                                         @id
-  qualification_id                          Int?
-  name                                      String?                                     @db.VarChar(128)
-  scope                                     Int?
-  assigned_qualification_units_for_students assigned_qualification_units_for_students[]
-  mandatory_qualification_units_for_title   mandatory_qualification_units_for_title[]
-  qualification_competence_requirements     qualification_competence_requirements[]
-  qualification_unit_parts                  qualification_unit_parts[]
+model QualificationUnit {
+  eperusteId                            Int                                    @id @map("eperuste_id")
+  qualificationId                       Int?                                   @map("qualification_id")
+  name                                  String?                                @db.VarChar(128)
+  scope                                 Int?
+  assignedQualificationUnitsForStudents AssignedQualificationUnitsForStudent[]
+  mandatoryQualificationUnitsForTitle   MandatoryQualificationUnitsForTitle[]
+  qualificationCompetenceRequirements   QualificationCompetenceRequirements[]
+  qualificationUnitParts                QualificationUnitPart[]
+
+  @@map("qualification_units")
 }
 
-model qualifications {
-  eperuste_id          Int                    @id
-  name                 String?                @db.VarChar(128)
-  qualification_titles qualification_titles[]
+model Qualification {
+  eperusteId          Int                  @id @map("eperuste_id")
+  name                String?              @db.VarChar(128)
+  qualificationTitles QualificationTitle[]
+
+  @@map("qualifications")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model student_worktime_tracker {
-  student_id  Int
-  project_id  Int
-  start_date  DateTime @db.Timestamptz(6)
-  end_date    DateTime @db.Timestamptz(6)
+model StudentWorktimeTracker {
+  studentId   Int      @map("student_id")
+  projectId   Int      @map("project_id")
+  startDate   DateTime @map("start_date") @db.Timestamptz(6)
+  endDate     DateTime @map("end_date") @db.Timestamptz(6)
   description String?
 
+  @@map("student_worktime_tracker")
   @@ignore
 }
 
-model students {
-  user_id                                   Int                                        @id
-  group_id                                  String                                     @db.VarChar(128)
-  qualification_title_id                    Int?
-  qualification_id                          Int?
-  qualification_completion                  enum_students_qualification_completion?
-  assigned_qualification_units_for_students assigned_qualification_units_for_students?
-  users                                     users                                      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  supervised_students_by_job_supervisors    supervised_students_by_job_supervisors[]   @ignore
+model Student {
+  userId                                Int                                   @id @map("user_id")
+  groupId                               String                                @map("group_id") @db.VarChar(128)
+  qualificationTitleId                  Int?                                  @map("qualification_title_id")
+  qualificationId                       Int?                                  @map("qualification_id")
+  qualificationCompletion               enumStudentsQualificationCompletion?  @map("qualification_completion")
+  assignedQualificationUnitsForStudents AssignedQualificationUnitsForStudent?
+  users                                 User                                  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  supervisedStudentsByJobSupervisors    SupervisedStudentsByJobSupervisor[]   @ignore
+
+  @@map("students")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model supervised_students_by_job_supervisors {
-  student_id        Int?
-  job_supervisor_id Int?
-  job_supervisors   job_supervisors? @relation(fields: [job_supervisor_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
-  students          students?        @relation(fields: [student_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+model SupervisedStudentsByJobSupervisor {
+  studentId       Int?           @map("student_id")
+  jobSupervisorId Int?           @map("job_supervisor_id")
+  jobSupervisors  JobSupervisor? @relation(fields: [jobSupervisorId], references: [userId], onDelete: NoAction, onUpdate: NoAction)
+  students        Student?       @relation(fields: [studentId], references: [userId], onDelete: NoAction, onUpdate: NoAction)
 
+  @@map("supervised_students_by_job_supervisors")
   @@ignore
 }
 
-model teachers {
-  user_id                      Int   @id
+model Teacher {
+  userId                       Int  @id @map("user_id")
   teachingQualificationTitleId Int?
   teachingQualificationId      Int?
-  users                        users @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users                        User @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("teachers")
 }
 
-model users {
-  id              Int              @id @default(autoincrement())
-  first_name      String           @db.VarChar(128)
-  last_name       String           @db.VarChar(128)
-  email           String           @db.VarChar(128)
-  phone_number    String           @db.VarChar(128)
-  scope           enum_users_scope
-  archived        Boolean?         @default(false)
-  oid             String           @unique @db.Uuid
-  is_set_up       Boolean          @default(false)
-  job_supervisors job_supervisors?
-  students        students?
-  teachers        teachers?
+model User {
+  id             Int            @id @default(autoincrement())
+  firstName      String         @map("first_name") @db.VarChar(128)
+  lastName       String         @map("last_name") @db.VarChar(128)
+  email          String         @db.VarChar(128)
+  phoneNumber    String         @map("phone_number") @db.VarChar(128)
+  scope          enumUsersScope
+  archived       Boolean?       @default(false)
+  oid            String         @unique @db.Uuid
+  isSetUp        Boolean        @default(false) @map("is_set_up")
+  jobSupervisors JobSupervisor?
+  students       Student?
+  teachers       Teacher?
+
+  @@map("users")
 }
 
-enum enum_assigned_projects_for_students_project_status {
+enum enumAssignedProjectsForStudentsProjectStatus {
   WORKING
   RETURNED
   ACCEPTED
   REJECTED
+
+  @@map("enum_assigned_projects_for_students_project_status")
 }
 
-enum enum_students_qualification_completion {
-  FULL_COMPLETION
-  PARTIAL_COMPLETION
+enum enumStudentsQualificationCompletion {
+  FULLCOMPLETION    @map("FULL_COMPLETION")
+  PARTIALCOMPLETION @map("PARTIAL_COMPLETION")
+
+  @@map("enum_students_qualification_completion")
 }
 
-enum enum_users_scope {
+enum enumUsersScope {
   STUDENT
   TEACHER
-  JOB_SUPERVISOR
+  JOBSUPERVISOR @map("JOB_SUPERVISOR")
   ADMIN
+
+  @@map("enum_users_scope")
 }
