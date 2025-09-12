@@ -6,6 +6,8 @@ import { Student } from "./models/student.js";
 import { WorktimeEntries } from "./models/worktime-entries.js";
 
 
+
+
 export { sequelize } from "./sequelize.js";
 export { QualificationProject } from "./models/qualification-project.js";
 export { QualificationProjectTag } from "./models/qualification-project-tags.js";
@@ -26,6 +28,22 @@ export { MandatoryQualificationUnitsForTitle } from "./models/mandatory-qualific
 export { AssignedProjectsForStudents } from "./models/assigned-qualification-projects-for-students.js";
 export { WorktimeEntries } from "./models/worktime-entries.js"
 
+
+AssignedProjectsForStudents.belongsTo(QualificationProject, {
+    foreignKey: "project_id",
+    targetKey: "id",
+    as: "parentProject"
+})
+
+
+// WorktimeEntries.belongsTo(AssignedProjectsForStudents, {
+//     foreignKey: "assigned_projects_for_students_pkey"
+// });
+
+// AssignedProjectsForStudents.hasMany(WorktimeEntries, {
+//     foreignKey:""
+
+// })
 
 
 
@@ -49,26 +67,22 @@ export { WorktimeEntries } from "./models/worktime-entries.js"
 //     otherKey: "student_id",
 //     timestamps: false
 // });
-// AssignedProjectsForStudents.belongsTo(QualificationProject, {
-//     foreignKey: "projectId",
-//     targetKey: "id",
-//     as: "parentProject"
-// })
+// Student.belongsToMany(QualificationUnitPart, {
+//     through: "assigned_projects_for_students",
+//     foreignKey: "student_id",
+//     otherKey: "project_id",
+//     as: "assignedProjects",
+//     timestamps: false
+// });
+// QualificationUnit.belongsToMany(QualificationProject, {
+//     through: "assigned_projects_for_students",
+//     foreignKey: "project_id",
+//     otherKey: "student_id",
+//     timestamps: false
+// });
+// QualificationProject.hasMany(AssignedProjectsForStudents, {
+//     foreignKey: "id",
+//     sourceKey: "project_id",
+//     as: "assignedProjects"
+// });
 
-
-// WorktimeEntries.belongsTo(AssignedProjectsForStudents, { foreignKey: "assigned_projects_for_students_pkey" });
-// AssignedProjectsForStudents.hasMany(WorktimeEntries)
-
-// // Student.belongsToMany(QualificationUnitPart, {
-// //     through: "assigned_projects_for_students",
-// //     foreignKey: "student_id",
-// //     otherKey: "project_id",
-// //     as: "assignedProjects",
-// //     timestamps: false
-// // });
-// // QualificationUnit.belongsToMany(QualificationProject, {
-// //     through: "assigned_projects_for_students",
-// //     foreignKey: "project_id",
-// //     otherKey: "student_id",
-// //     timestamps: false
-// // });

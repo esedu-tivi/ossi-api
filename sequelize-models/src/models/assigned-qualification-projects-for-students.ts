@@ -1,11 +1,5 @@
-import { QualificationProject } from "./qualification-project.js";
 import { sequelize } from "../sequelize.js";
-import { WorktimeEntries } from "./worktime-entries.js";
-
 import { DataTypes, ForeignKey, InferAttributes, InferCreationAttributes, Model, } from "sequelize";
-// import { QualificationUnitPart } from "./qualification-unit-part.js";
-// import { Student } from "./student.js";
-// import { QualificationUnit } from "./qualification-unit.js";
 
 export enum ProjectStatus {
     WORKING = "WORKING",
@@ -15,7 +9,6 @@ export enum ProjectStatus {
 }
 
 export class AssignedProjectsForStudents extends Model<InferAttributes<AssignedProjectsForStudents>, InferCreationAttributes<AssignedProjectsForStudents>> {
-    // declare assignedProjectPkey: number
     declare studentId: number
     declare projectId: number
     declare startDate: Date
@@ -29,18 +22,15 @@ export class AssignedProjectsForStudents extends Model<InferAttributes<AssignedP
 
 AssignedProjectsForStudents.init(
     {
-        // assignedProjectPkey: {
-        //     type: DataTypes.INTEGER,
-        //     primaryKey: true,
-        //     field: "assigned_projects_for_students_pkey",
-        // },
         studentId: {
             type: DataTypes.INTEGER,
+            primaryKey: true,
             field: "student_id",
             allowNull: false,
         },
         projectId: {
             type: DataTypes.INTEGER,
+            primaryKey: true,
             field: "project_id",
             allowNull: false,
         },
@@ -74,7 +64,6 @@ AssignedProjectsForStudents.init(
             field: "project_status",
             defaultValue: "WORKING",
         },
-
     },
     {
         tableName: "assigned_projects_for_students",
