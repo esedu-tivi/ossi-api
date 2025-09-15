@@ -38,11 +38,13 @@ AssignedProjectsForStudents.init(
             type: DataTypes.DATE,
             field: "start_date",
             allowNull: false,
+            defaultValue: DataTypes.DATE,
         },
         deadlineDate: {
             type: DataTypes.DATE,
             field: "deadline_date",
             allowNull: false,
+            defaultValue: DataTypes.DATE
         },
         projectPlan: {
             type: DataTypes.STRING,

@@ -101,6 +101,14 @@ const newLocal = `#graphql
         tags: [QualificationProjectTag!]!
     }
 
+
+    type WorktimeEntry{
+        startDate: DateTime
+        endDate: DateTime
+        description: String
+        id:ID
+    }
+
     type AssignedProjects {
         projectId: ID
         projectStatus: ProjectStatus
@@ -110,6 +118,7 @@ const newLocal = `#graphql
         projectReport: String
         teacherComment: String
         parentProject: QualificationProject
+        worktimeEntries: [WorktimeEntry!]
     }
 
     interface User { 
@@ -433,7 +442,6 @@ const newLocal = `#graphql
         updatePartOrder(unitId: ID!, partOrder: [ID!]!): GenericResponse! @authenticatedAsTeacher
         createProjectTag(name: String!): CreateProjectTagResponse! @authenticatedAsTeacher
         assignProjectToStudent(studentId: ID! , projectId:ID! ): GenericResponse!  @authenticated
-        # update WIP
         updateStudentProject(studentId: ID! , projectId:ID!, update: UpdateStudentProjectInput!) : GenericResponse @authenticated
         unassignProjectFromStudent(studentId:ID! , projectId:ID!) : GenericResponse   @authenticated
         createWorktimeEntry(studentId:ID! , projectId:ID!, entry: StudentWorktimeInput): GenericResponse @authenticated

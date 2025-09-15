@@ -63,7 +63,11 @@ router.get("/:id/assigned_projects", async (req, res) => {
     //table assigned_projects_for_students
     const assignedProjects = await AssignedProjectsForStudents.findAll({
         where: { studentId: req.params.id },
-        include: [{ model: QualificationProject, as: "parentProject" }],
+        include: [
+            { model: QualificationProject, as: "parentProject" },
+            { model: WorktimeEntries, as: "worktimeEntries" }
+        ],
+
         transaction: res.locals._transaction
     });
     res.json(assignedProjects);
@@ -115,21 +119,38 @@ router.post("/:id/qualification_title", beginTransaction, async (req, res, next)
 });
 router.post("/assignProjectToStudent", beginTransaction, async (req, res, next) => {
     try {
-        const assignedProject = await sequelize.transaction(async t => {
-            const newProject = await AssignedProjectsForStudents.create({
-                studentId: req.body.studentId,
-                projectId: req.body.projectId
-            }, {
-                transaction: t,
-                returning: true
-            },)
-            return newProject
-        });
-        res.json({
-            status: 200,
-            success: true,
-            message: "Successfully added project"
-        });
+
+        if (!req.body.studentId || !req.body.projectId) {
+            res.json({
+                status: 400,
+                success: false,
+                message: "Missing required fields"
+            });
+        } else {
+            const project = await QualificationProject.findByPk(req.body.projectId);
+            // prototype to take project duration in hours, divide it to 8h working days, then add to now date to get deadline
+            const durationDays = Math.ceil(project.duration / 8);
+            console.log(durationDays)
+            const assignedProject = await sequelize.transaction(async t => {
+                const newProject = await AssignedProjectsForStudents.create({
+                    studentId: req.body.studentId,
+                    projectId: req.body.projectId,
+                    startDate: new Date(),
+                    deadlineDate: new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000)
+                }, {
+                    transaction: t,
+                    returning: true
+                },)
+                return newProject
+            });
+            res.json({
+                status: 200,
+                success: true,
+                message: "Successfully added project"
+            });
+        }
+
+
     } catch (e) {
         next(e);
     }
@@ -170,7 +191,6 @@ router.put("/updateStudentProject", async (req, res, next) => {
     //https://sequelize.org/docs/v6/other-topics/transactions/#managed-transactions
     try {
         const update = req.body.update
-
         const updateFields = Object.fromEntries(
             Object.entries(update).filter(([_, entry]) => entry !== undefined))
 
@@ -199,7 +219,7 @@ router.put("/updateStudentProject", async (req, res, next) => {
 router.post("/createWorktimeEntry", async (req, res, next) => {
     const data = req.body
     try {
-        const newWorktime = await sequelize.transaction(async t => {
+        await sequelize.transaction(async t => {
             const newEntry = await WorktimeEntries.create({
                 studentId: data.studentId,
                 projectId: data.projectId,
@@ -209,43 +229,41 @@ router.post("/createWorktimeEntry", async (req, res, next) => {
             }, {
                 transaction: t,
             });
-            return newEntry
-        })
-        res.json({
-            status: 200,
-            success: true,
-            message: `entered new workentry as ${JSON.stringify(newWorktime)} `
+            res.json({
+                status: 200,
+                success: true,
+                message: `entered new work entry as ${JSON.stringify(newEntry)} `
+            });
         });
     } catch (e) {
         next(e);
     }
-},)
+})
 
 router.delete("/deleteWorktimeEntry", async (req, res, next) => {
     const data = req.body
-    console.log(data)
     try {
-        const entry = await WorktimeEntries.findByPk(req.body.id);
-        if (entry) {
-            await sequelize.transaction(async t => {
+        await sequelize.transaction(async t => {
+            const entry = await WorktimeEntries.findByPk(data.id, { transaction: t });
+            if (entry) {
                 await entry.destroy({ transaction: t });
-            });
-            res.json({
-                status: 200,
-                success: true,
-                message: `Successfully deleted entry`
-            });
-        } else {
-            res.json({
-                status: 404,
-                success: false,
-                message: `invalid id`
-            });
-        }
+                res.json({
+                    status: 200,
+                    success: true,
+                    message: `Successfully deleted entry ${data.id}`
+                });
+            } else {
+                res.json({
+                    status: 404,
+                    success: false,
+                    message: `No entry found ${data.id}`
+                });
+            }
+        });
     } catch (e) {
         next(e);
     }
-},)
+})
 
 
 router.post("/:id/student_setup", beginTransaction, async (req, res, next) => {

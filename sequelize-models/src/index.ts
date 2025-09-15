@@ -35,25 +35,39 @@ AssignedProjectsForStudents.belongsTo(QualificationProject, {
     as: "parentProject"
 })
 
+AssignedProjectsForStudents.hasMany(WorktimeEntries, {
+    foreignKey: "student_id",
+    sourceKey: "studentId",
+    as: "worktimeEntries"
+});
+
+WorktimeEntries.belongsTo(AssignedProjectsForStudents, {
+    foreignKey: {
+        name: "student_id",
+        field: "student_id"
+    },
+    targetKey: "studentId",
+    as: "assignedProjectForStudent"
+});
+WorktimeEntries.belongsTo(AssignedProjectsForStudents, {
+    foreignKey: {
+        name: "project_id",
+        field: "project_id"
+    },
+    targetKey: "projectId",
+    as: "assignedProjectForStudentProject"
+});
+
+
+
+
+
+
+
 
 // WorktimeEntries.belongsTo(AssignedProjectsForStudents, {
 //     foreignKey: "assigned_projects_for_students_pkey"
 // });
-
-// AssignedProjectsForStudents.hasMany(WorktimeEntries, {
-//     foreignKey:""
-
-// })
-
-
-
-
-
-
-
-
-
-
 // Student.belongsToMany(QualificationUnitPart, {
 //     through: "assigned_qualification_units_for_students",
 //     foreignKey: "student_id",
