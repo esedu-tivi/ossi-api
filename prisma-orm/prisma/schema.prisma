@@ -167,8 +167,8 @@ model Qualification {
   @@map("qualifications")
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model StudentWorktimeTracker {
+  id          Int      @id @default(autoincrement())
   studentId   Int      @map("student_id")
   projectId   Int      @map("project_id")
   startDate   DateTime @map("start_date") @db.Timestamptz(6)
@@ -176,7 +176,6 @@ model StudentWorktimeTracker {
   description String?
 
   @@map("student_worktime_tracker")
-  @@ignore
 }
 
 model Student {
