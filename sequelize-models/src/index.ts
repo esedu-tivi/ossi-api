@@ -38,7 +38,9 @@ AssignedProjectsForStudents.belongsTo(QualificationProject, {
 AssignedProjectsForStudents.hasMany(WorktimeEntries, {
     foreignKey: "student_id",
     sourceKey: "studentId",
-    as: "worktimeEntries"
+    as: "worktimeEntries",
+    // on delete of student assigned project, delete all worktime entries for that project
+    onDelete: "CASCADE"
 });
 
 WorktimeEntries.belongsTo(AssignedProjectsForStudents, {
