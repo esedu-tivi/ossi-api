@@ -212,11 +212,10 @@ const assignProjectForStudentAndAddWorktime = async () => {
   }
 
   const foundAssignedProject = await prisma.assignedProjectsForStudent.findFirst({ where: { studentId: foundUser.students.userId, projectId: foundQualificationProject.id, ...assignedProject } })
-  /* const foundWorktime = await prisma.studentWorktimeTracker.findFirst({ where: { studentId: foundUser.students.userId, projectId: foundQualificationProject.id, ...workTime } })
-  
-  if (foundAssignedProject && foundWorktime) { */
-  if (foundAssignedProject) {
-    return console.log("project already assigned and worktime added")
+  const foundWorktime = await prisma.studentWorktimeTracker.findFirst({ where: { studentId: foundUser.students.userId, projectId: foundQualificationProject.id, ...workTime } })
+
+  if (foundAssignedProject && foundWorktime) {
+    return console.log("Project already assigned and worktime added")
   }
   if (!foundAssignedProject) {
     const savedAssignedProject = await prisma.assignedProjectsForStudent.create({
@@ -227,6 +226,16 @@ const assignProjectForStudentAndAddWorktime = async () => {
       }
     })
     console.log("Assigned project:", savedAssignedProject)
+  }
+  if (!foundWorktime) {
+    const savedWorktime = await prisma.studentWorktimeTracker.create({
+      data: {
+        studentId: foundUser.students.userId,
+        projectId: foundQualificationProject.id,
+        ...workTime
+      }
+    })
+    console.log("Added worktime", savedWorktime)
   }
 
 }
