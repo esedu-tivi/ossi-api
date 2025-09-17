@@ -65,9 +65,15 @@ router.get("/:id/assigned_projects", async (req, res) => {
         where: { studentId: req.params.id },
         include: [
             { model: QualificationProject, as: "parentProject" },
-            { model: WorktimeEntries, as: "worktimeEntries" }
+            {
+                model: WorktimeEntries,
+                as: "worktimeEntries",
+                where: sequelize.literal(
+                    `"worktimeEntries"."student_id" = "AssignedProjectsForStudents"."student_id" AND "worktimeEntries"."project_id" = "AssignedProjectsForStudents"."project_id"`
+                ),
+                required: false
+            }
         ],
-
         transaction: res.locals._transaction
     });
     res.json(assignedProjects);
@@ -149,38 +155,43 @@ router.post("/assignProjectToStudent", beginTransaction, async (req, res, next) 
                 message: "Successfully added project"
             });
         }
-
-
     } catch (e) {
         next(e);
     }
 })
+
 router.delete("/unassignProjectFromStudent", async (req, res, next) => {
     //https://sequelize.org/docs/v6/other-topics/transactions/#managed-transactions
     try {
-        const unassignedProject = await sequelize.transaction(async t => {
+        await sequelize.transaction(async t => {
             const entryToDelete = await AssignedProjectsForStudents.findOne({
                 where: {
                     studentId: parseInt(req.body.studentId),
                     projectId: parseInt(req.body.projectId)
                 }
             })
-            return entryToDelete
-        })
-        if (unassignedProject) {
-            await unassignedProject.destroy();
-            res.json({
-                status: 200,
-                success: true,
-                message: `Successfully unassigned project ${req.body.projectId}`
-            });
-        } else {
-            res.json({
-                status: 404,
-                success: false,
-                message: `No assigned project found for student ${req.body.studentId} and project ${req.body.projectId}`
-            });
-        }
+            if (entryToDelete) {
+                await WorktimeEntries.destroy({
+                    where: {
+                        studentId: parseInt(req.body.studentId),
+                        projectId: parseInt(req.body.projectId)
+                    },
+                    transaction: t
+                });
+                await entryToDelete.destroy({ transaction: t });
+                res.json({
+                    status: 200,
+                    success: true,
+                    message: `Successfully unassigned project ${req.body.projectId}`
+                });
+            } else {
+                res.json({
+                    status: 404,
+                    success: false,
+                    message: `No assigned project found for student ${req.body.studentId} and project ${req.body.projectId}`
+                });
+            }
+        });
     } catch (e) {
         next(e);
     }
@@ -193,9 +204,7 @@ router.put("/updateStudentProject", async (req, res, next) => {
         const update = req.body.update
         const updateFields = Object.fromEntries(
             Object.entries(update).filter(([_, entry]) => entry !== undefined))
-
         const updatedStudentProject = await sequelize.transaction(async t => {
-
             const studentProject = AssignedProjectsForStudents.update(
                 updateFields,
                 {
@@ -215,7 +224,8 @@ router.put("/updateStudentProject", async (req, res, next) => {
     } catch (e) {
         next(e);
     }
-},)
+})
+
 router.post("/createWorktimeEntry", async (req, res, next) => {
     const data = req.body
     try {
