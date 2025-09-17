@@ -6,8 +6,10 @@
   "types": "dist/client.d.ts",
   "scripts": {
     "migrate:dev": "npx prisma migrate dev",
-    "migrate:prod": "npx prisma migrate deploy",
-    "seed": "npx prisma db seed"
+    "migrate:prod": "npx prisma migrate deploy"
+  },
+  "prisma": {
+    "seed": "npx tsx --env-file=.env prisma/seed.ts"
   },
   "devDependencies": {
     "@types/node": "^24.3.1",

@@ -31,7 +31,7 @@ model AssignedProjectsForStudent {
 model AssignedQualificationUnitsForStudent {
   studentId           Int                @id @map("student_id")
   qualificationUnitId Int?               @map("qualification_unit_id")
-  qualificationUnits  QualificationUnit? @relation(fields: [qualificationUnitId], references: [eperusteId], onDelete: NoAction, onUpdate: NoAction, map: "assigned_qualification_units_for_stu_qualification_unit_id_fkey")
+  qualificationUnits  QualificationUnit? @relation(fields: [qualificationUnitId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "assigned_qualification_units_for_stu_qualification_unit_id_fkey")
   students            Student            @relation(fields: [studentId], references: [userId], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("assigned_qualification_units_for_students")
@@ -56,15 +56,15 @@ model JobSupervisor {
 model MandatoryQualificationUnitsForTitle {
   unitId              Int                @map("unit_id")
   titleId             Int                @map("title_id")
-  qualificationTitles QualificationTitle @relation(fields: [titleId], references: [eperusteId], onDelete: NoAction, onUpdate: NoAction)
-  qualificationUnits  QualificationUnit  @relation(fields: [unitId], references: [eperusteId], onDelete: NoAction, onUpdate: NoAction)
+  qualificationTitles QualificationTitle @relation(fields: [titleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  qualificationUnits  QualificationUnit  @relation(fields: [unitId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([unitId, titleId])
   @@map("mandatory_qualification_units_for_title")
 }
 
 model QualificationCompetenceRequirement {
-  eperusteId  Int     @id @map("eperuste_id")
+  id          Int     @id @map("eperuste_id")
   groupId     Int?    @map("group_id")
   description String? @db.VarChar(1024)
 
@@ -72,10 +72,10 @@ model QualificationCompetenceRequirement {
 }
 
 model QualificationCompetenceRequirements {
-  eperusteId          Int                @id @map("eperuste_id")
+  id                  Int                @id @map("eperuste_id")
   title               String?            @db.VarChar(128)
   qualificationUnitId Int?               @map("qualification_unit_id")
-  qualificationUnits  QualificationUnit? @relation(fields: [qualificationUnitId], references: [eperusteId], onDelete: NoAction, onUpdate: NoAction, map: "qualification_competence_requirement_qualification_unit_id_fkey")
+  qualificationUnits  QualificationUnit? @relation(fields: [qualificationUnitId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "qualification_competence_requirement_qualification_unit_id_fkey")
 
   @@map("qualification_competence_requirements")
 }
@@ -124,11 +124,11 @@ model QualificationProjectsTagsRelation {
 }
 
 model QualificationTitle {
-  eperusteId                          Int                                   @id @map("eperuste_id")
+  id                                  Int                                   @id @map("eperuste_id")
   qualificationId                     Int?                                  @map("qualification_id")
   name                                String?                               @db.VarChar(256)
   mandatoryQualificationUnitsForTitle MandatoryQualificationUnitsForTitle[]
-  qualifications                      Qualification?                        @relation(fields: [qualificationId], references: [eperusteId], onDelete: NoAction, onUpdate: NoAction)
+  qualifications                      Qualification?                        @relation(fields: [qualificationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("qualification_titles")
 }
@@ -141,13 +141,13 @@ model QualificationUnitPart {
   qualificationUnitId                 Int?                                 @map("qualification_unit_id")
   unitOrderIndex                      Int?                                 @map("unit_order_index")
   qualificationProjectsPartsRelations QualificationProjectsPartsRelation[]
-  qualificationUnits                  QualificationUnit?                   @relation(fields: [qualificationUnitId], references: [eperusteId], onDelete: NoAction, onUpdate: NoAction)
+  qualificationUnits                  QualificationUnit?                   @relation(fields: [qualificationUnitId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("qualification_unit_parts")
 }
 
 model QualificationUnit {
-  eperusteId                            Int                                    @id @map("eperuste_id")
+  id                                    Int                                    @id @map("eperuste_id")
   qualificationId                       Int?                                   @map("qualification_id")
   name                                  String?                                @db.VarChar(128)
   scope                                 Int?
@@ -160,7 +160,7 @@ model QualificationUnit {
 }
 
 model Qualification {
-  eperusteId          Int                  @id @map("eperuste_id")
+  id                  Int                  @id @map("eperuste_id")
   name                String?              @db.VarChar(128)
   qualificationTitles QualificationTitle[]
 
