@@ -1,5 +1,5 @@
 import "dotenv";
-import { Prisma, PrismaClient, QualificationProject, User, enumUsersScope } from "../dist/client"
+import { PrismaClient, enumUsersScope, type QualificationProject } from "../dist/client.js"
 import { PrismaPg } from "@prisma/adapter-pg";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
@@ -163,20 +163,23 @@ const addRelationsToUnitPartsAndProjects = async () => {
     return console.log("UnitParts and projects relations already exists")
   }
 
-  await prisma.qualificationProjectsPartsRelation.createMany({
-    data: [
-      {
-        qualificationProjectId: qualificationProjects[0].id,
-        qualificationUnitPartId: qualificationUnitPart.id,
-        partOrderIndex: 1
-      },
-      {
-        qualificationProjectId: qualificationProjects[1].id,
-        qualificationUnitPartId: qualificationUnitPart.id,
-        partOrderIndex: 1
-      }
-    ]
-  })
+  if (qualificationProjects[0] && qualificationProjects[1]) {
+    await prisma.qualificationProjectsPartsRelation.createMany({
+      data: [
+        {
+          qualificationProjectId: qualificationProjects[0].id,
+          qualificationUnitPartId: qualificationUnitPart.id,
+          partOrderIndex: 1
+        },
+        {
+          qualificationProjectId: qualificationProjects[1].id,
+          qualificationUnitPartId: qualificationUnitPart.id,
+          partOrderIndex: 1
+        }
+      ]
+    })
+  }
+
 
   console.log("Created relation to UnitParts and Projects")
 }
@@ -189,53 +192,55 @@ const assignProjectForStudentAndAddWorktime = async () => {
     include: { students: true }
   })
 
-  const foundQualificationProject = await prisma.qualificationProject.findUnique({ where: { id: qualificationProjects[0].id } })
+  if (qualificationProjects[0]) {
+    const foundQualificationProject = await prisma.qualificationProject.findUnique({ where: { id: qualificationProjects[0].id } })
 
-  if (!(foundUser && foundUser.students?.userId)) {
-    return console.log(`User with ${userData.oid} missing`)
-  }
-  if (!foundQualificationProject) {
-    return console.log("QualificationProject missing")
-  }
+    if (!(foundUser && foundUser.students?.userId)) {
+      return console.log(`User with ${userData.oid} missing`)
+    }
+    if (!foundQualificationProject) {
+      return console.log("QualificationProject missing")
+    }
 
-  const assignedProject = {
-    startDate: "2025-02-05 11:00:00+00:00",
-    deadlineDate: "2025-07-05 08:00:00+00:00",
-    projectPlan: "complete project tasks",
-    projectReport: "link to my github with completed tasks"
-  }
+    const assignedProject = {
+      startDate: "2025-02-05 11:00:00+00:00",
+      deadlineDate: "2025-07-05 08:00:00+00:00",
+      projectPlan: "complete project tasks",
+      projectReport: "link to my github with completed tasks"
+    }
 
-  const workTime = {
-    startDate: "2025-02-05 12:00:00+00:00",
-    endDate: "2025-02-05 14:00:00+00:00",
-    description: "Init of project",
-  }
+    const workTime = {
+      startDate: "2025-02-05 12:00:00+00:00",
+      endDate: "2025-02-05 14:00:00+00:00",
+      description: "Init of project",
+    }
 
-  const foundAssignedProject = await prisma.assignedProjectsForStudent.findFirst({ where: { studentId: foundUser.students.userId, projectId: foundQualificationProject.id, ...assignedProject } })
-  const foundWorktime = await prisma.studentWorktimeTracker.findFirst({ where: { studentId: foundUser.students.userId, projectId: foundQualificationProject.id, ...workTime } })
+    const foundAssignedProject = await prisma.assignedProjectsForStudent.findFirst({ where: { studentId: foundUser.students.userId, projectId: foundQualificationProject.id, ...assignedProject } })
+    const foundWorktime = await prisma.studentWorktimeTracker.findFirst({ where: { studentId: foundUser.students.userId, projectId: foundQualificationProject.id, ...workTime } })
 
-  if (foundAssignedProject && foundWorktime) {
-    return console.log("Project already assigned and worktime added")
-  }
-  if (!foundAssignedProject) {
-    const savedAssignedProject = await prisma.assignedProjectsForStudent.create({
-      data: {
-        studentId: foundUser.students.userId,
-        projectId: foundQualificationProject.id,
-        ...assignedProject
-      }
-    })
-    console.log("Assigned project:", savedAssignedProject)
-  }
-  if (!foundWorktime) {
-    const savedWorktime = await prisma.studentWorktimeTracker.create({
-      data: {
-        studentId: foundUser.students.userId,
-        projectId: foundQualificationProject.id,
-        ...workTime
-      }
-    })
-    console.log("Added worktime", savedWorktime)
+    if (foundAssignedProject && foundWorktime) {
+      return console.log("Project already assigned and worktime added")
+    }
+    if (!foundAssignedProject) {
+      const savedAssignedProject = await prisma.assignedProjectsForStudent.create({
+        data: {
+          studentId: foundUser.students.userId,
+          projectId: foundQualificationProject.id,
+          ...assignedProject
+        }
+      })
+      console.log("Assigned project:", savedAssignedProject)
+    }
+    if (!foundWorktime) {
+      const savedWorktime = await prisma.studentWorktimeTracker.create({
+        data: {
+          studentId: foundUser.students.userId,
+          projectId: foundQualificationProject.id,
+          ...workTime
+        }
+      })
+      console.log("Added worktime", savedWorktime)
+    }
   }
 
 }

@@ -6,13 +6,13 @@
   "types": "dist/client.d.ts",
   "scripts": {
     "migrate:dev": "npx prisma migrate dev",
-    "migrate:prod": "npx prisma migrate deploy"
-  },
-  "prisma": {
-    "seed": "npx tsx --env-file=.env prisma/seed.ts"
+    "migrate:prod": "npx prisma migrate deploy",
+    "seed": "npx prisma db seed",
+    "start": "npx prisma generate && npx tsc --build && npm run migrate:prod && npm run seed",
+    "studio": "npx prisma studio"
   },
   "devDependencies": {
-    "@types/node": "^24.3.1",
+    "@types/node": "^24.5.2",
     "prisma": "^6.16.1",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2"

@@ -83,7 +83,7 @@ services:
     depends_on:
         db:
           condition: service_healthy
-    command: npm run migrate:prod
+    command: npm start
   mongo:
     image: docker.io/mongo
     restart: always
