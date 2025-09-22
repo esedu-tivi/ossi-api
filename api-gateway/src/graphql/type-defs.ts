@@ -120,6 +120,17 @@ const newLocal = `#graphql
         parentProject: QualificationProject
         worktimeEntries: [WorktimeEntry!]
     }
+        type AssignedProject {
+        projectId: ID
+        projectStatus: ProjectStatus
+        startDate: DateTime
+        deadlineDate: DateTime
+        projectPlan: String
+        projectReport: String
+        teacherComment: String
+        parentProject: QualificationProject
+        worktimeEntries: [WorktimeEntry!]
+    }
 
     interface User { 
         id: ID!
@@ -141,6 +152,7 @@ const newLocal = `#graphql
         studyingQualificationTitle: QualificationTitle
         assignedQualificationUnits: [QualificationUnit!]
         assignedProjects: [AssignedProjects!]
+        assignedProjectSingle(projectId:ID!): AssignedProjectSingleResponse!
     }
 
     type Teacher implements User {
@@ -290,7 +302,8 @@ const newLocal = `#graphql
         projects: ProjectsResponse! @authenticated
         project(id: ID!): ProjectResponse! @authenticated
         projectTags: ProjectTagsResponse! @authenticated
-        assignedProjects: AssignedProjects @authenticated
+        # assignedProjects: AssignedProjects @authenticated
+        # assignedProject(projectId:ID):AssignedProject @ authenticated
         notifications: NotificationsResponse! @authenticated
         notification(id: ID!): NotificationResponse! @authenticated
         unreadNotificationCount: UnreadNotificationCountResponse! @authenticated 
@@ -427,6 +440,26 @@ const newLocal = `#graphql
         message: String
     }
 
+    type WorktimeEntryResponse {
+        success: Boolean!
+        status: Int!
+        message: String!,
+        entry: WorktimeEntry!
+    }
+
+    type AssignedProjectSingleResponse { 
+                success: Boolean!
+        status: Int!
+        message: String,
+        project(projectId:ID!): AssignedProject
+    }
+    type UpdateAssignedProjectResponse{
+        success: Boolean!
+        status:Int!
+        project: AssignedProject
+    }
+
+
     type Mutation {
         login(idToken: String!): LoginResponse!
        
@@ -444,8 +477,8 @@ const newLocal = `#graphql
         assignProjectToStudent(studentId: ID! , projectId:ID! ): GenericResponse!  @authenticated
         updateStudentProject(studentId: ID! , projectId:ID!, update: UpdateStudentProjectInput!) : GenericResponse @authenticated
         unassignProjectFromStudent(studentId:ID! , projectId:ID!) : GenericResponse   @authenticated
-        createWorktimeEntry(studentId:ID! , projectId:ID!, entry: StudentWorktimeInput): GenericResponse @authenticated
-        deleteWorktimeEntry(id:ID!): GenericResponse @authenticated
+        createWorktimeEntry(studentId:ID! , projectId:ID!, entry: StudentWorktimeInput): WorktimeEntryResponse @authenticated
+        deleteWorktimeEntry(id:ID!): WorktimeEntryResponse @authenticated
         markNotificationAsRead(id: ID!): MarkNotificationAsReadResponse! @authenticated
         
         # remove once not needed
