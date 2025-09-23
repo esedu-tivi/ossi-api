@@ -78,7 +78,47 @@ router.get("/:id/assigned_projects", async (req, res) => {
     });
     res.json(assignedProjects);
 });
-
+router.get("/:id/single_assigned_project/:projectId", async (req, res, next) => {
+    //table assigned_projects_for_students
+    try {
+        const assignedProject = await AssignedProjectsForStudents.findOne({
+            where: {
+                studentId: req.params.id,
+                projectId: req.params.projectId
+            },
+            include: [
+                {
+                    model: QualificationProject,
+                    as: "parentProject"
+                },
+                {
+                    model: WorktimeEntries,
+                    as: "worktimeEntries",
+                    where: sequelize.literal(
+                        `"worktimeEntries"."student_id" = "AssignedProjectsForStudents"."student_id" AND "worktimeEntries"."project_id" = "AssignedProjectsForStudents"."project_id"`
+                    ),
+                    required: false
+                }
+            ],
+        });
+        if (assignedProject) {
+            res.json({
+                status: 200,
+                success: true,
+                project: assignedProject
+            });
+        } else {
+            res.json({
+                status: 404,
+                success: false,
+                message: "Assignment not found"
+            });
+        }
+    } catch (e) {
+        console.log(e)
+        next(e)
+    }
+});
 
 router.post("/:id/qualification_title", beginTransaction, async (req, res, next) => {
     try {
@@ -242,7 +282,8 @@ router.post("/createWorktimeEntry", async (req, res, next) => {
             res.json({
                 status: 200,
                 success: true,
-                message: `entered new work entry as ${JSON.stringify(newEntry)} `
+                message: `entered new work entry as ${JSON.stringify(newEntry)}`,
+                entry: newEntry
             });
         });
     } catch (e) {
@@ -256,17 +297,21 @@ router.delete("/deleteWorktimeEntry", async (req, res, next) => {
         await sequelize.transaction(async t => {
             const entry = await WorktimeEntries.findByPk(data.id, { transaction: t });
             if (entry) {
+                const copyOfEntry = entry
                 await entry.destroy({ transaction: t });
                 res.json({
                     status: 200,
                     success: true,
-                    message: `Successfully deleted entry ${data.id}`
+                    message: `Successfully deleted entry ${data.id}`,
+                    entry: copyOfEntry
+
                 });
             } else {
                 res.json({
                     status: 404,
                     success: false,
                     message: `No entry found ${data.id}`
+
                 });
             }
         });
