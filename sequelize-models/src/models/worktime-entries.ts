@@ -17,7 +17,6 @@ export class WorktimeEntries extends Model<
     declare startDate: Date;
     declare endDate: Date;
     declare description: string | null;
-    declare keyStudentProject: string
 }
 
 
@@ -60,13 +59,6 @@ WorktimeEntries.init(
             type: DataTypes.STRING,
             field: "description",
             allowNull: true,
-        },
-        keyStudentProject: {
-            type: DataTypes.STRING,
-            field: "key_student_project",
-            defaultValue: function () {
-                return `${this.studentId}${this.projectId}`;
-            }, allowNull: false,
         },
     },
 
