@@ -64,9 +64,10 @@ model MandatoryQualificationUnitsForTitle {
 }
 
 model QualificationCompetenceRequirement {
-  id          Int     @id @map("eperuste_id")
-  groupId     Int?    @map("group_id")
-  description String? @db.VarChar(1024)
+  id                   Int                    @id @map("eperuste_id")
+  groupId              Int?                   @map("group_id")
+  description          String?                @db.VarChar(1024)
+  qualificationProject QualificationProject[]
 
   @@map("qualification_competence_requirement")
 }
@@ -89,15 +90,17 @@ model QualificationProjectTag {
 }
 
 model QualificationProject {
-  id                                  Int                                  @id @default(autoincrement())
-  name                                String?                              @db.VarChar(128)
-  description                         String?                              @db.VarChar(1024)
-  materials                           String?                              @db.VarChar(1024)
-  duration                            Int?
-  isActive                            Boolean?                             @map("is_active")
-  assignedProjectsForStudents         AssignedProjectsForStudent[]
-  qualificationProjectsPartsRelations QualificationProjectsPartsRelation[]
-  qualificationProjectsTagsRelations  QualificationProjectsTagsRelation[]
+  id                          Int                                  @id @default(autoincrement())
+  name                        String?                              @db.VarChar(128)
+  description                 String?                              @db.VarChar(1024)
+  materials                   String?                              @db.VarChar(1024)
+  duration                    Int?
+  isActive                    Boolean?                             @map("is_active")
+  assignedProjectsForStudents AssignedProjectsForStudent[]
+  parts                       QualificationProjectsPartsRelation[]
+  tags                        QualificationProjectsTagsRelation[]
+  competenceRequirement       QualificationCompetenceRequirement?  @relation(fields: [competenceRequirementId], references: [id])
+  competenceRequirementId     Int?
 
   @@map("qualification_projects")
 }

@@ -246,6 +246,7 @@ const assignProjectForStudentAndAddWorktime = async () => {
 }
 
 const main = async () => {
+  console.log('seed script started')
   await addStudent()
   await addTags()
   await addQualificationUnitParts()
