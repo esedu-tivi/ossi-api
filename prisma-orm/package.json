@@ -8,7 +8,7 @@
     "migrate:dev": "npx prisma migrate dev",
     "migrate:prod": "npx prisma migrate deploy",
     "seed": "npx tsx --env-file=.env prisma/seed.ts",
-    "start": "npx prisma generate && npx tsc --build && npm run migrate:prod && npm run seed",
+    "start": "npx prisma generate && npx tsc --build && npm run migrate:prod",
     "studio": "npx prisma studio"
   },
   "devDependencies": {
