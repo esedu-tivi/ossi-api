@@ -1,5 +1,5 @@
 import "dotenv";
-import { PrismaClient, enumUsersScope, type QualificationProject } from "../dist/client.js"
+import { PrismaClient, enumUsersScope, type QualificationProject } from "../dist/generated/prisma/client.js"
 import { PrismaPg } from "@prisma/adapter-pg";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
@@ -60,7 +60,11 @@ const addStudent = async () => {
 
 const addTags = async () => {
   const tags = ["Ohjelmointi", "Ryhmätyö", "Python", "JavaScript", "React"]
-  const existingTags = new Set((await prisma.qualificationProjectTag.findMany({ where: { name: { in: tags } } })).map(tag => tag.name))
+  const existingTags = new Set(
+    (await prisma.qualificationProjectTag.findMany({ where: { name: { in: tags } } }))
+      .filter((tag: { name: string | null }) => tag.name !== null)
+      .map((tag: { name: string | null }) => tag.name as string)
+  )
 
   const newTags = tags.filter(tag => !existingTags.has(tag)).map(tag => ({ name: tag }))
 
@@ -103,7 +107,8 @@ const addQualificationProjects = async () => {
       }
     })
   )
-    .map(project => project.name))
+    .filter((project: { name: string | null }) => project.name !== null)
+    .map((project: { name: string | null }) => project.name as string))
 
   const newQualificationProjects = qualificationProjects
     .filter(qualificationProject => qualificationProject.name && !existingQualificationProjectsNames.has(qualificationProject.name))

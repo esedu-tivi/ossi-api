@@ -2,8 +2,8 @@
   "name": "prisma-orm",
   "version": "1.0.0",
   "type": "module",
-  "main": "dist/client.js",
-  "types": "dist/client.d.ts",
+  "main": "dist/generated/prisma/client.js",
+  "types": "dist/generated/prisma/client.d.ts",
   "scripts": {
     "migrate:dev": "npx prisma migrate dev",
     "migrate:prod": "npx prisma migrate deploy",

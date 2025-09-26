@@ -24,10 +24,12 @@
     ]
   },
   "include": [
-    "generated/prisma",
-    "prisma"
+    "prisma",
+    "generated/prisma"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist",
+    "prisma/seed.ts"
   ]
 }
