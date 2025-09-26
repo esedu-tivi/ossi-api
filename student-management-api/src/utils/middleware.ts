@@ -1,5 +1,4 @@
 import { ErrorRequestHandler } from "express";
-import { Prisma } from "prisma-orm";
 import { sequelize } from "sequelize-models";
 
 const errorHandler: ErrorRequestHandler = async (error, req, res, next) => {

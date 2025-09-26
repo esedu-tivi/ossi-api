@@ -1,5 +1,5 @@
 import express, { Request } from "express";
-import { QualificationProject, QualificationProjectPartLinks, QualificationUnitPart, sequelize } from "sequelize-models";
+//import { QualificationProject, QualificationProjectPartLinks, QualificationUnitPart, sequelize } from "sequelize-models";
 import { beginTransaction, commitTransaction, parseId } from "../utils/middleware";
 import prisma from "../prisma-client";
 
@@ -60,15 +60,15 @@ router.get("/:id/projects", parseId, async (req: Request & { id: number }, res, 
     // });
     const projects = await prisma.qualificationProject.findMany({
         where: {
-            qualificationProjectsPartsRelations: {
+            parts: {
                 some: {
                     qualificationUnitPartId: req.id
                 }
             }
         },
         include: {
-            qualificationProjectsTagsRelations: true,
-            qualificationProjectsPartsRelations: {
+            tags: true,
+            parts: {
                 where: {
                     qualificationUnitPartId: req.id
                 },
@@ -84,7 +84,7 @@ router.get("/:id/projects", parseId, async (req: Request & { id: number }, res, 
         materials: project.materials,
         duration: project.duration,
         isActive: project.isActive,
-        parts: project.qualificationProjectsPartsRelations
+        parts: project.parts
     }));
     console.log('projects', projects)
     res.json(mappedProjects)
