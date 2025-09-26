@@ -1,5 +1,5 @@
 import "dotenv";
-import { PrismaClient, enumUsersScope, type QualificationProject } from "../dist/generated/prisma/client.js"
+import { PrismaClient, enumUsersScope, type QualificationProject, type QualificationUnitPart, type Qualification, type QualificationUnit } from "../dist/generated/prisma/client.js"
 import { PrismaPg } from "@prisma/adapter-pg";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
@@ -14,12 +14,24 @@ const userData = {
   scope: "STUDENT" as enumUsersScope,
 }
 
-const qualificationUnitPart = {
+const qualification: Qualification = {
+  id: 7861752,
+  name: "Tieto- ja viestintätekniikan perustutkinto"
+}
+
+const qualificationUnit: QualificationUnit = {
+  id: 6816481,
+  name: "Ohjelmistokehittäjänä toimiminen",
+  qualificationId: qualification.id,
+  scope: 45
+}
+
+const qualificationUnitPart: QualificationUnitPart = {
   id: 172,
   name: 'OKK1 - Full Stack Open',
   description: 'Seuraa Helsingin yliopiston Full Stack Open -kurssin sisältöä. Jokainen kurssin osa on jaettu omaksi projektikseen. Tee projektit järjestyksessä ja seuraa niitä tehdessäsi työaikaa mahdollisimman tarkasti. Kokoa kurssin tehtävät yhteen Git-repositoryyn tai tee jokaisesta osasta oma repository. Kun osa on valmis liitä linkki repositoryyn Raportti-kohtaan.',
   materials: 'https://fullstackopen.com/#course-contents',
-  qualificationUnitId: 6779606,
+  qualificationUnitId: qualificationUnit.id,
   unitOrderIndex: 1,
 }
 
@@ -40,6 +52,7 @@ const qualificationProjects: QualificationProject[] = [{
   isActive: true,
 }]
 
+
 const addStudent = async () => {
   const result = await prisma.user.findUnique({ where: { oid: userData.oid } })
   if (result) {
@@ -51,7 +64,7 @@ const addStudent = async () => {
       userId: createdUser.id,
       groupId: 'TiVi23A',
       qualificationTitleId: 10224,
-      qualificationId: 7861752,
+      qualificationId: qualification.id,
     }
   })
 
@@ -79,8 +92,27 @@ const addTags = async () => {
   console.log("Created qualificationProjectTags:", addedTags)
 }
 
-const addQualificationUnitParts = async () => {
+const addQualification = async () => {
+  const result = await prisma.qualification.findUnique({ where: { id: qualification.id } })
+  if (result) {
+    return console.log('qualification already created')
+  }
+  const createdQualification = await prisma.qualification.create({
+    data: qualification
+  })
+  console.log("Created qualification:", createdQualification)
+}
 
+const addQualificationUnit = async () => {
+  const result = await prisma.qualificationUnit.findFirst({ where: { id: qualificationUnit.id } })
+  if (result) {
+    return console.log("Qualification unit already created")
+  }
+  const createdQualificationUnit = await prisma.qualificationUnit.create({ data: qualificationUnit })
+  console.log('Created qualificationUnit:', createdQualificationUnit)
+}
+
+const addQualificationUnitParts = async () => {
   const result = await prisma.qualificationUnitPart.findFirst({ where: { qualificationUnitId: qualificationUnitPart.qualificationUnitId } })
   if (result) {
     return console.log("QualificationUnitPart already created")
@@ -185,7 +217,6 @@ const addRelationsToUnitPartsAndProjects = async () => {
     })
   }
 
-
   console.log("Created relation to UnitParts and Projects")
 }
 
@@ -254,6 +285,8 @@ const main = async () => {
   console.log('seed script started')
   await addStudent()
   await addTags()
+  await addQualification()
+  await addQualificationUnit()
   await addQualificationUnitParts()
   await addQualificationProjects()
   await assignQualificationUnitForStudent()
