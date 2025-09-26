@@ -99,8 +99,7 @@ model QualificationProject {
   assignedProjectsForStudents AssignedProjectsForStudent[]
   parts                       QualificationProjectsPartsRelation[]
   tags                        QualificationProjectsTagsRelation[]
-  competenceRequirement       QualificationCompetenceRequirement?  @relation(fields: [competenceRequirementId], references: [id])
-  competenceRequirementId     Int?
+  competenceRequirements      QualificationCompetenceRequirement[]
 
   @@map("qualification_projects")
 }
