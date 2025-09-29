@@ -136,14 +136,14 @@ model QualificationTitle {
 }
 
 model QualificationUnitPart {
-  id                                  Int                                  @id @default(autoincrement())
-  name                                String?                              @db.VarChar(128)
-  description                         String?
-  materials                           String?
-  qualificationUnitId                 Int?                                 @map("qualification_unit_id")
-  unitOrderIndex                      Int?                                 @map("unit_order_index")
-  qualificationProjectsPartsRelations QualificationProjectsPartsRelation[]
-  qualificationUnits                  QualificationUnit?                   @relation(fields: [qualificationUnitId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                  Int                                  @id @default(autoincrement())
+  name                String?                              @db.VarChar(128)
+  description         String?
+  materials           String?
+  qualificationUnitId Int?                                 @map("qualification_unit_id")
+  unitOrderIndex      Int?                                 @map("unit_order_index")
+  projects            QualificationProjectsPartsRelation[]
+  qualificationUnits  QualificationUnit?                   @relation(fields: [qualificationUnitId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("qualification_unit_parts")
 }
