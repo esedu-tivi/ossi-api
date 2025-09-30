@@ -33,7 +33,7 @@ router.post("/login", async (req, res) => {
     let idToken: IdTokenPayload;
     try {
         const pem = await getPemCertificate(req.body.idToken);
-        idToken = jwt.decode(req.body.idToken) as IdTokenPayload; //idToken = jwt.verify(req.body.idToken, pem, { algorithms: ["RS256"] }) as IdTokenPayload;
+        idToken = jwt.verify(req.body.idToken, pem, { algorithms: ["RS256"] }) as IdTokenPayload;
     } catch (e) {
         console.log(e);
         return res.json({
