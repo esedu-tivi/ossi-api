@@ -5,7 +5,7 @@ import { sequelize, QualificationProject, QualificationProjectTag, Qualification
 import { initialParts, initialProjects, initialProjectTags } from './test-helper';
 import assert from 'node:assert';
 import _ from 'lodash';
-import { QualificationUnit } from 'sequelize-models/dist/qualification-unit';
+import { QualificationUnit } from 'sequelize-models';
 import { getExternalQualificationData } from '../src/utils/eperuste';
 
 const api = supertest(app);

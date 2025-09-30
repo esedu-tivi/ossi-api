@@ -1,8 +1,6 @@
 import express from "express";
-import { pool } from "../postgres-pool.js";
 import jwt from "jsonwebtoken";
 import { AssignedQualificationUnitsForStudents, AssignedProjectsForStudents, MandatoryQualificationUnitsForTitle, Qualification, QualificationProject, QualificationTitle, QualificationUnit, Student, User, WorktimeEntries, sequelize, } from "sequelize-models";
-import { QualificationCompletion } from "sequelize-models/dist/student.js";
 import { beginTransaction, commitTransaction } from "../utils/middleware.js";
 
 const router = express.Router();
