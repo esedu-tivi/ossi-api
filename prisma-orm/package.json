@@ -5,6 +5,7 @@
   "main": "dist/generated/prisma/client.js",
   "types": "dist/generated/prisma/client.d.ts",
   "scripts": {
+    "build": "npx tsc --build",
     "migrate:dev": "npx prisma migrate dev",
     "migrate:prod": "npx prisma migrate deploy",
     "seed": "npx tsx --env-file=.env prisma/seed.ts",
