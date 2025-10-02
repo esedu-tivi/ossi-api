@@ -77,16 +77,16 @@ router.get("/:id/projects", parseId, async (req: Request & { id: number }, res, 
             }
         }
     })
-    const mappedProjects = projects.map((project) => ({
+    const mappedProjects = projects.map(project => ({
         id: project.id,
         name: project.name,
         description: project.description,
         materials: project.materials,
         duration: project.duration,
         isActive: project.isActive,
-        parts: project.parts
+        parts: project.parts.map(part => part.qualificationUnitParts)
     }));
-    console.log('projects', projects)
+
     res.json(mappedProjects)
 });
 
@@ -277,7 +277,7 @@ router.put("/:id", parseId, async (req: Request & { id: number }, res, next) => 
 
             const updatedPart = await transaction.qualificationUnitPart.findUnique({
                 where: { id: req.id },
-                include: { qualificationProjectsPartsRelations: true }
+                include: { projects: true }
             })
 
             return updatedPart
