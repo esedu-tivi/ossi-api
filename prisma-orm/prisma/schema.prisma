@@ -64,19 +64,23 @@ model MandatoryQualificationUnitsForTitle {
 }
 
 model QualificationCompetenceRequirement {
-  id                   Int                    @id @map("eperuste_id")
-  groupId              Int?                   @map("group_id")
-  description          String?                @db.VarChar(1024)
-  qualificationProject QualificationProject[]
+  id                                    Int                                  @id @map("eperuste_id")
+  groupId                               Int?                                 @map("group_id")
+  description                           String?                              @db.VarChar(1024)
+  QualificationProject                  QualificationProject?                @relation(fields: [qualificationProjectId], references: [id])
+  qualificationProjectId                Int?
+  QualificationCompetenceRequirements   QualificationCompetenceRequirements? @relation(fields: [qualificationCompetenceRequirementsId], references: [id])
+  qualificationCompetenceRequirementsId Int?
 
   @@map("qualification_competence_requirement")
 }
 
 model QualificationCompetenceRequirements {
-  id                  Int                @id @map("eperuste_id")
-  title               String?            @db.VarChar(128)
-  qualificationUnitId Int?               @map("qualification_unit_id")
-  qualificationUnits  QualificationUnit? @relation(fields: [qualificationUnitId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "qualification_competence_requirement_qualification_unit_id_fkey")
+  id                  Int                                  @id @map("eperuste_id")
+  title               String?                              @db.VarChar(128)
+  qualificationUnitId Int?                                 @map("qualification_unit_id")
+  qualificationUnits  QualificationUnit?                   @relation(fields: [qualificationUnitId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "qualification_competence_requirement_qualification_unit_id_fkey")
+  requirements        QualificationCompetenceRequirement[]
 
   @@map("qualification_competence_requirements")
 }
