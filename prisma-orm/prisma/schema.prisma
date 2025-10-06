@@ -16,7 +16,7 @@ model SequelizeMeta {
 model AssignedProjectsForStudent {
   studentId             Int                                           @map("student_id")
   projectId             Int                                           @map("project_id")
-  startDate             DateTime                                      @map("start_date") @db.Timestamptz(6)
+  startDate             DateTime                                      @default(now()) @map("start_date") @db.Timestamptz(6)
   deadlineDate          DateTime?                                     @map("deadline_date") @db.Timestamptz(6)
   projectPlan           String?                                       @map("project_plan")
   projectReport         String?                                       @map("project_report")
@@ -244,8 +244,8 @@ enum enumAssignedProjectsForStudentsProjectStatus {
 }
 
 enum enumStudentsQualificationCompletion {
-  FULLCOMPLETION    @map("FULL_COMPLETION")
-  PARTIALCOMPLETION @map("PARTIAL_COMPLETION")
+  FULL_COMPLETION    @map("FULL_COMPLETION")
+  PARTIAL_COMPLETION @map("PARTIAL_COMPLETION")
 
   @@map("enum_students_qualification_completion")
 }
