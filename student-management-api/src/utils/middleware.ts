@@ -12,6 +12,20 @@ const errorHandler: ErrorRequestHandler = async (error, req, res, next) => {
             })
         }
     }
+    if (error.message === "Unknown tag ID." || error.message === "Unknown requirement ID." || error.message === "request missing field") {
+        return res.json({
+            status: 400,
+            success: false,
+            message: error.message
+        })
+    }
+    if (error.message === "Project not found.") {
+        return res.json({
+            status: 404,
+            success: false,
+            message: error.message
+        })
+    }
     if (res.locals._transaction) {
         await res.locals._transaction.rollback();
     }
