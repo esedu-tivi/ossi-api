@@ -1,5 +1,5 @@
 import axios from "axios"
-import { Resolver } from "../resolver.js"
+import { Resolver } from "../resolver"
 
 const me: Resolver<null, null> = async (_, __, context) => {
     if (context.user.type == "STUDENT") {

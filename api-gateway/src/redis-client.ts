@@ -7,7 +7,9 @@ export const redisClient = createClient({
 redisClient.connect().catch(console.error);
 
 export const publisher = redisClient.duplicate();
-await publisher.connect();
-
 export const subscriber = redisClient.duplicate();
-await subscriber.connect(); 
+
+export const connectToRedis = async () => {
+  await publisher.connect();
+  await subscriber.connect();
+}

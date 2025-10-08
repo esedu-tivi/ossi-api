@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { publisher, subscriber } from '../../redis-client.js';
+import { publisher, subscriber } from '../../redis-client';
 import { PubSub } from 'graphql-subscriptions';
-import { ApolloContext } from '../context.js';
+import { ApolloContext } from '../context';
 
 const messagingPubSub = new PubSub();
 let redisSubscriptionInitialized = false;
@@ -84,7 +84,7 @@ export const MessagingResolvers = {
                 console.log('Context:', context);
                 console.log('Messaging server URL:', process.env.INTERNAL_MESSAGING_SERVER_URL);
 
-                const response = await axios.post(
+                const response: any = await axios.post(
                     `${process.env.INTERNAL_MESSAGING_SERVER_URL}/graphql`,
                     {
                         query: `
@@ -110,7 +110,7 @@ export const MessagingResolvers = {
                 );
 
                 console.log('Search response:', response.data);
-                return response.data?.data?.searchUsers || [];
+                return response?.data?.data?.searchUsers || [];
             } catch (error) {
                 console.error('Error searching users:', error);
                 console.error('Error details:', {
