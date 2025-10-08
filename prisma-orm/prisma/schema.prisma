@@ -23,6 +23,7 @@ model AssignedProjectsForStudent {
   teacherComment        String?                                       @map("teacher_comment")
   projectStatus         enumAssignedProjectsForStudentsProjectStatus? @default(WORKING) @map("project_status")
   qualificationProjects QualificationProject                          @relation(fields: [projectId], references: [id], map: "fkey_projectId_studentProject")
+  worktimeEntries       WorktimeEntries[]
 
   @@id([studentId, projectId])
   @@map("assigned_projects_for_students")
@@ -172,13 +173,14 @@ model Qualification {
   @@map("qualifications")
 }
 
-model StudentWorktimeTracker {
-  id          Int      @id @default(autoincrement())
-  studentId   Int      @map("student_id")
-  projectId   Int      @map("project_id")
-  startDate   DateTime @map("start_date") @db.Timestamptz(6)
-  endDate     DateTime @map("end_date") @db.Timestamptz(6)
-  description String?
+model WorktimeEntries {
+  id                         Int                         @id @default(autoincrement())
+  studentId                  Int                         @map("student_id")
+  projectId                  Int                         @map("project_id")
+  startDate                  DateTime                    @map("start_date") @db.Timestamptz(6)
+  endDate                    DateTime                    @map("end_date") @db.Timestamptz(6)
+  description                String?
+  AssignedProjectsForStudent AssignedProjectsForStudent? @relation(fields: [studentId, projectId], references: [studentId, projectId])
 
   @@map("student_worktime_tracker")
 }
