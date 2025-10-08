@@ -1,6 +1,6 @@
 import { QualificationProject } from "./qualification-project.js";
 import { QualificationProjectTag } from "./qualification-project-tags.js";
-import { sequelize } from "./sequelize.js";
+import { sequelize } from "../sequelize.js";
 
 import { DataTypes, InferAttributes, InferCreationAttributes, Model } from "sequelize";
 

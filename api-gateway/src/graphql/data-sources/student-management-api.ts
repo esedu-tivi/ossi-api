@@ -175,29 +175,49 @@ class StudentManagementAPI extends RESTDataSource {
     }
 
     async getStudentAssignedProjects(studentId) {
-        console.log("api-api get student projects ", studentId)
         const res = await this.get(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/${studentId}/assigned_projects`
         );
-        console.log(res)
+
+        return res
+    }
+    async getStudentSingleAssignedProject(studentId, projectId) {
+        const res = await this.get(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/${studentId}/single_assigned_project/${projectId}`
+        );
 
         return res
     }
 
     async assignProjectToStudent(args) {
-        console.log("api-api assign project", args)
-
         return this.post(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/assignProjectToStudent`, { body: args }
         );
     }
 
     async updateStudentProject(args) {
-        console.log("api-api update project", args)
         return this.put(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/updateStudentProject`, { body: args }
         );
     }
+
+    async unassignProjectFromStudent(args) {
+        return this.delete(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/unassignProjectFromStudent/`, { body: args }
+        );
+    }
+    async createWorktimeEntry(args) {
+        return this.post(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/createWorktimeEntry/`, { body: args }
+        );
+    }
+    async deleteWorktimeEntry(args) {
+        return this.delete(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/deleteWorktimeEntry/`, { body: args }
+        );
+    }
+
+
 }
 
 export { StudentManagementAPI };

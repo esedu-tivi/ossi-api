@@ -1,0 +1,20 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach to: api-gateway",
+      "type": "pwa-node",
+      "request": "attach",
+      "port": 9230,
+      "restart": true,
+      "localRoot": "${workspaceFolder}/api-gateway",
+      "remoteRoot": "/usr/server",
+      "skipFiles": [
+        "<node_internals>/**",
+        "<node_internals>\\**",
+        "/tmp/**",
+        "${workspaceFolder}/**/node_modules/**"
+      ]
+    }
+  ]
+}

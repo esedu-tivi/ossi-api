@@ -1,5 +1,5 @@
 import { DataTypes, ForeignKey, InferAttributes, InferCreationAttributes, Model } from "sequelize";
-import { sequelize } from "./sequelize.js";
+import { sequelize } from "../sequelize.js";
 import { QualificationProject } from "./qualification-project.js";
 import { QualificationCompetenceRequirement } from "./qualification-competence-requirement.js";
 

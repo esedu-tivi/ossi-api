@@ -101,6 +101,14 @@ const newLocal = `#graphql
         tags: [QualificationProjectTag!]!
     }
 
+
+    type WorktimeEntry{
+        startDate: DateTime
+        endDate: DateTime
+        description: String
+        id:ID
+    }
+
     type AssignedProjects {
         projectId: ID
         projectStatus: ProjectStatus
@@ -110,6 +118,18 @@ const newLocal = `#graphql
         projectReport: String
         teacherComment: String
         parentProject: QualificationProject
+        worktimeEntries: [WorktimeEntry!]
+    }
+        type AssignedProject {
+        projectId: ID
+        projectStatus: ProjectStatus
+        startDate: DateTime
+        deadlineDate: DateTime
+        projectPlan: String
+        projectReport: String
+        teacherComment: String
+        parentProject: QualificationProject
+        worktimeEntries: [WorktimeEntry!]
     }
 
     interface User { 
@@ -132,6 +152,7 @@ const newLocal = `#graphql
         studyingQualificationTitle: QualificationTitle
         assignedQualificationUnits: [QualificationUnit!]
         assignedProjects: [AssignedProjects!]
+        assignedProjectSingle(projectId:ID!): AssignedProjectSingleResponse!
     }
 
     type Teacher implements User {
@@ -253,15 +274,21 @@ const newLocal = `#graphql
         project: [QualificationProject]
     }
 
-    type AssignResponse {
+    type  StudentAssignResponse {
         success: Boolean!
         status: Int!
         message: String
     }
-    type ProjectUpdateResponse {
+    type StudentProjectUpdateResponse {
         success: Boolean!
         status: Int!
         message: String
+    }
+    type StudentUnassignProjectResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+
     }
 
     type Query {
@@ -275,7 +302,8 @@ const newLocal = `#graphql
         projects: ProjectsResponse! @authenticated
         project(id: ID!): ProjectResponse! @authenticated
         projectTags: ProjectTagsResponse! @authenticated
-        assignedProjects: AssignedProjects @authenticated
+        # assignedProjects: AssignedProjects @authenticated
+        # assignedProject(projectId:ID):AssignedProject @ authenticated
         notifications: NotificationsResponse! @authenticated
         notification(id: ID!): NotificationResponse! @authenticated
         unreadNotificationCount: UnreadNotificationCountResponse! @authenticated 
@@ -335,10 +363,10 @@ const newLocal = `#graphql
         teacherComment: String
     }
 
-    input studentWorktimeTrackerInput {
-        starTime:DateTime
-        endTime:DateTime
-        description:String
+    input StudentWorktimeInput {
+        startDate: DateTime!
+        endDate: DateTime!
+        description: String
     }
     type LoginResponse {
         status: Int!
@@ -406,6 +434,31 @@ const newLocal = `#graphql
         success: Boolean!
         message: String
     }
+    type GenericResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+    }
+
+    type WorktimeEntryResponse {
+        success: Boolean!
+        status: Int!
+        message: String!,
+        entry: WorktimeEntry!
+    }
+
+    type AssignedProjectSingleResponse { 
+                success: Boolean!
+        status: Int!
+        message: String,
+        project(projectId:ID!): AssignedProject
+    }
+    type UpdateAssignedProjectResponse{
+        success: Boolean!
+        status:Int!
+        project: AssignedProject
+    }
+
 
     type Mutation {
         login(idToken: String!): LoginResponse!
@@ -419,12 +472,13 @@ const newLocal = `#graphql
         updateProject(id: ID!, project: UpdateProjectInput!): UpdateProjectResponse! @authenticatedAsTeacher
         createPart(part: CreatePartInput!): CreatePartResponse! @authenticatedAsTeacher
         updatePart(id: ID!, part: CreatePartInput!): UpdatePartResponse! @authenticatedAsTeacher
-        updatePartOrder(unitId: ID!, partOrder: [ID!]!): UpdatePartOrderResponse! @authenticatedAsTeacher
+        updatePartOrder(unitId: ID!, partOrder: [ID!]!): GenericResponse! @authenticatedAsTeacher
         createProjectTag(name: String!): CreateProjectTagResponse! @authenticatedAsTeacher
-        assignProjectToStudent(studentId: ID! , projectId:ID! ): AssignResponse!  @authenticated
-        # update WIP
-        updateStudentProject(studentId: ID! , projectId:ID!, update: UpdateStudentProjectInput!) : ProjectUpdateResponse @authenticated
-
+        assignProjectToStudent(studentId: ID! , projectId:ID! ): GenericResponse!  @authenticated
+        updateStudentProject(studentId: ID! , projectId:ID!, update: UpdateStudentProjectInput!) : GenericResponse @authenticated
+        unassignProjectFromStudent(studentId:ID! , projectId:ID!) : GenericResponse   @authenticated
+        createWorktimeEntry(studentId:ID! , projectId:ID!, entry: StudentWorktimeInput): WorktimeEntryResponse @authenticated
+        deleteWorktimeEntry(id:ID!): WorktimeEntryResponse @authenticated
         markNotificationAsRead(id: ID!): MarkNotificationAsReadResponse! @authenticated
         
         # remove once not needed

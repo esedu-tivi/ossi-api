@@ -184,18 +184,64 @@ router.get("/:id/assigned_qualification_units", parseId, async (req: RequestWith
 /*
 router.get("/:id/assigned_projects", async (req, res) => {
     //table assigned_projects_for_students
-    console.log("log from assigned_projects pre",)
-
     const assignedProjects = await AssignedProjectsForStudents.findAll({
         where: { studentId: req.params.id },
-        include: [{ model: QualificationProject, as: "parentProject" }],
+        include: [
+            { model: QualificationProject, as: "parentProject" },
+            {
+                model: WorktimeEntries,
+                as: "worktimeEntries",
+                where: sequelize.literal(
+                    `"worktimeEntries"."student_id" = "AssignedProjectsForStudents"."student_id" AND "worktimeEntries"."project_id" = "AssignedProjectsForStudents"."project_id"`
+                ),
+                required: false
+            }
+        ],
         transaction: res.locals._transaction
     });
-    // const projects = await QualificationProject.findAll({ where: { id: projectIds } });
-    console.log("log from assigned_projects post ", { ...assignedProjects })
     res.json(assignedProjects);
 });
-*/
+router.get("/:id/single_assigned_project/:projectId", async (req, res, next) => {
+    //table assigned_projects_for_students
+    try {
+        const assignedProject = await AssignedProjectsForStudents.findOne({
+            where: {
+                studentId: req.params.id,
+                projectId: req.params.projectId
+            },
+            include: [
+                {
+                    model: QualificationProject,
+                    as: "parentProject"
+                },
+                {
+                    model: WorktimeEntries,
+                    as: "worktimeEntries",
+                    where: sequelize.literal(
+                        `"worktimeEntries"."student_id" = "AssignedProjectsForStudents"."student_id" AND "worktimeEntries"."project_id" = "AssignedProjectsForStudents"."project_id"`
+                    ),
+                    required: false
+                }
+            ],
+        });
+        if (assignedProject) {
+            res.json({
+                status: 200,
+                success: true,
+                project: assignedProject
+            });
+        } else {
+            res.json({
+                status: 404,
+                success: false,
+                message: "Assignment not found"
+            });
+        }
+    } catch (e) {
+        console.log(e)
+        next(e)
+    }
+});*/
 
 router.get("/:id/assigned_projects", parseId, async (req: RequestWithId, res) => {
     //table assigned_projects_for_students
@@ -335,25 +381,37 @@ router.post("/:id/qualification_title", parseId, async (req: RequestWithId, res,
 /*
 router.post("/assignProjectToStudent", beginTransaction, async (req, res, next) => {
     try {
-        // console.log("assign to backend ", req.body.studentId, req.body.projectId)
-        const assignedProject = await sequelize.transaction(async t => {
-            const newProject = await AssignedProjectsForStudents.create({
-                studentId: req.body.studentId,
-                projectId: req.body.projectId
-            }, {
-                transaction: t,
-                returning: true
-            },)
-            return newProject
-        });
-        console.log(assignedProject)
-        res.json({
-            status: 200,
-            success: true,
-            message: "Successfully added project"
-        });
+
+        if (!req.body.studentId || !req.body.projectId) {
+            res.json({
+                status: 400,
+                success: false,
+                message: "Missing required fields"
+            });
+        } else {
+            const project = await QualificationProject.findByPk(req.body.projectId);
+            // prototype to take project duration in hours, divide it to 8h working days, then add to now date to get deadline
+            const durationDays = Math.ceil(project.duration / 8);
+            console.log(durationDays)
+            const assignedProject = await sequelize.transaction(async t => {
+                const newProject = await AssignedProjectsForStudents.create({
+                    studentId: req.body.studentId,
+                    projectId: req.body.projectId,
+                    startDate: new Date(),
+                    deadlineDate: new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000)
+                }, {
+                    transaction: t,
+                    returning: true
+                },)
+                return newProject
+            });
+            res.json({
+                status: 200,
+                success: true,
+                message: "Successfully added project"
+            });
+        }
     } catch (e) {
-        // console.log("projectAssign error: ", e)
         next(e);
     }
 })
@@ -402,15 +460,10 @@ router.post("/assignProjectToStudent", async (req: RequestWithAssignProjectToStu
 router.put("/updateStudentProject", async (req, res, next) => {
     //https://sequelize.org/docs/v6/other-topics/transactions/#managed-transactions
     try {
-        // console.log("updateProject: ", req.body)
         const update = req.body.update
-
         const updateFields = Object.fromEntries(
             Object.entries(update).filter(([_, entry]) => entry !== undefined))
-        // console.log(updateFields)
-
         const updatedStudentProject = await sequelize.transaction(async t => {
-
             const studentProject = AssignedProjectsForStudents.update(
                 updateFields,
                 {
@@ -420,21 +473,68 @@ router.put("/updateStudentProject", async (req, res, next) => {
                     }, transaction: res.locals._transaction,
                     returning: true
                 })
-            // .then(function (result) { console.log("mutations ", result, result[0], result[1]) })
-            // console.log("changed lines ", result)
-            // console.log("using data ", req.body)
             return studentProject
         })
-        // console.log(updatedStudentProject)
-
         res.json({
             status: 200,
             success: true,
             message: `Succesfully updated project`,
-
         });
     } catch (e) {
-        // console.log("projectUpdate error: ", e)
+        next(e);
+    }
+})
+
+router.post("/createWorktimeEntry", async (req, res, next) => {
+    const data = req.body
+    try {
+        await sequelize.transaction(async t => {
+            const newEntry = await WorktimeEntries.create({
+                studentId: data.studentId,
+                projectId: data.projectId,
+                startDate: data.entry.startDate,
+                endDate: data.entry.endDate,
+                description: data.entry.description,
+            }, {
+                transaction: t,
+            });
+            res.json({
+                status: 200,
+                success: true,
+                message: `entered new work entry as ${JSON.stringify(newEntry)}`,
+                entry: newEntry
+            });
+        });
+    } catch (e) {
+        next(e);
+    }
+})
+
+router.delete("/deleteWorktimeEntry", async (req, res, next) => {
+    const data = req.body
+    try {
+        await sequelize.transaction(async t => {
+            const entry = await WorktimeEntries.findByPk(data.id, { transaction: t });
+            if (entry) {
+                const copyOfEntry = entry
+                await entry.destroy({ transaction: t });
+                res.json({
+                    status: 200,
+                    success: true,
+                    message: `Successfully deleted entry ${data.id}`,
+                    entry: copyOfEntry
+
+                });
+            } else {
+                res.json({
+                    status: 404,
+                    success: false,
+                    message: `No entry found ${data.id}`
+
+                });
+            }
+        });
+    } catch (e) {
         next(e);
     }
 },)

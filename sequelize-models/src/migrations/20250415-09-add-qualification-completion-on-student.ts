@@ -1,6 +1,6 @@
 import type { Migration } from '../sequelize';
 import { DataTypes } from 'sequelize';
-import { QualificationCompletion } from '../student';
+import { QualificationCompletion } from '../models/student';
 
 export const up: Migration = async ({ context: queryInterface }) => {
     queryInterface.addColumn("students", "qualification_completion", {
