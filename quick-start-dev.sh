@@ -1,5 +1,16 @@
 #!/usr/bin/env bash
 
+if command -v docker compose >/dev/null; then
+  docker_compose='docker compose'
+elif command -v podman --version >/dev/null; then
+  docker_compose='podman compose'
+elif command -v podman-compose -v >/dev/null; then
+  docker_compose='podman-compose'
+else
+  echo no docker- or podman compose found...
+  exit
+fi
+
 (
   echo '(Re)generating sequelize-models'
   cd sequelize-models || exit
@@ -8,10 +19,6 @@
 )
 
 echo '(Re)building Containers and (Re)starting them.'
-docker compose -f docker-compose.dev.yml up -d --build
+$docker_compose -f docker-compose.dev.yml up -d --build
 
-printf '
-to view logs do either one: 
-  docker compose logs
-  docker compose -f [container name]
-'
+printf "\nTo view logs do either one: \n\t $docker_compose logs -f \n\t $docker_compose logs -f container_name\n"
