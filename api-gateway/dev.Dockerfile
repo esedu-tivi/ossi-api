@@ -1,4 +1,4 @@
-FROM node:24.9-alpine
+FROM node:22-alpine
 WORKDIR /usr/server/
 COPY . .
 RUN npm install
