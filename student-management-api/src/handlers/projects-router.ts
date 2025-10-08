@@ -1,10 +1,12 @@
 import express, { Request } from "express";
 import { Op, Sequelize } from "sequelize";
-import { CompetenceRequirementsInProjects, QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationProject, QualificationProjectPartLinks, QualificationProjectTag, QualificationProjectTagLinks, QualificationUnitPart, sequelize, Student } from "sequelize-models";
+//import { CompetenceRequirementsInProjects, QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationProject, QualificationProjectPartLinks, QualificationProjectTag, QualificationProjectTagLinks, QualificationUnitPart, sequelize, Student } from "sequelize-models";
 import { beginTransaction, commitTransaction, parseId } from "../utils/middleware";
 import { redisPublisher } from "../redis";
 import prisma from "../prisma-client";
 import { checkRequiredFields } from "../utils/checkRequiredFields";
+import { RequestWithId } from "../types";
+import { HttpError } from "../classes/HttpError";
 
 const router = express();
 
@@ -69,10 +71,10 @@ router.get("/", async (req, res, next) => {
             status: 200,
             success: true,
             projects: parsedProjects
-        });
+        })
 
     } catch (error) {
-        next(error);
+        next(error)
     }
 });
 
@@ -98,7 +100,7 @@ router.get("/", async (req, res, next) => {
 //     }
 // }, commitTransaction);
 
-router.get("/:id", parseId, async (req: Request & { id: number }, res, next) => {
+router.get("/:id", parseId, async (req: RequestWithId, res, next) => {
     try {
         const project = await prisma.qualificationProject.findFirst({
             where: {
@@ -137,12 +139,12 @@ router.get("/:id", parseId, async (req: Request & { id: number }, res, next) => 
             status: 200,
             success: true,
             project: parsedProject
-        });
+        })
 
     } catch (error) {
-        next(error);
+        next(error)
     }
-});
+})
 
 // router.get("/:id/linked_qualification_unit_parts", beginTransaction, async (req, res, next) => {
 //     try {
@@ -164,7 +166,7 @@ router.get("/:id", parseId, async (req: Request & { id: number }, res, next) => 
 //     }
 // }, commitTransaction);
 
-router.get("/:id/linked_qualification_unit_parts", parseId, async (req: Request & { id: number }, res, next) => {
+router.get("/:id/linked_qualification_unit_parts", parseId, async (req: RequestWithId, res, next) => {
     try {
         const unitParts = await prisma.qualificationUnitPart.findMany({
             include: {
@@ -337,15 +339,15 @@ router.post("/", async (req, res, next) => {
             })
 
             if (partsCount !== project.includedInParts.length) {
-                throw new Error("Unknown part ID.")
+                throw new HttpError(400, "Unknown part ID.")
             }
 
             if (competenceRequirementsCount !== project.competenceRequirements.length) {
-                throw new Error("Unknown requirement ID.")
+                throw new HttpError(400, "Unknown requirement ID.")
             }
 
             if (tagsCount !== project.tags.length) {
-                throw new Error("Unknown tag ID.")
+                throw new HttpError(400, "Unknown tag ID.")
             }
 
             const createdProject = await transaction.qualificationProject.create({
@@ -569,7 +571,7 @@ router.put("/:id", beginTransaction, async (req, res, next) => {
 }, commitTransaction);
 */
 
-router.put("/:id", parseId, async (req: Request & { id: number }, res, next) => {
+router.put("/:id", parseId, async (req: RequestWithId, res, next) => {
     try {
         const updatedProjectFields: ProjectBody & { notifyStudents: boolean } = req.body;
         const requiredFields = [
@@ -586,11 +588,7 @@ router.put("/:id", parseId, async (req: Request & { id: number }, res, next) => 
 
         const missingFields = checkRequiredFields(updatedProjectFields, requiredFields)
         if (missingFields.length) {
-            return res.json({
-                status: 400,
-                success: false,
-                message: `Missing fields: ${missingFields}`
-            })
+            throw new HttpError(400, `Missing fields: ${missingFields}`)
         }
 
         const updatedProject = await prisma.$transaction(async (transaction) => {
@@ -606,7 +604,7 @@ router.put("/:id", parseId, async (req: Request & { id: number }, res, next) => 
             })
 
             if (!projectToUpdate) {
-                throw new Error("Project not found.")
+                throw new HttpError(404, "Project not found.")
             }
 
             const projectRemovedFromParts = projectToUpdate.parts.filter(part => !updatedProjectFields.includedInParts.includes(part.qualificationUnitParts.id)).map(part => part.qualificationUnitParts.id)

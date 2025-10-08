@@ -2,6 +2,9 @@ import express, { Request } from "express";
 //import { QualificationProject, QualificationProjectPartLinks, QualificationUnitPart, sequelize } from "sequelize-models";
 import { beginTransaction, commitTransaction, parseId } from "../utils/middleware";
 import prisma from "../prisma-client";
+import { RequestWithId } from "../types";
+import { checkRequiredFields } from "../utils/checkRequiredFields";
+import { HttpError } from "../classes/HttpError";
 
 interface BasePartBody {
     name: string,
@@ -29,7 +32,7 @@ router.get("/", async (req, res, next) => {
     });
 });
 
-router.get("/:id", parseId, async (req: Request & { id: number }, res, next) => {
+router.get("/:id", parseId, async (req: RequestWithId, res, next) => {
     // const part = await QualificationUnitPart.findOne({
     //     where: {
     //         id: req.params.id
@@ -45,7 +48,7 @@ router.get("/:id", parseId, async (req: Request & { id: number }, res, next) => 
     });
 });
 
-router.get("/:id/projects", parseId, async (req: Request & { id: number }, res, next) => {
+router.get("/:id/projects", parseId, async (req: RequestWithId, res, next) => {
     // const projects = await QualificationProject.findAll({
     //     include: [{
     //         association: QualificationProject.associations.parts,
@@ -105,7 +108,7 @@ router.get("/:id/projects", parseId, async (req: Request & { id: number }, res, 
 //     }
 // }, commitTransaction);
 
-router.get("/:id/parent_qualification_unit", parseId, async (req: Request & { id: number }, res, next) => {
+router.get("/:id/parent_qualification_unit", parseId, async (req: RequestWithId, res, next) => {
     const qualificationUnit = await prisma.qualificationUnitPart.findUnique({
         where: {
             id: req.id
@@ -158,41 +161,57 @@ router.get("/:id/parent_qualification_unit", parseId, async (req: Request & { id
 // }, commitTransaction);
 
 router.post("/", async (req, res, next) => {
-    const partFields: BasePartBody = req.body
+    try {
+        const partFields: BasePartBody = req.body
+        const requiredFields = [
+            "name",
+            "description",
+            "materials",
+            "projectsInOrder",
+            "parentQualificationUnit"
+        ]
 
-    const part = await prisma.$transaction(async (transaction) => {
-        const unitOrderIndex = await transaction.qualificationUnitPart.count({
-            where: { qualificationUnitId: partFields.parentQualificationUnit }
-        })
-
-        const part = await transaction.qualificationUnitPart.create({
-            data: {
-                name: partFields.name,
-                qualificationUnitId: Number(partFields.parentQualificationUnit),
-                description: partFields.description,
-                materials: partFields.materials,
-                unitOrderIndex: unitOrderIndex
-            }
-        })
-
-        if (partFields.projectsInOrder && partFields.projectsInOrder.length > 0) {
-            await transaction.qualificationProjectsPartsRelation.createMany({
-                data: partFields.projectsInOrder.reduce((acc, projectId, index) => [...acc, ({
-                    qualificationProjectId: projectId,
-                    qualificationUnitPartId: part.id,
-                    partOrderIndex: index
-                })], [])
-            })
+        const missingFields = checkRequiredFields(partFields, requiredFields)
+        if (missingFields.length) {
+            throw new HttpError(400, `missing required fields: ${missingFields}`)
         }
-        return part
-    })
 
-    res.json({
-        status: 200,
-        success: true,
-        part: part
-    })
-});
+        const part = await prisma.$transaction(async (transaction) => {
+            const unitOrderIndex = await transaction.qualificationUnitPart.count({
+                where: { qualificationUnitId: partFields.parentQualificationUnit }
+            })
+
+            const part = await transaction.qualificationUnitPart.create({
+                data: {
+                    name: partFields.name,
+                    qualificationUnitId: Number(partFields.parentQualificationUnit),
+                    description: partFields.description,
+                    materials: partFields.materials,
+                    unitOrderIndex: unitOrderIndex
+                }
+            })
+
+            if (partFields.projectsInOrder && partFields.projectsInOrder.length > 0) {
+                await transaction.qualificationProjectsPartsRelation.createMany({
+                    data: partFields.projectsInOrder.reduce((acc, projectId, index) => [...acc, ({
+                        qualificationProjectId: projectId,
+                        qualificationUnitPartId: part.id,
+                        partOrderIndex: index
+                    })], [])
+                })
+            }
+            return part
+        })
+
+        res.json({
+            status: 200,
+            success: true,
+            part: part
+        })
+    } catch (error) {
+        next(error)
+    }
+})
 
 // router.put("/:id", beginTransaction, async (req, res, next) => {
 //     try {
@@ -248,9 +267,22 @@ router.post("/", async (req, res, next) => {
 //     }
 // }, commitTransaction);
 
-router.put("/:id", parseId, async (req: Request & { id: number }, res, next) => {
+router.put("/:id", parseId, async (req: RequestWithId, res, next) => {
     try {
         const updatedPartFields: BasePartBody = req.body;
+
+        const requiredFields = [
+            "name",
+            "description",
+            "materials",
+            "projectsInOrder",
+            "parentQualificationUnit"
+        ]
+
+        const missingFields = checkRequiredFields(updatedPartFields, requiredFields)
+        if (missingFields.length) {
+            throw new HttpError(400, `missing required fields: ${missingFields}`)
+        }
 
         const updatedPart = await prisma.$transaction(async (transaction) => {
             await transaction.qualificationUnitPart.update({
@@ -276,8 +308,7 @@ router.put("/:id", parseId, async (req: Request & { id: number }, res, next) => 
             }
 
             const updatedPart = await transaction.qualificationUnitPart.findUnique({
-                where: { id: req.id },
-                include: { projects: true }
+                where: { id: req.id }
             })
 
             return updatedPart

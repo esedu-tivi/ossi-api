@@ -2,6 +2,7 @@ import express from "express";
 //import { QualificationProjectTag } from "sequelize-models";
 //import { beginTransaction, commitTransaction } from "../utils/middleware";
 import prisma from "../prisma-client";
+import { HttpError } from "../classes/HttpError";
 
 const router = express();
 
@@ -69,11 +70,7 @@ router.post("/", async (req, res, next) => {
         const { tagName } = req.body
 
         if (!tagName || tagName === '') {
-            return res.json({
-                status: 400,
-                success: true,
-                message: `tagName missing or it's empty.`
-            })
+            throw new HttpError(400, `tagName missing or it's empty.`)
         }
 
         const tag = await prisma.qualificationProjectTag.create({
@@ -89,8 +86,8 @@ router.post("/", async (req, res, next) => {
         });
 
     } catch (error) {
-        next(error);
+        next(error)
     }
-});
+})
 
 export const ProjectTagsRouter = router;
