@@ -1,5 +1,6 @@
 import { ErrorRequestHandler } from "express";
 import { sequelize } from "sequelize-models";
+import { HttpError } from "../classes/HttpError";
 
 const errorHandler: ErrorRequestHandler = async (error, req, res, next) => {
     console.error('Error:', error)
@@ -12,16 +13,9 @@ const errorHandler: ErrorRequestHandler = async (error, req, res, next) => {
             })
         }
     }
-    if (error.message === "Unknown tag ID." || error.message === "Unknown requirement ID." || error.message === "request missing field") {
+    if (error instanceof HttpError) {
         return res.json({
-            status: 400,
-            success: false,
-            message: error.message
-        })
-    }
-    if (error.message === "Project not found.") {
-        return res.json({
-            status: 404,
+            status: error.statusCode,
             success: false,
             message: error.message
         })
@@ -46,7 +40,7 @@ const parseId = (req, res, next) => {
     if (req.params) {
         const { id } = req.params
 
-        if (isNaN(id)) {
+        if (Number.isNaN(id)) {
             return res.json({
                 status: 400,
                 success: false,
