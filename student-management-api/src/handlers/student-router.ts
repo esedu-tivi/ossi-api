@@ -8,6 +8,9 @@ import prisma from "../prisma-client.js";
 import { RequestWithId } from "../types.js";
 import { enumAssignedProjectsForStudentsProjectStatus, enumStudentsQualificationCompletion, enumUsersScope } from "prisma-orm";
 import { HttpError } from "../classes/HttpError.js";
+import { AssignedProjectsForStudents, QualificationProject, sequelize, WorktimeEntries } from "sequelize-models";
+import { checkRequiredFields } from "../utils/checkRequiredFields.js";
+import { checkIds } from "../utils/checkIds.js";
 
 const router = express.Router();
 
@@ -201,6 +204,28 @@ router.get("/:id/assigned_projects", async (req, res) => {
     });
     res.json(assignedProjects);
 });
+*/
+
+router.get("/:id/assigned_projects", parseId, async (req: RequestWithId, res) => {
+    //table assigned_projects_for_students
+
+    const foundAssignedProjects = await prisma.assignedProjectsForStudent.findMany({
+        where: { studentId: req.id },
+        include: {
+            qualificationProjects: true,
+            worktimeEntries: true
+        }
+    })
+
+    //rename qualificationProjects to the parentProject
+    const assignedProjects = foundAssignedProjects.map(({ qualificationProjects, ...rest }) => ({ ...rest, parentProject: qualificationProjects }))
+
+    console.log("log from assigned_projects post ", { ...assignedProjects })
+
+    res.json(assignedProjects)
+})
+
+/*
 router.get("/:id/single_assigned_project/:projectId", async (req, res, next) => {
     //table assigned_projects_for_students
     try {
@@ -241,25 +266,47 @@ router.get("/:id/single_assigned_project/:projectId", async (req, res, next) => 
         console.log(e)
         next(e)
     }
-});*/
-
-router.get("/:id/assigned_projects", parseId, async (req: RequestWithId, res) => {
+});
+*/
+router.get("/:id/single_assigned_project/:projectId", parseId, async (req: RequestWithId & { params: { projectId: any } }, res, next) => {
     //table assigned_projects_for_students
+    try {
+        const projectId = req.params.projectId
+        checkIds({ projectId })
+        const foundAssignedProject = await prisma.assignedProjectsForStudent.findFirst({
+            where: {
+                studentId: req.id,
+                projectId: Number(projectId)
+            },
+            include: {
+                qualificationProjects: true,
+                worktimeEntries: {
+                    where: {
+                        studentId: req.id,
+                        projectId: Number(projectId)
+                    }
+                }
+            }
+        })
 
-    const foundAssignedProjects = await prisma.assignedProjectsForStudent.findMany({
-        where: { studentId: req.id },
-        include: {
-            qualificationProjects: true,
-            worktimeEntries: true
+        if (!foundAssignedProject) {
+            throw new HttpError(404, "Assignment not found")
         }
-    })
 
-    //rename qualificationProjects to the parentProject
-    const assignedProjects = foundAssignedProjects.map(({ qualificationProjects, ...rest }) => ({ ...rest, parentProject: qualificationProjects }))
+        const assignedProject = {
+            ...foundAssignedProject,
+            parentProject: foundAssignedProject.qualificationProjects
+        }
+        res.json({
+            status: 200,
+            success: true,
+            project: assignedProject
+        })
 
-    console.log("log from assigned_projects post ", { ...assignedProjects })
-
-    res.json(assignedProjects)
+    } catch (error) {
+        console.log(error)
+        next(error)
+    }
 })
 
 /*
@@ -422,24 +469,38 @@ router.post("/assignProjectToStudent", async (req: RequestWithAssignProjectToStu
         // console.log("assign to backend ", req.body.studentId, req.body.projectId)
         const { studentId, projectId } = req.body
 
-        if (Number.isNaN(studentId)) {
-            throw new HttpError(400, "studentId missing or it's not number")
-        }
+        checkIds({ studentId, projectId })
 
-        if (Number.isNaN(studentId)) {
-            throw new HttpError(400, "projectId missing or it's not number")
-        }
+        const parsedStudentId = parseInt(studentId)
+        const parsedProjectId = parseInt(projectId)
 
-        const student = await prisma.student.findUnique({ where: { userId: Number(studentId) } })
+        const student = await prisma.student.findUnique({ where: { userId: parsedStudentId } })
 
         if (!student) {
-            throw new HttpError(400, "student not found")
+            throw new HttpError(404, "student not found")
+        }
+
+        const project = await prisma.qualificationProject.findUnique({ where: { id: parsedProjectId } })
+
+        if (!project) {
+            throw new HttpError(404, "project not found")
+        }
+
+        const alreadyAssignedProject = await prisma.assignedProjectsForStudent.findFirst({
+            where: {
+                studentId: parsedStudentId,
+                projectId: parsedProjectId
+            }
+        })
+
+        if (alreadyAssignedProject) {
+            throw new HttpError(403, `Already assigned project ${parsedProjectId} to student ${studentId}`)
         }
 
         const assignedProject = await prisma.assignedProjectsForStudent.create({
             data: {
-                studentId: Number(studentId),
-                projectId: Number(projectId)
+                studentId: parsedStudentId,
+                projectId: parsedProjectId
             }
         })
 
@@ -453,6 +514,222 @@ router.post("/assignProjectToStudent", async (req: RequestWithAssignProjectToStu
     } catch (error) {
         // console.log("projectAssign error: ", error)
         next(error);
+    }
+})
+
+/*
+router.delete("/unassignProjectFromStudent", async (req, res, next) => {
+    //https://sequelize.org/docs/v6/other-topics/transactions/#managed-transactions
+    try {
+        console.log("removed ", req.body)
+        const unassignedProject = await sequelize.transaction(async t => {
+            const entryToDelete = await AssignedProjectsForStudents.findOne({
+                where: {
+                    studentId: parseInt(req.body.studentId),
+                    projectId: parseInt(req.body.projectId)
+                }
+            })
+            return entryToDelete
+        })
+        if (unassignedProject) {
+            await unassignedProject.destroy();
+            res.json({
+                status: 200,
+                success: true,
+                message: `Successfully unassigned project ${req.body.projectId}`
+            });
+        } else {
+            res.json({
+                status: 404,
+                success: false,
+                message: `No assigned project found for student ${req.body.studentId} and project ${req.body.projectId}`
+            });
+        }
+    } catch (e) {
+        next(e);
+    }
+
+})
+*/
+
+router.delete("/unassignProjectFromStudent", async (req, res, next) => {
+    try {
+        console.log("removed ", req.body)
+        const { studentId, projectId } = req.body
+
+        checkIds({ studentId, projectId })
+
+        const parsedStudentId = parseInt(studentId)
+        const parsedProjectId = parseInt(projectId)
+
+        await prisma.$transaction(async transaction => {
+            const assignedProject = await transaction.assignedProjectsForStudent.findFirst({
+                where: {
+                    studentId: parsedStudentId,
+                    projectId: parsedProjectId
+                }
+            })
+            if (!assignedProject) {
+                throw new HttpError(404, `No assigned project found for student ${studentId} and project ${projectId}`)
+            }
+            await transaction.assignedProjectsForStudent.delete({
+                where: {
+                    studentId_projectId: {
+                        studentId: parsedStudentId,
+                        projectId: parsedProjectId
+                    }
+                }
+            })
+        })
+        res.json({
+            status: 200,
+            success: true,
+            message: `Successfully unassigned project ${req.body.projectId}`
+        })
+    } catch (error) {
+        next(error)
+    }
+})
+
+/*
+router.post("/createWorktimeEntry", async (req, res, next) => {
+    const data = req.body
+    try {
+        await sequelize.transaction(async t => {
+            const newEntry = await WorktimeEntries.create({
+                studentId: data.studentId,
+                projectId: data.projectId,
+                startDate: data.entry.startDate,
+                endDate: data.entry.endDate,
+                description: data.entry.description,
+            }, {
+                transaction: t,
+            });
+            res.json({
+                status: 200,
+                success: true,
+                message: `entered new work entry as ${JSON.stringify(newEntry)}`,
+                entry: newEntry
+            });
+        });
+    } catch (e) {
+        next(e);
+    }
+})
+*/
+
+router.post("/createWorktimeEntry", async (req, res, next) => {
+    const data = req.body
+    console.log(data)
+    console.log(!data.entry)
+    const { studentId, projectId, entry } = data
+    const requiredFields = ["studentId", "projectId"]
+    const missingFields = checkRequiredFields(data, requiredFields)
+    try {
+        if (!entry) {
+            throw new HttpError(400, "missing entry object")
+        }
+
+        const requiredEntryFields = ["startDate", "endDate", "description"]
+        const missingEntryFields = checkRequiredFields(entry, requiredEntryFields)
+
+        if (missingFields.length) {
+            throw new HttpError(400, `missing fields: ${missingFields}`)
+        }
+        if (missingEntryFields.length) {
+            throw new HttpError(400, `missing entry object fields: ${missingEntryFields}`)
+        }
+
+        checkIds({ studentId, projectId })
+
+        const parsedStudentId = parseInt(studentId)
+        const parsedProjectId = parseInt(projectId)
+
+        const student = await prisma.user.findFirst({ where: { id: parsedStudentId } })
+        if (!student) {
+            throw new HttpError(404, "student not found")
+        }
+
+        const project = await prisma.qualificationProject.findFirst({ where: { id: parsedProjectId } })
+        if (!project) {
+            throw new HttpError(404, "project not found")
+        }
+
+        await sequelize.transaction(async t => {
+            const newEntry = await prisma.worktimeEntries.create({
+                data: {
+                    studentId: parsedStudentId,
+                    projectId: parsedProjectId,
+                    startDate: data.entry.startDate,
+                    endDate: data.entry.endDate,
+                    description: data.entry.description,
+                }
+            })
+            res.json({
+                status: 200,
+                success: true,
+                message: `entered new work entry as ${JSON.stringify(newEntry)}`,
+                entry: newEntry
+            })
+        })
+    } catch (error) {
+        next(error)
+    }
+})
+
+/*
+router.delete("/deleteWorktimeEntry", async (req, res, next) => {
+    const data = req.body
+    try {
+        await sequelize.transaction(async t => {
+            const entry = await WorktimeEntries.findByPk(data.id, { transaction: t });
+            if (entry) {
+                const copyOfEntry = entry
+                await entry.destroy({ transaction: t });
+                res.json({
+                    status: 200,
+                    success: true,
+                    message: `Successfully deleted entry ${data.id}`,
+                    entry: copyOfEntry
+
+                });
+            } else {
+                res.json({
+                    status: 404,
+                    success: false,
+                    message: `No entry found ${data.id}`
+
+                });
+            }
+        });
+    } catch (e) {
+        next(e);
+    }
+},)
+*/
+
+router.delete("/deleteWorktimeEntry", async (req, res, next) => {
+    const { id } = req.body
+    checkIds({ id })
+    const parsedId = parseInt(id)
+    try {
+        const entry = await prisma.$transaction(async transaction => {
+            const entry = await transaction.worktimeEntries.findUnique({ where: { id: parsedId } })
+            if (!entry) {
+                throw new HttpError(404, `No entry found ${parsedId}`)
+            }
+            await transaction.worktimeEntries.delete({ where: { id: parsedId } })
+            return entry
+        })
+        res.json({
+            status: 200,
+            success: true,
+            message: `Successfully deleted entry ${parsedId}`,
+            entry
+
+        })
+    } catch (error) {
+        next(error)
     }
 })
 
@@ -484,75 +761,14 @@ router.put("/updateStudentProject", async (req, res, next) => {
         next(e);
     }
 })
-
-router.post("/createWorktimeEntry", async (req, res, next) => {
-    const data = req.body
-    try {
-        await sequelize.transaction(async t => {
-            const newEntry = await WorktimeEntries.create({
-                studentId: data.studentId,
-                projectId: data.projectId,
-                startDate: data.entry.startDate,
-                endDate: data.entry.endDate,
-                description: data.entry.description,
-            }, {
-                transaction: t,
-            });
-            res.json({
-                status: 200,
-                success: true,
-                message: `entered new work entry as ${JSON.stringify(newEntry)}`,
-                entry: newEntry
-            });
-        });
-    } catch (e) {
-        next(e);
-    }
-})
-
-router.delete("/deleteWorktimeEntry", async (req, res, next) => {
-    const data = req.body
-    try {
-        await sequelize.transaction(async t => {
-            const entry = await WorktimeEntries.findByPk(data.id, { transaction: t });
-            if (entry) {
-                const copyOfEntry = entry
-                await entry.destroy({ transaction: t });
-                res.json({
-                    status: 200,
-                    success: true,
-                    message: `Successfully deleted entry ${data.id}`,
-                    entry: copyOfEntry
-
-                });
-            } else {
-                res.json({
-                    status: 404,
-                    success: false,
-                    message: `No entry found ${data.id}`
-
-                });
-            }
-        });
-    } catch (e) {
-        next(e);
-    }
-},)
 */
 
 router.put("/updateStudentProject", async (req: RequestWithUpdateStudentProjectBody, res, next) => {
-    //https://sequelize.org/docs/v6/other-topics/transactions/#managed-transactions
     try {
         // console.log("updateProject: ", req.body)
         const { studentId, projectId, update } = req.body
 
-        if (Number.isNaN(studentId)) {
-            throw new HttpError(400, "studentId missing or it's not number")
-        }
-
-        if (Number.isNaN(projectId)) {
-            throw new HttpError(400, "projectId missing or it's not number")
-        }
+        checkIds({ studentId, projectId })
 
         const updateFields = Object.fromEntries(
             Object.entries(update).filter(([_, entry]) => entry !== undefined))
@@ -561,8 +777,8 @@ router.put("/updateStudentProject", async (req: RequestWithUpdateStudentProjectB
         await prisma.assignedProjectsForStudent.update({
             where: {
                 studentId_projectId: {
-                    studentId: Number(studentId),
-                    projectId: Number(projectId)
+                    studentId: parseInt(studentId),
+                    projectId: parseInt(projectId)
                 }
             },
             data: updateFields
@@ -656,7 +872,7 @@ router.post("/:id/student_setup", parseId, async (req: StudentSetupWithIdRequest
         const user = jwt.decode(req.headers.authorization) as DecodedJwtPayload;
         const { qualificationCompletion, qualificationId } = req.body;
 
-        const userId = Number(user.id)
+        const userId = parseInt(user.id)
 
         if (req.id !== userId) {
             throw new HttpError(401, "The user requesting student setup does not match with the student.")

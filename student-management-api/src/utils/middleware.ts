@@ -40,7 +40,7 @@ const parseId = (req, res, next) => {
     if (req.params) {
         const { id } = req.params
 
-        if (Number.isNaN(id)) {
+        if (id === "" || Number.isNaN(Number(id))) {
             return res.json({
                 status: 400,
                 success: false,
