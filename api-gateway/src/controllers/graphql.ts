@@ -1,4 +1,3 @@
-import 'dotenv/config'
 import { ApolloServer, BaseContext } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import cors from 'cors';
@@ -64,7 +63,7 @@ const server = new ApolloServer<ApolloContext>({ schema });
     graphqlRouter.use('/', cors<cors.CorsRequest>(), express.json(), expressMiddleware(server, {
         context: async ({ req }) => {
             if (req.headers.authorization) {
-                const user = (process.env.NODE_ENV === 'development')
+                const user = (config.NODE_ENV === 'development')
                     ? jwt.decode(req.headers.authorization) as UserContext
                     : jwt.verify(req.headers.authorization, config.JWT_SECRET_KEY) as UserContext;
 
