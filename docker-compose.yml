@@ -3,6 +3,7 @@ services:
   api:
     build:
       context: ./api-gateway
+      target: final
     ports:
       - "3000:3000"
     env_file: ".env"

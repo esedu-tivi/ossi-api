@@ -19,6 +19,6 @@ fi
 )
 
 echo '(Re)building Containers and (Re)starting them.'
-$docker_compose -f docker-compose.dev.yml up -d --build
+$docker_compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
 
 printf "\nTo view logs do either one: \n\t $docker_compose logs -f \n\t $docker_compose logs -f container_name\n"
