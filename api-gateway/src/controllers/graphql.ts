@@ -58,10 +58,6 @@ schema = authenticatedAsStudentDirectiveTransformer(schema);
 
 const server = new ApolloServer<ApolloContext>({ schema });
 
-// if (process.env.NODE_ENV === 'development') {
-//   console.log('node dev is development')
-// }
-
 (async () => {
     await server.start();
 
@@ -69,8 +65,8 @@ const server = new ApolloServer<ApolloContext>({ schema });
         context: async ({ req }) => {
             if (req.headers.authorization) {
                 const user = (process.env.NODE_ENV === 'development')
-                  ? jwt.decode(req.headers.authorization) as UserContext
-                  : jwt.verify(req.headers.authorization, config.JWT_SECRET_KEY) as UserContext;
+                    ? jwt.decode(req.headers.authorization) as UserContext
+                    : jwt.verify(req.headers.authorization, config.JWT_SECRET_KEY) as UserContext;
 
                 return {
                     user,
