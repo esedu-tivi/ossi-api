@@ -8,20 +8,21 @@
     "start": "npm run compile && node ./dist/index.js"
   },
   "devDependencies": {
-    "@swc/core": "^1.13.5",
-    "@types/jsonwebtoken": "^9.0.7",
-    "@types/node": "^24.6.2",
-    "@types/pg": "^8.11.10",
-    "ts-node-dev": "^2.0.0"
-  },
-  "dependencies": {
-    "@apollo/datasource-rest": "^6.4.1",
-    "@apollo/server": "^4.11.0",
     "@graphql-tools/utils": "^10.8.6",
     "@types/axios": "^0.9.36",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/mongoose": "^5.11.97",
+    "@swc/core": "^1.13.5",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^24.6.2",
+    "@types/pg": "^8.11.10",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@apollo/datasource-rest": "^6.4.1",
+    "@apollo/server": "^4.11.0",
     "axios": "^1.7.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -32,8 +33,6 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.5",
     "pg": "^8.13.0",
-    "redis": "^4.6.13",
-    "sequelize-models": "file:../sequelize-models",
-    "typescript": "^5.8.3"
+    "redis": "^4.6.13"
   }
 }
