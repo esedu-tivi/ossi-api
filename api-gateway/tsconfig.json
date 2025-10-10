@@ -1,8 +1,5 @@
 {
   // For hopefully speeding ts-node-dev
-  "ts-node": {
-    "swc": true
-  },
   "compilerOptions": {
     "baseUrl": ".",
     "rootDirs": ["src"],
