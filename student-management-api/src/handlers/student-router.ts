@@ -1,14 +1,10 @@
 import express, { Request } from "express";
-//import { pool } from "../postgres-pool.js";
 import jwt, { JwtPayload } from "jsonwebtoken";
-// import { AssignedQualificationUnitsForStudents, AssignedProjectsForStudents, MandatoryQualificationUnitsForTitle, Qualification, QualificationProject, QualificationTitle, QualificationUnit, Student, User, sequelize, } from "sequelize-models";
-// import { QualificationCompletion } from "sequelize-models/dist/student.js";
-import { beginTransaction, commitTransaction, parseId } from "../utils/middleware.js";
+import { parseId } from "../utils/middleware.js";
 import prisma from "../prisma-client.js";
 import { RequestWithId } from "../types.js";
 import { enumAssignedProjectsForStudentsProjectStatus, enumStudentsQualificationCompletion, enumUsersScope } from "prisma-orm";
 import { HttpError } from "../classes/HttpError.js";
-import { AssignedProjectsForStudents, QualificationProject, sequelize, WorktimeEntries } from "sequelize-models";
 import { checkRequiredFields } from "../utils/checkRequiredFields.js";
 import { checkIds } from "../utils/checkIds.js";
 
@@ -48,19 +44,6 @@ interface StudentSetupWithIdRequest extends RequestWithId {
     }
 }
 
-/*
-router.get("/", async (req, res) => {
-    const students = await Student.findAll();
-    const users = await User.findAll({ where: { id: students.map(student => student.id) } });
-
-    res.json({
-        status: 200,
-        success: true,
-        students: students.map(student => ({ ...student.toJSON(), ...users.find(user => user.id == student.id).toJSON() }))
-    });
-});
-*/
-
 router.get("/", async (req, res) => {
     const students = await prisma.student.findMany()
     const users = await prisma.user.findMany({ where: { id: { in: students.map(student => student.userId) } } })
@@ -71,28 +54,6 @@ router.get("/", async (req, res) => {
         students: students.map(student => ({ ...student, ...users.find(user => user.id == student.userId) }))
     })
 })
-
-/*
-router.get("/:id", async (req, res) => {
-    const user = await User.findByPk(req.params.id);
-    const student = await Student.findByPk(req.params.id);
-    // console.log(user, student)
-
-    if (!user || !student) {
-        return res.status(404).json({
-            status: 404,
-            success: false,
-            message: "User or student not found"
-        });
-    }
-
-    res.json({
-        status: 200,
-        success: true,
-        student: { ...user.toJSON(), ...student.toJSON() }
-    });
-});
-*/
 
 router.get("/:id", parseId, async (req: RequestWithId, res, next) => {
     try {
@@ -114,15 +75,6 @@ router.get("/:id", parseId, async (req: RequestWithId, res, next) => {
     }
 })
 
-/*
-router.get("/:id/studying_qualification", async (req, res) => {
-    const student = await Student.findByPk(req.params.id);
-    const studyingQualification = await Qualification.findByPk(student.qualificationId);
-
-    res.json(studyingQualification);
-});
- */
-
 router.get("/:id/studying_qualification", parseId, async (req: RequestWithId, res, next) => {
     try {
         const student = await prisma.student.findUnique({ where: { userId: req.id } })
@@ -143,15 +95,6 @@ router.get("/:id/studying_qualification", parseId, async (req: RequestWithId, re
     }
 })
 
-/*
-router.get("/:id/studying_qualification_title", async (req, res) => {
-    const student = await Student.findByPk(req.params.id);
-    const studyingQualificationTitle = await QualificationTitle.findByPk(student.qualificationTitleId);
-
-    res.json(studyingQualificationTitle)
-});
-*/
-
 router.get("/:id/studying_qualification_title", parseId, async (req: RequestWithId, res, next) => {
     try {
         const student = await prisma.student.findUnique({ where: { userId: req.id } })
@@ -168,43 +111,12 @@ router.get("/:id/studying_qualification_title", parseId, async (req: RequestWith
     }
 })
 
-/*
-router.get("/:id/assigned_qualification_units", async (req, res) => {
-    const unitIds = (await AssignedQualificationUnitsForStudents.findAll({ where: { studentId: req.params.id } })).map(set => set.qualificationUnitId);
-    const units = await QualificationUnit.findAll({ where: { id: unitIds } });
-
-    res.json(units);
-});
-*/
-
 router.get("/:id/assigned_qualification_units", parseId, async (req: RequestWithId, res) => {
     const unitIds = (await prisma.assignedQualificationUnitsForStudent.findMany({ where: { studentId: req.id } })).map(set => set.qualificationUnitId)
     const units = await prisma.qualificationUnit.findMany({ where: { id: { in: unitIds } } })
 
     res.json(units)
 })
-
-/*
-router.get("/:id/assigned_projects", async (req, res) => {
-    //table assigned_projects_for_students
-    const assignedProjects = await AssignedProjectsForStudents.findAll({
-        where: { studentId: req.params.id },
-        include: [
-            { model: QualificationProject, as: "parentProject" },
-            {
-                model: WorktimeEntries,
-                as: "worktimeEntries",
-                where: sequelize.literal(
-                    `"worktimeEntries"."student_id" = "AssignedProjectsForStudents"."student_id" AND "worktimeEntries"."project_id" = "AssignedProjectsForStudents"."project_id"`
-                ),
-                required: false
-            }
-        ],
-        transaction: res.locals._transaction
-    });
-    res.json(assignedProjects);
-});
-*/
 
 router.get("/:id/assigned_projects", parseId, async (req: RequestWithId, res) => {
     //table assigned_projects_for_students
@@ -225,49 +137,6 @@ router.get("/:id/assigned_projects", parseId, async (req: RequestWithId, res) =>
     res.json(assignedProjects)
 })
 
-/*
-router.get("/:id/single_assigned_project/:projectId", async (req, res, next) => {
-    //table assigned_projects_for_students
-    try {
-        const assignedProject = await AssignedProjectsForStudents.findOne({
-            where: {
-                studentId: req.params.id,
-                projectId: req.params.projectId
-            },
-            include: [
-                {
-                    model: QualificationProject,
-                    as: "parentProject"
-                },
-                {
-                    model: WorktimeEntries,
-                    as: "worktimeEntries",
-                    where: sequelize.literal(
-                        `"worktimeEntries"."student_id" = "AssignedProjectsForStudents"."student_id" AND "worktimeEntries"."project_id" = "AssignedProjectsForStudents"."project_id"`
-                    ),
-                    required: false
-                }
-            ],
-        });
-        if (assignedProject) {
-            res.json({
-                status: 200,
-                success: true,
-                project: assignedProject
-            });
-        } else {
-            res.json({
-                status: 404,
-                success: false,
-                message: "Assignment not found"
-            });
-        }
-    } catch (e) {
-        console.log(e)
-        next(e)
-    }
-});
-*/
 router.get("/:id/single_assigned_project/:projectId", parseId, async (req: RequestWithId & { params: { projectId: any } }, res, next) => {
     //table assigned_projects_for_students
     try {
@@ -308,52 +177,6 @@ router.get("/:id/single_assigned_project/:projectId", parseId, async (req: Reque
         next(error)
     }
 })
-
-/*
-router.post("/:id/qualification_title", beginTransaction, async (req, res, next) => {
-    try {
-        const { qualificationTitleId } = req.body;
-
-        await Student.update({ qualificationTitleId: qualificationTitleId },
-            {
-                transaction: res.locals._transaction,
-                where: { id: req.params.id }
-            }
-        );
-
-        const student = await Student.findByPk(req.params.id);
-
-        // revert previous title units
-        if (student.qualificationTitleId != null) {
-            const previousTitleUnits = (await MandatoryQualificationUnitsForTitle.findAll({
-                where: {
-                    titleId: student.qualificationTitleId
-                }
-            })).map(unitsForTitle => unitsForTitle.unitId);
-
-            await AssignedQualificationUnitsForStudents.destroy({
-                where: {
-                    studentId: req.params.id,
-                    qualificationUnitId: previousTitleUnits
-                }
-            });
-        }
-
-        const titleUnits = await MandatoryQualificationUnitsForTitle.findAll({ where: { titleId: qualificationTitleId }, transaction: res.locals._transaction });
-
-        await AssignedQualificationUnitsForStudents.bulkCreate(titleUnits.map(titleUnit => ({
-            studentId: parseInt(req.params.id),
-            qualificationUnitId: titleUnit.unitId
-        })), { transaction: res.locals._transaction });
-        res.json({
-            status: 200,
-            success: true,
-        });
-    } catch (e) {
-        next(e);
-    }
-});
-*/
 
 router.post("/:id/qualification_title", parseId, async (req: RequestWithId, res, next) => {
     try {
@@ -425,45 +248,6 @@ router.post("/:id/qualification_title", parseId, async (req: RequestWithId, res,
     }
 })
 
-/*
-router.post("/assignProjectToStudent", beginTransaction, async (req, res, next) => {
-    try {
-
-        if (!req.body.studentId || !req.body.projectId) {
-            res.json({
-                status: 400,
-                success: false,
-                message: "Missing required fields"
-            });
-        } else {
-            const project = await QualificationProject.findByPk(req.body.projectId);
-            // prototype to take project duration in hours, divide it to 8h working days, then add to now date to get deadline
-            const durationDays = Math.ceil(project.duration / 8);
-            console.log(durationDays)
-            const assignedProject = await sequelize.transaction(async t => {
-                const newProject = await AssignedProjectsForStudents.create({
-                    studentId: req.body.studentId,
-                    projectId: req.body.projectId,
-                    startDate: new Date(),
-                    deadlineDate: new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000)
-                }, {
-                    transaction: t,
-                    returning: true
-                },)
-                return newProject
-            });
-            res.json({
-                status: 200,
-                success: true,
-                message: "Successfully added project"
-            });
-        }
-    } catch (e) {
-        next(e);
-    }
-})
-*/
-
 router.post("/assignProjectToStudent", async (req: RequestWithAssignProjectToStudentBody, res, next) => {
     try {
         // console.log("assign to backend ", req.body.studentId, req.body.projectId)
@@ -517,41 +301,6 @@ router.post("/assignProjectToStudent", async (req: RequestWithAssignProjectToStu
     }
 })
 
-/*
-router.delete("/unassignProjectFromStudent", async (req, res, next) => {
-    //https://sequelize.org/docs/v6/other-topics/transactions/#managed-transactions
-    try {
-        console.log("removed ", req.body)
-        const unassignedProject = await sequelize.transaction(async t => {
-            const entryToDelete = await AssignedProjectsForStudents.findOne({
-                where: {
-                    studentId: parseInt(req.body.studentId),
-                    projectId: parseInt(req.body.projectId)
-                }
-            })
-            return entryToDelete
-        })
-        if (unassignedProject) {
-            await unassignedProject.destroy();
-            res.json({
-                status: 200,
-                success: true,
-                message: `Successfully unassigned project ${req.body.projectId}`
-            });
-        } else {
-            res.json({
-                status: 404,
-                success: false,
-                message: `No assigned project found for student ${req.body.studentId} and project ${req.body.projectId}`
-            });
-        }
-    } catch (e) {
-        next(e);
-    }
-
-})
-*/
-
 router.delete("/unassignProjectFromStudent", async (req, res, next) => {
     try {
         console.log("removed ", req.body)
@@ -591,47 +340,19 @@ router.delete("/unassignProjectFromStudent", async (req, res, next) => {
     }
 })
 
-/*
 router.post("/createWorktimeEntry", async (req, res, next) => {
     const data = req.body
-    try {
-        await sequelize.transaction(async t => {
-            const newEntry = await WorktimeEntries.create({
-                studentId: data.studentId,
-                projectId: data.projectId,
-                startDate: data.entry.startDate,
-                endDate: data.entry.endDate,
-                description: data.entry.description,
-            }, {
-                transaction: t,
-            });
-            res.json({
-                status: 200,
-                success: true,
-                message: `entered new work entry as ${JSON.stringify(newEntry)}`,
-                entry: newEntry
-            });
-        });
-    } catch (e) {
-        next(e);
-    }
-})
-*/
 
-router.post("/createWorktimeEntry", async (req, res, next) => {
-    const data = req.body
-    console.log(data)
-    console.log(!data.entry)
-    const { studentId, projectId, entry } = data
+    const { studentId, projectId } = data
     const requiredFields = ["studentId", "projectId"]
     const missingFields = checkRequiredFields(data, requiredFields)
     try {
-        if (!entry) {
+        if (!data.entry) {
             throw new HttpError(400, "missing entry object")
         }
 
         const requiredEntryFields = ["startDate", "endDate", "description"]
-        const missingEntryFields = checkRequiredFields(entry, requiredEntryFields)
+        const missingEntryFields = checkRequiredFields(data.entry, requiredEntryFields)
 
         if (missingFields.length) {
             throw new HttpError(400, `missing fields: ${missingFields}`)
@@ -655,58 +376,26 @@ router.post("/createWorktimeEntry", async (req, res, next) => {
             throw new HttpError(404, "project not found")
         }
 
-        await sequelize.transaction(async t => {
-            const newEntry = await prisma.worktimeEntries.create({
-                data: {
-                    studentId: parsedStudentId,
-                    projectId: parsedProjectId,
-                    startDate: data.entry.startDate,
-                    endDate: data.entry.endDate,
-                    description: data.entry.description,
-                }
-            })
-            res.json({
-                status: 200,
-                success: true,
-                message: `entered new work entry as ${JSON.stringify(newEntry)}`,
-                entry: newEntry
-            })
+        const newEntry = await prisma.worktimeEntries.create({
+            data: {
+                studentId: parsedStudentId,
+                projectId: parsedProjectId,
+                startDate: data.entry.startDate,
+                endDate: data.entry.endDate,
+                description: data.entry.description,
+            }
+        })
+
+        res.json({
+            status: 200,
+            success: true,
+            message: `entered new work entry as ${JSON.stringify(newEntry)}`,
+            entry: newEntry
         })
     } catch (error) {
         next(error)
     }
 })
-
-/*
-router.delete("/deleteWorktimeEntry", async (req, res, next) => {
-    const data = req.body
-    try {
-        await sequelize.transaction(async t => {
-            const entry = await WorktimeEntries.findByPk(data.id, { transaction: t });
-            if (entry) {
-                const copyOfEntry = entry
-                await entry.destroy({ transaction: t });
-                res.json({
-                    status: 200,
-                    success: true,
-                    message: `Successfully deleted entry ${data.id}`,
-                    entry: copyOfEntry
-
-                });
-            } else {
-                res.json({
-                    status: 404,
-                    success: false,
-                    message: `No entry found ${data.id}`
-
-                });
-            }
-        });
-    } catch (e) {
-        next(e);
-    }
-},)
-*/
 
 router.delete("/deleteWorktimeEntry", async (req, res, next) => {
     const { id } = req.body
@@ -732,36 +421,6 @@ router.delete("/deleteWorktimeEntry", async (req, res, next) => {
         next(error)
     }
 })
-
-/*
-router.put("/updateStudentProject", async (req, res, next) => {
-    //https://sequelize.org/docs/v6/other-topics/transactions/#managed-transactions
-    try {
-        const update = req.body.update
-        const updateFields = Object.fromEntries(
-            Object.entries(update).filter(([_, entry]) => entry !== undefined))
-        const updatedStudentProject = await sequelize.transaction(async t => {
-            const studentProject = AssignedProjectsForStudents.update(
-                updateFields,
-                {
-                    where: {
-                        studentId: parseInt(req.body.studentId),
-                        projectId: parseInt(req.body.projectId)
-                    }, transaction: res.locals._transaction,
-                    returning: true
-                })
-            return studentProject
-        })
-        res.json({
-            status: 200,
-            success: true,
-            message: `Succesfully updated project`,
-        });
-    } catch (e) {
-        next(e);
-    }
-})
-*/
 
 router.put("/updateStudentProject", async (req: RequestWithUpdateStudentProjectBody, res, next) => {
     try {
@@ -795,76 +454,6 @@ router.put("/updateStudentProject", async (req: RequestWithUpdateStudentProjectB
         next(error)
     }
 })
-
-
-/* router.post("/:id/student_setup", beginTransaction, async (req, res, next) => {
-    // console.log("setup test ", req.body, req.headers.authorization)
-    try {
-        const user = jwt.decode(req.headers.authorization) as any;
-        const { qualificationCompletion, qualificationId } = req.body;
-
-        if (req.params.id != user.id) {
-            res.json({
-                status: 401,
-                success: false,
-                message: "The user requesting student setup does not match with the student."
-            });
-
-
-            throw Error();
-        }
-
-        if (user.type == "STUDENT") {
-            if (user.type != "STUDENT") {
-                res.json({
-                    status: 401,
-                    success: false,
-                    message: "The user requesting student setup is not a student."
-                });
-
-
-                throw Error();
-            }
-
-            if (user.isSetUp) {
-                res.json({
-                    status: 401,
-                    success: false,
-                    message: "The student has already been set up."
-                });
-
-                throw Error();
-            }
-            // console.log("setup pre-student update ", qualificationCompletion, qualificationId, user.id)
-            await Student.update({
-                qualificationCompletion: qualificationCompletion,
-                qualificationId: qualificationId,
-            }, { where: { id: user.id }, transaction: res.locals._transaction });
-
-            // assigning TVP for the new student, should make this more modular, if other vocations start using Ossi
-            if (qualificationCompletion == "FULL_COMPLETION") {
-                await AssignedQualificationUnitsForStudents.create({
-                    studentId: user.id,
-                    qualificationUnitId: 6779606
-                }, { transaction: res.locals._transaction });
-            }
-            // console.log("setup test pre-user update ")
-            await User.update({
-                isSetUp: true
-            }, { where: { id: user.id }, transaction: res.locals._transaction });
-
-            res.json({
-                status: 200,
-                success: true
-            });
-
-            next();
-        }
-    } catch (e) {
-        next(e)
-    }
-}, commitTransaction); */
-
 
 router.post("/:id/student_setup", parseId, async (req: StudentSetupWithIdRequest, res, next) => {
     // console.log("setup test ", req.body, req.headers.authorization)
@@ -913,7 +502,6 @@ router.post("/:id/student_setup", parseId, async (req: StudentSetupWithIdRequest
                     data: { isSetUp: true }
                 })
             })
-
         }
 
         res.json({
