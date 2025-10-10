@@ -11,12 +11,14 @@ else
   exit
 fi
 
+
+if [ ! -d "./sequelize-models/dist" ]; then
 (
-  echo '(Re)generating sequelize-models'
-  cd sequelize-models || exit
-  rm -rf dist/
-  npm run compile
+   echo 'generating sequelize-models'
+   cd sequelize-models || exit
+   npm run compile
 )
+fi
 
 echo '(Re)building Containers and (Re)starting them.'
 $docker_compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build

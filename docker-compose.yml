@@ -15,6 +15,7 @@ services:
   authapi:
     build:
       context: ./auth-api
+      target: final
       additional_contexts:
         sequelize-models: ./sequelize-models
     env_file: ".env"

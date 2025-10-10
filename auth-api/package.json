@@ -2,9 +2,9 @@
   "name": "auth-api",
   "private": "true",
   "version": "1.0.0",
-  "type": "module",
   "scripts": {
     "compile": "tsc",
+    "dev": "tsnd --respawn --rs --notify --transpile-only --inspect=0.0.0.0:9229 src/index.ts",
     "start": "npm run compile && node ./dist/index.js"
   },
   "dependencies": {
@@ -23,6 +23,7 @@
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.6.1",
     "@types/pg": "^8.11.10",
+    "ts-node-dev": "^2.0.0",
     "typescript": "^5.6.2"
   }
 }

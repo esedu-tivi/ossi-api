@@ -2,14 +2,15 @@ FROM node:22-alpine AS base
 RUN apk add --update dumb-init
 USER node
 WORKDIR /usr/server
+COPY --from=sequelize-models . ../sequelize-models/
 COPY --chown=node:node package*.json ./
-COPY --chown=node:node tsconfig.json tsconfig.json
 RUN npm install
 
 # Dev container
 FROM base AS dev
 WORKDIR /usr/server
 ENV NODE_ENV development
+COPY --chown=node:node tsconfig.json tsconfig.json
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["npm", "run", "dev"]
 
@@ -24,6 +25,7 @@ RUN npm install --omit=dev
 FROM base AS build
 USER node
 WORKDIR /usr/server
+COPY --chown=node:node tsconfig.json tsconfig.json
 COPY --chown=node:node src/ src/
 RUN npm run compile
 
@@ -34,6 +36,6 @@ USER node
 WORKDIR /usr/server
 COPY --chown=node:node --from=deps /usr/server/node_modules ./node_modules/
 COPY --chown=node:node --from=build /usr/server/dist/ ./dist/
-COPY --chown=node:node --from=build /usr/server/package.json ./
+COPY --chown=node:node --from=build /usr/server/package*.json ./
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-CMD [ "node", "/usr/server/dist/index.js" ]
+CMD [ "npm", "start" ]

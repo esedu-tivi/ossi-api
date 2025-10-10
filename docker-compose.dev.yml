@@ -7,3 +7,11 @@ services:
       - 9230:9229
     volumes:
       - ./api-gateway/src:/usr/server/src:ro
+
+  authapi:
+    build:
+      target: dev
+    ports:
+      - 9231:9229
+    volumes:
+      - ./auth-api/src:/usr/server/src:ro
