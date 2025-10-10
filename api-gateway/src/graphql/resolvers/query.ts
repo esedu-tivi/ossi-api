@@ -1,5 +1,5 @@
 import axios from "axios"
-import { Resolver } from "../resolver"
+import { type Resolver } from "../resolver.js"
 
 const me: Resolver<null, null> = async (_, __, context) => {
     if (context.user.type == "STUDENT") {
@@ -99,7 +99,7 @@ const conversations: Resolver<null, null> = async (_, __, context) => {
             return [];
         }
 
-        const response = await axios.post(
+        const response: any = await axios.post(
             `${process.env.INTERNAL_MESSAGING_SERVER_URL}/graphql`,
             {
                 query: `

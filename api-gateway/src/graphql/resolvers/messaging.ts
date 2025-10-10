@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { publisher, subscriber } from '../../redis-client';
+import { publisher, subscriber } from '../../redis-client.js';
 import { PubSub } from 'graphql-subscriptions';
-import { ApolloContext } from '../context';
+import { type ApolloContext } from '../context.js';
 
 const messagingPubSub = new PubSub();
 let redisSubscriptionInitialized = false;

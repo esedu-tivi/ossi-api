@@ -1,7 +1,5 @@
-import 'dotenv/config'
 import express from 'express';
-
-import { graphqlRouter } from './controllers/graphql';
+import graphqlRouter from './controllers/graphql.js';
 
 const app = express();
 

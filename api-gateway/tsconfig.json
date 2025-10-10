@@ -1,15 +1,44 @@
 {
-  "compilerOptions": {
-    "baseUrl": ".",
-    "rootDirs": ["src"],
-    "outDir": "dist",
-    "target": "es2020",
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "types": ["node"],
-    //Critical for Debugger
-    "sourceMap": true,
-    "inlineSources": true,
-  }
+    "compilerOptions": {
+        "baseUrl": ".",
+        "rootDirs": [
+            "src"
+        ],
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "target": "es2022",
+        "allowJs": true,
+        "resolveJsonModule": true,
+        "moduleDetection": "force",
+        "isolatedModules": true,
+        "verbatimModuleSyntax": true,
+        // "strict": true,
+        "noUncheckedIndexedAccess": true,
+        "noImplicitOverride": true,
+        "module": "NodeNext",
+        "outDir": "dist",
+        "declaration": true,
+        "sourceMap": true,
+        "composite": true,
+        "declarationMap": true,
+        "noEmit": true,
+        "lib": [
+            "es2022"
+        ]
+    }
 }
+// {
+//   "compilerOptions": {
+//     "baseUrl": ".",
+//     "rootDirs": ["src"],
+//     "outDir": "dist",
+//     "target": "es2020",
+//     "module": "commonjs",
+//     "moduleResolution": "node",
+//     "esModuleInterop": true,
+//     "types": ["node"],
+//     //Critical for Debugger
+//     "sourceMap": true,
+//     "inlineSources": true,
+//   }
+// }

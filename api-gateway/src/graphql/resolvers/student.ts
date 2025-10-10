@@ -1,4 +1,4 @@
-import { Resolver } from "../resolver"
+import { type Resolver } from "../resolver.js"
 
 const studyingQualification: Resolver<{ id: number }, null> = async (parent, _, context) => {
     return await context.dataSources.studentManagementAPI.getStudentStudyingQualification(parent.id);

@@ -1,37 +1,38 @@
 {
-  "name": "api",
-  "private": "true",
-  "version": "1.0.0",
-  "scripts": {
-    "compile": "tsc",
-    "dev": "tsnd --respawn --rs --notify --transpile-only --inspect=0.0.0.0:9229 src/index.ts",
-    "start": "npm run compile && node ./dist/index.js"
-  },
-  "devDependencies": {
-    "@graphql-tools/utils": "^10.8.6",
-    "@types/axios": "^0.9.36",
-    "@types/cors": "^2.8.17",
-    "@types/express": "^4.17.21",
-    "@types/mongoose": "^5.11.97",
-    "@types/jsonwebtoken": "^9.0.7",
-    "@types/node": "^24.6.2",
-    "@types/pg": "^8.11.10",
-    "ts-node-dev": "^2.0.0",
-    "typescript": "^5.8.3"
-  },
-  "dependencies": {
-    "@apollo/datasource-rest": "^6.4.1",
-    "@apollo/server": "^4.11.0",
-    "axios": "^1.7.7",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.21.0",
-    "graphql": "^16.11.0",
-    "graphql-subscriptions": "^2.0.0",
-    "graphql-tools": "^9.0.18",
-    "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.9.5",
-    "pg": "^8.13.0",
-    "redis": "^4.6.13"
-  }
+    "name": "api",
+    "private": "true",
+    "version": "1.0.0",
+    "type": "module",
+    "scripts": {
+        "compile": "tsc",
+        "dev": "tsx watch --inspect=0.0.0.0:9229 src/index.ts",
+        "start": "npm run compile && node ./dist/index.js"
+    },
+    "devDependencies": {
+        "@graphql-tools/utils": "^10.8.6",
+        "@types/axios": "^0.9.36",
+        "@types/cors": "^2.8.17",
+        "@types/express": "^4.17.21",
+        "@types/jsonwebtoken": "^9.0.7",
+        "@types/mongoose": "^5.11.97",
+        "@types/node": "^24.6.2",
+        "@types/pg": "^8.11.10",
+        "tsx": "^4.20.6",
+        "typescript": "^5.8.3"
+    },
+    "dependencies": {
+        "@apollo/datasource-rest": "^6.4.1",
+        "@apollo/server": "^4.11.0",
+        "axios": "^1.7.7",
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.5",
+        "express": "^4.21.0",
+        "graphql": "^16.11.0",
+        "graphql-subscriptions": "^2.0.0",
+        "graphql-tools": "^9.0.18",
+        "jsonwebtoken": "^9.0.2",
+        "mongoose": "^8.9.5",
+        "pg": "^8.13.0",
+        "redis": "^4.6.13"
+    }
 }

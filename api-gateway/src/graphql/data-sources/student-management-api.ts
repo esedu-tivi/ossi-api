@@ -1,4 +1,4 @@
-import { AugmentedRequest, RESTDataSource } from "@apollo/datasource-rest";
+import { type AugmentedRequest, RESTDataSource } from "@apollo/datasource-rest";
 
 class StudentManagementAPI extends RESTDataSource {
     override baseURL = process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL;
