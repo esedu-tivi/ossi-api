@@ -1,5 +1,4 @@
 {
-  // For hopefully speeding ts-node-dev
   "compilerOptions": {
     "baseUrl": ".",
     "rootDirs": ["src"],
