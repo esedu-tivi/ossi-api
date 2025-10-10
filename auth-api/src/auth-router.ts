@@ -1,7 +1,6 @@
 import axios from "axios";
 import express, { json } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
-//import { sequelize, Student, Teacher, User, UserAuthorityScope } from "sequelize-models";
 import { PrismaClient, enumUsersScope } from "prisma-orm"
 import { PrismaPg } from "@prisma/adapter-pg";
 import { HttpError } from "./classes/HttpError";
@@ -38,9 +37,6 @@ router.post("/login", async (req, res) => {
 
             // Prisma ORM do not have table lock functionality built-in, so need use raw query
             await transaction.$queryRaw`LOCK TABLE "users" IN ACCESS EXCLUSIVE MODE`
-
-            //    const transaction = await sequelize.transaction();
-            //    await sequelize.query("LOCK TABLE \"users\" IN ACCESS EXCLUSIVE MODE", { transaction });
 
             let idToken: IdTokenPayload;
             try {
