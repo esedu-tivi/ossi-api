@@ -180,7 +180,7 @@ model WorktimeEntries {
   startDate                  DateTime                    @map("start_date") @db.Timestamptz(6)
   endDate                    DateTime                    @map("end_date") @db.Timestamptz(6)
   description                String?
-  AssignedProjectsForStudent AssignedProjectsForStudent? @relation(fields: [studentId, projectId], references: [studentId, projectId])
+  AssignedProjectsForStudent AssignedProjectsForStudent? @relation(fields: [studentId, projectId], references: [studentId, projectId], onDelete: Cascade)
 
   @@map("student_worktime_tracker")
 }
