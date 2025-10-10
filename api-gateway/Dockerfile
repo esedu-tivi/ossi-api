@@ -2,7 +2,6 @@ FROM node:22-alpine AS base
 RUN apk add --update dumb-init
 USER node
 WORKDIR /usr/server
-COPY --from=sequelize-models . ../sequelize-models/
 COPY --chown=node:node package*.json ./
 RUN npm install
 
