@@ -68,9 +68,9 @@ model QualificationCompetenceRequirement {
   id                                  Int                                  @id @map("eperuste_id")
   groupId                             Int?                                 @map("group_id")
   description                         String?                              @db.VarChar(1024)
-  QualificationProject                QualificationProject?                @relation(fields: [qualificationProjectId], references: [id])
+  qualificationProject                QualificationProject?                @relation(fields: [qualificationProjectId], references: [id])
   qualificationProjectId              Int?
-  QualificationCompetenceRequirements QualificationCompetenceRequirements? @relation(fields: [groupId], references: [id])
+  qualificationCompetenceRequirements QualificationCompetenceRequirements? @relation(fields: [groupId], references: [id])
 
   @@map("qualification_competence_requirement")
 }
