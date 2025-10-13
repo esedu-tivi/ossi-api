@@ -193,20 +193,19 @@ model Student {
   qualificationCompletion               enumStudentsQualificationCompletion?  @map("qualification_completion")
   assignedQualificationUnitsForStudents AssignedQualificationUnitsForStudent?
   users                                 User                                  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  supervisedStudentsByJobSupervisors    SupervisedStudentsByJobSupervisor[]   @ignore
+  supervisedStudentsByJobSupervisors    SupervisedStudentsByJobSupervisor[]
 
   @@map("students")
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model SupervisedStudentsByJobSupervisor {
+  id              Int            @id
   studentId       Int?           @map("student_id")
   jobSupervisorId Int?           @map("job_supervisor_id")
   jobSupervisors  JobSupervisor? @relation(fields: [jobSupervisorId], references: [userId], onDelete: NoAction, onUpdate: NoAction)
   students        Student?       @relation(fields: [studentId], references: [userId], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("supervised_students_by_job_supervisors")
-  @@ignore
 }
 
 model Teacher {
