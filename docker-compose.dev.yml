@@ -15,3 +15,11 @@ services:
       - 9231:9229
     volumes:
       - ./auth-api/src:/usr/server/src:ro
+
+  messagingserver:
+    build:
+      target: dev
+    ports:
+      - 9232:9229
+    volumes:
+      - ./messaging-server/src:/usr/server/src:ro

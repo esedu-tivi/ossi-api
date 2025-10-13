@@ -46,6 +46,7 @@ services:
   messagingserver:
     build:
       context: ./messaging-server
+      target: final
     ports:
       - "3002:3000"
     environment:
