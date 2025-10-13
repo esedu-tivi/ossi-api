@@ -1,9 +1,5 @@
 {
     "compilerOptions": {
-        "baseUrl": ".",
-        "rootDirs": [
-            "src"
-        ],
         "esModuleInterop": true,
         "skipLibCheck": true,
         "target": "es2022",
@@ -18,7 +14,6 @@
         "outDir": "dist",
         "declaration": true,
         "sourceMap": true,
-        "composite": true,
         "declarationMap": true,
         // "noEmit": true,
         // "strict": true,
