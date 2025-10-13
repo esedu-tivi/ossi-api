@@ -1,28 +1,32 @@
-import 'dotenv/config'
-import { ApolloServer, BaseContext } from '@apollo/server';
-import { expressMiddleware } from '@apollo/server/express4';
-import cors from 'cors';
-import express from 'express';
-import jwt, { JwtPayload } from 'jsonwebtoken';
-import typeDefs from '../graphql/type-defs';
-import { Mutation } from '../graphql/resolvers/mutation';
-import { Query } from '../graphql/resolvers/query';
-import { config } from '../config';
-import { Student } from '../graphql/resolvers/student';
-import { ApolloContext, UserContext } from '../graphql/context';
-import { QualificationProject } from '../graphql/resolvers/project';
-import { QualificationUnitPart } from '../graphql/resolvers/part';
-import { QualificationUnit } from '../graphql/resolvers/unit';
-import { StudentManagementAPI } from '../graphql/data-sources/student-management-api';
-import { User } from '../graphql/resolvers/user';
-import { Notification } from '../graphql/resolvers/notification';
-import { makeExecutableSchema } from 'graphql-tools';
-import { authenticatedAsStudentDirectiveTransformer, authenticatedAsTeacherDirectiveTransformer, authenticatedDirectiveTransformer } from '../graphql/directive-transformers';
-import { QualificationTitle } from '../graphql/resolvers/title';
-import { ProjectReturnNotification } from '../graphql/resolvers/project-return-notification';
-import { ProjectUpdateNotification } from '../graphql/resolvers/project-update-notification';
-import { dateTimeScalar } from '../graphql/scalars/datetime';
-import { MessagingResolvers } from '../graphql/resolvers/messaging';
+import { ApolloServer } from "@apollo/server";
+import { expressMiddleware } from "@apollo/server/express4";
+import cors from "cors";
+import "dotenv/config";
+import express from "express";
+import { makeExecutableSchema } from "graphql-tools";
+import jwt from "jsonwebtoken";
+import { config } from "../config.js";
+import { type ApolloContext, type UserContext } from "../graphql/context.js";
+import { StudentManagementAPI } from "../graphql/data-sources/student-management-api.js";
+import {
+    authenticatedAsStudentDirectiveTransformer,
+    authenticatedAsTeacherDirectiveTransformer,
+    authenticatedDirectiveTransformer,
+} from "../graphql/directive-transformers.js";
+import { MessagingResolvers } from "../graphql/resolvers/messaging.js";
+import { Mutation } from "../graphql/resolvers/mutation.js";
+import { Notification } from "../graphql/resolvers/notification.js";
+import { QualificationUnitPart } from "../graphql/resolvers/part.js";
+import { ProjectReturnNotification } from "../graphql/resolvers/project-return-notification.js";
+import { ProjectUpdateNotification } from "../graphql/resolvers/project-update-notification.js";
+import { QualificationProject } from "../graphql/resolvers/project.js";
+import { Query } from "../graphql/resolvers/query.js";
+import { Student } from "../graphql/resolvers/student.js";
+import { QualificationTitle } from "../graphql/resolvers/title.js";
+import { QualificationUnit } from "../graphql/resolvers/unit.js";
+import { User } from "../graphql/resolvers/user.js";
+import { dateTimeScalar } from "../graphql/scalars/datetime.js";
+import typeDefs from "../graphql/type-defs.js";
 
 const graphqlRouter = express.Router();
 
@@ -58,19 +62,15 @@ schema = authenticatedAsStudentDirectiveTransformer(schema);
 
 const server = new ApolloServer<ApolloContext>({ schema });
 
-// if (process.env.NODE_ENV === 'development') {
-//   console.log('node dev is development')
-// }
-
 (async () => {
     await server.start();
 
     graphqlRouter.use('/', cors<cors.CorsRequest>(), express.json(), expressMiddleware(server, {
         context: async ({ req }) => {
             if (req.headers.authorization) {
-                const user = (process.env.NODE_ENV === 'development')
-                  ? jwt.decode(req.headers.authorization) as UserContext
-                  : jwt.verify(req.headers.authorization, config.JWT_SECRET_KEY) as UserContext;
+                const user = (config.NODE_ENV === 'development')
+                    ? jwt.decode(req.headers.authorization) as UserContext
+                    : jwt.verify(req.headers.authorization, config.JWT_SECRET_KEY) as UserContext;
 
                 return {
                     user,
@@ -94,3 +94,4 @@ const server = new ApolloServer<ApolloContext>({ schema });
 })();
 
 export { graphqlRouter };
+export default graphqlRouter

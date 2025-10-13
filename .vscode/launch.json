@@ -13,7 +13,50 @@
         "<node_internals>/**",
         "<node_internals>\\**",
         "/tmp/**",
-        "${workspaceFolder}/**/node_modules/**"
+        "${workspaceFolder}/**/node_modules/**",
+        "${workspaceFolder}\\**\\node_modules\\**"
+      ]
+    },
+    {
+      "name": "Attach to: auth-api",
+      "type": "pwa-node",
+      "request": "attach",
+      "port": 9231,
+      "restart": true,
+      "localRoot": "${workspaceFolder}/auth-api",
+      "remoteRoot": "/usr/server",
+      "skipFiles": [
+        "<node_internals>/**",
+        "<node_internals>\\**",
+        "/tmp/**",
+        "${workspaceFolder}/**/node_modules/**",
+        "${workspaceFolder}\\**\\node_modules\\**"
+      ],
+      "resolveSourceMapLocations": [
+        "**",
+        "!**/node_modules/**",
+        "!/usr/sequelize-models/**"
+      ]
+    },
+    {
+      "name": "Attach to: messagingserver",
+      "type": "pwa-node",
+      "request": "attach",
+      "port": 9232,
+      "restart": true,
+      "localRoot": "${workspaceFolder}/messaging-server",
+      "remoteRoot": "/usr/server",
+      "skipFiles": [
+        "<node_internals>/**",
+        "<node_internals>\\**",
+        "/tmp/**",
+        "${workspaceFolder}/**/node_modules/**",
+        "${workspaceFolder}\\**\\node_modules\\**"
+      ],
+      "resolveSourceMapLocations": [
+        "**",
+        "!**/node_modules/**",
+        "!/usr/sequelize-models/**"
       ]
     }
   ]

@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "compile": "tsc",
-    "start": "DEBUG=$DEBUG npm run compile && node ./dist/index.js"
+    "dev": "tsx watch --inspect=0.0.0.0:9229 src/index.ts",
+    "start": "DEBUG=$DEBUG node ./dist/index.js"
   },
   "dependencies": {
     "@apollo/server": "^4.11.0",
@@ -18,16 +19,17 @@
     "graphql-ws": "^5.15.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.2.1",
-    "ws": "^8.16.0",
     "pg": "^8.11.3",
-    "redis": "^4.6.13"
+    "redis": "^4.6.13",
+    "ws": "^8.16.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/node": "^22.6.1",
-    "@types/ws": "^8.5.10",
     "@types/pg": "^8.11.10",
+    "@types/ws": "^8.5.10",
+    "tsx": "^4.20.6",
     "typescript": "^5.6.2"
   }
-} 
+}

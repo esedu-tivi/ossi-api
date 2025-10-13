@@ -1,5 +1,5 @@
-import { ApolloContext } from "./context";
+import { type ApolloContext } from "./context.js";
 
 type Resolver<TParent, TArgs> = (parent: TParent, args: TArgs, context: ApolloContext) => any
 
-export { Resolver };
+export type { Resolver };

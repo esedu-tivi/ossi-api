@@ -1,12 +1,10 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "rootDirs": [
       "src"
     ],
     "outDir": "dist",
-    "lib": [
-      "es2020"
-    ],
     "target": "es2020",
     "module": "commonjs",
     "moduleResolution": "node",
@@ -14,6 +12,9 @@
     "types": [
       "node"
     ],
+    //Critical for Debugger
+    "sourceMap": true,
+    "inlineSources": true,
     "skipLibCheck": true
   }
 }

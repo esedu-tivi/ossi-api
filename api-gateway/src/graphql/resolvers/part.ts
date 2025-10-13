@@ -1,4 +1,4 @@
-import { Resolver } from "../resolver"
+import { type Resolver } from "../resolver.js"
 
 const projects: Resolver<{ id: number }, null> = async (parent, _, context) => {
     return await context.dataSources.studentManagementAPI.getPartProjects(parent.id);

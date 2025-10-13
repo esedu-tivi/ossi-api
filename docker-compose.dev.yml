@@ -2,128 +2,24 @@
 services:
   api:
     build:
-      context: ./api-gateway
-      dockerfile: dev.Dockerfile
-    command: "npm run dev"
-    depends_on:
-      - messagingserver
-      - studentmanagementapi
-      - notificationserver
-      - authapi
-    env_file: ".env"
+      target: dev
     ports:
-      - 3000:3000
       - 9230:9229
     volumes:
-      - ./api-gateway/:/usr/server
+      - ./api-gateway/src:/usr/server/src:ro
 
   authapi:
     build:
-      context: ./auth-api
-      additional_contexts:
-        prisma-orm: ./prisma-orm
-    depends_on:
-      - db
-    env_file: ".env"
-    volumes:
-      - ./auth-api/:/usr/server
-
-  studentmanagementapi:
-    build:
-      context: ./student-management-api
-      additional_contexts:
-        sequelize-models: ./sequelize-models
-        prisma-orm: ./prisma-orm
-    depends_on:
-      db-migrations:
-        condition: service_completed_successfully
-      redis:
-        condition: service_healthy
-    env_file: ".env"
-    volumes:
-      - ./student-management-api/:/usr/server
-
-  notificationserver:
-    build:
-      context: ./notification-server
-    depends_on:
-      redis:
-        condition: service_healthy
-      mongo:
-        condition: service_healthy
-    env_file: ".env"
+      target: dev
     ports:
-      - "3001:3000"
+      - 9231:9229
     volumes:
-      - ./notification-server/:/usr/server
+      - ./auth-api/src:/usr/server/src:ro
 
   messagingserver:
     build:
-      context: ./messaging-server
-      # dockerfile: dev.Dockerfile
-    depends_on:
-      redis:
-        condition: service_healthy
-      mongo:
-        condition: service_healthy
-    env_file: ".env"
-    environment:
-      - PORT=3000
+      target: dev
     ports:
-      - "3002:3000"
+      - 9232:9229
     volumes:
-      - ./messaging-server/:/usr/server
-
-  db:
-    image: docker.io/postgres:alpine
-    restart: always
-    environment:
-      POSTGRES_PASSWORD: postgres
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
-      interval: 2s
-      retries: 5
-      start_period: 1s
-    ports:
-      - "5432:5432"
-    volumes:
-      - db-data:/var/lib/postgresql/data
-
-  db-migrations:
-    build:
-      context: ./prisma-orm
-    command: npm start
-    env_file: ".env"
-    depends_on:
-      db:
-        condition: service_healthy
-
-  mongo:
-    image: docker.io/mongo
-    restart: always
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-
-  pgadmin:
-    image: docker.io/dpage/pgadmin4
-    restart: always
-    environment:
-      PGADMIN_DEFAULT_EMAIL: pg@localhost.fi
-      PGADMIN_DEFAULT_PASSWORD: postgres
-      PGADMIN_LISTEN_ADDRESS: 0.0.0.0
-    ports:
-      - "5433:80"
-
-  redis:
-    image: docker.io/redis
-    restart: always
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-
-volumes:
-  db-data:
-  mongo-data:
+      - ./messaging-server/src:/usr/server/src:ro

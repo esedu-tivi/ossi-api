@@ -1,7 +1,9 @@
+---
 services:
   api:
     build:
       context: ./api-gateway
+      target: final
     ports:
       - "3000:3000"
     env_file: ".env"
@@ -13,6 +15,7 @@ services:
   authapi:
     build:
       context: ./auth-api
+      target: final
       additional_contexts:
         sequelize-models: ./sequelize-models
         prisma-orm: ./prisma-orm
@@ -45,6 +48,7 @@ services:
   messagingserver:
     build:
       context: ./messaging-server
+      target: final
     ports:
       - "3002:3000"
     environment:
@@ -106,7 +110,7 @@ services:
     image: docker.io/redis
     restart: always
     healthcheck:
-       test: ["CMD", "redis-cli","ping"]
+      test: ["CMD", "redis-cli", "ping"]
 
 volumes:
   db-data:
