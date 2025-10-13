@@ -21,7 +21,7 @@ services:
     build:
       context: ./auth-api
       additional_contexts:
-        sequelize-models: ./sequelize-models
+        prisma-orm: ./prisma-orm
     depends_on:
       - db
     env_file: ".env"
@@ -33,6 +33,7 @@ services:
       context: ./student-management-api
       additional_contexts:
         sequelize-models: ./sequelize-models
+        prisma-orm: ./prisma-orm
     depends_on:
       db-migrations:
         condition: service_completed_successfully
@@ -90,8 +91,9 @@ services:
 
   db-migrations:
     build:
-      context: ./sequelize-models
-    command: node migrator up
+      context: ./prisma-orm
+    command: npm start
+    env_file: ".env"
     depends_on:
       db:
         condition: service_healthy
