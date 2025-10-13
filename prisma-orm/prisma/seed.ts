@@ -1,5 +1,5 @@
 import "dotenv";
-import { PrismaClient, enumUsersScope, type QualificationProject, type QualificationUnitPart, type Qualification, type QualificationUnit } from "../dist/generated/prisma/client.js"
+import { PrismaClient, enumUsersScope, type QualificationProject, type QualificationUnitPart, type Qualification, type QualificationUnit, Prisma } from "../dist/generated/prisma/client.js"
 import { PrismaPg } from "@prisma/adapter-pg";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
@@ -54,231 +54,307 @@ const qualificationProjects: QualificationProject[] = [{
 
 
 const addStudent = async () => {
-  const result = await prisma.user.findUnique({ where: { oid: userData.oid } })
-  if (result) {
-    return console.log('Student is already in the database')
-  }
-  const createdUser = await prisma.user.create({ data: userData })
-  const createdStudent = await prisma.student.create({
-    data: {
-      userId: createdUser.id,
-      groupId: 'TiVi23A',
-      qualificationTitleId: 10224,
-      qualificationId: qualification.id,
-    }
-  })
+  try {
+    await prisma.$transaction(async (transaction) => {
+      const result = await transaction.user.findUnique({ where: { oid: userData.oid } })
+      if (result) {
+        return console.log('Student is already in the database')
+      }
+      const createdUser = await transaction.user.create({ data: userData })
+      const createdStudent = await transaction.student.create({
+        data: {
+          userId: createdUser.id,
+          groupId: 'TiVi23A',
+          qualificationTitleId: 10224,
+          qualificationId: qualification.id,
+        }
+      })
 
-  console.log("Created user & student:", createdUser, createdStudent)
+      console.log("Created user & student:", createdUser, createdStudent)
+    })
+  } catch (error) {
+    return console.error(error)
+  }
 }
 
 const addTags = async () => {
-  const tags = ["Ohjelmointi", "Ryhmätyö", "Python", "JavaScript", "React"]
-  const existingTags = new Set(
-    (await prisma.qualificationProjectTag.findMany({ where: { name: { in: tags } } }))
-      .filter((tag: { name: string | null }) => tag.name !== null)
-      .map((tag: { name: string | null }) => tag.name as string)
-  )
+  try {
+    await prisma.$transaction(async (transaction) => {
+      const tags = ["Ohjelmointi", "Ryhmätyö", "Python", "JavaScript", "React"]
+      const existingTags = new Set(
+        (await transaction.qualificationProjectTag.findMany({ where: { name: { in: tags } } }))
+          .filter((tag: { name: string | null }) => tag.name !== null)
+          .map((tag: { name: string | null }) => tag.name as string)
+      )
 
-  const newTags = tags.filter(tag => !existingTags.has(tag)).map(tag => ({ name: tag }))
+      const newTags = tags.filter(tag => !existingTags.has(tag)).map(tag => ({ name: tag }))
 
-  if (newTags.length === 0) {
-    return console.log("All tags already created")
+      if (newTags.length === 0) {
+        return console.log("All tags already created")
+      }
+
+      const addedTags = await transaction.qualificationProjectTag.createManyAndReturn({
+        data: newTags
+      })
+
+      console.log("Created qualificationProjectTags:", addedTags)
+    })
   }
-
-  const addedTags = await prisma.qualificationProjectTag.createManyAndReturn({
-    data: newTags
-  })
-
-  console.log("Created qualificationProjectTags:", addedTags)
+  catch (error) {
+    console.error(error)
+  }
 }
 
 const addQualification = async () => {
-  const result = await prisma.qualification.findUnique({ where: { id: qualification.id } })
-  if (result) {
-    return console.log('qualification already created')
+  try {
+    await prisma.$transaction(async (transaction) => {
+      const result = await transaction.qualification.findUnique({ where: { id: qualification.id } })
+      if (result) {
+        return console.info('qualification already created')
+      }
+      const createdQualification = await transaction.qualification.create({
+        data: qualification
+      })
+      console.info("Created qualification:", createdQualification)
+    })
   }
-  const createdQualification = await prisma.qualification.create({
-    data: qualification
-  })
-  console.log("Created qualification:", createdQualification)
+  catch (error) {
+    console.error(error)
+  }
 }
 
 const addQualificationUnit = async () => {
-  const result = await prisma.qualificationUnit.findFirst({ where: { id: qualificationUnit.id } })
-  if (result) {
-    return console.log("Qualification unit already created")
+  try {
+    const result = await prisma.qualificationUnit.findFirst({ where: { id: qualificationUnit.id } })
+    if (result) {
+      return console.log("Qualification unit already created")
+    }
+    const createdQualificationUnit = await prisma.qualificationUnit.create({ data: qualificationUnit })
+    console.log('Created qualificationUnit:', createdQualificationUnit)
   }
-  const createdQualificationUnit = await prisma.qualificationUnit.create({ data: qualificationUnit })
-  console.log('Created qualificationUnit:', createdQualificationUnit)
+  catch (error) {
+    console.error(error)
+  }
 }
 
 const addQualificationUnitParts = async () => {
-  const result = await prisma.qualificationUnitPart.findFirst({ where: { qualificationUnitId: qualificationUnitPart.qualificationUnitId } })
-  if (result) {
-    return console.log("QualificationUnitPart already created")
+  try {
+    prisma.$transaction(async (transaction) => {
+      const result = await transaction.qualificationUnitPart.findFirst({ where: { qualificationUnitId: qualificationUnitPart.qualificationUnitId } })
+      if (result) {
+        return console.log("QualificationUnitPart already created")
+      }
+
+      const createdQualificationUnitPart = await transaction.qualificationUnitPart.create({
+        data: qualificationUnitPart
+      })
+
+      console.log("Created qualificationUnitPart:", createdQualificationUnitPart)
+    })
+
   }
-
-  const createdQualificationUnitPart = await prisma.qualificationUnitPart.create({
-    data: qualificationUnitPart
-  })
-
-  console.log("Created qualificationUnitPart:", createdQualificationUnitPart)
+  catch (error) {
+    console.error(error)
+  }
 }
 
 const addQualificationProjects = async () => {
-  const qualificationProjectNames = qualificationProjects
-    .map(qualificationProject => qualificationProject.name)
-    .filter(name => name !== null)
+  try {
+    const qualificationProjectNames = qualificationProjects
+      .map(qualificationProject => qualificationProject.name)
+      .filter(name => name !== null)
 
-  const existingQualificationProjectsNames = new Set((
-    await prisma.qualificationProject.findMany({
-      where: {
-        name: {
-          in: qualificationProjectNames
+    const existingQualificationProjectsNames = new Set((
+      await prisma.qualificationProject.findMany({
+        where: {
+          name: {
+            in: qualificationProjectNames
+          }
         }
-      }
-    })
-  )
-    .filter((project: { name: string | null }) => project.name !== null)
-    .map((project: { name: string | null }) => project.name as string))
+      })
+    )
+      .filter((project: { name: string | null }) => project.name !== null)
+      .map((project: { name: string | null }) => project.name as string))
 
-  const newQualificationProjects = qualificationProjects
-    .filter(qualificationProject => qualificationProject.name && !existingQualificationProjectsNames.has(qualificationProject.name))
+    const newQualificationProjects = qualificationProjects
+      .filter(qualificationProject => qualificationProject.name && !existingQualificationProjectsNames.has(qualificationProject.name))
 
-  if (newQualificationProjects.length === 0) {
-    return console.log("QualificationUProjects already created")
+    if (newQualificationProjects.length === 0) {
+      return console.log("QualificationUProjects already created")
+    }
+
+    const createdQualificationProjects = await prisma.qualificationProject.createManyAndReturn({ data: newQualificationProjects })
+    console.log("Created qualificationProjects:", createdQualificationProjects)
   }
-
-  const createdQualificationProjects = await prisma.qualificationProject.createMany({ data: newQualificationProjects })
-  console.log("Created qualificationProjects:", createdQualificationProjects)
+  catch (error) {
+    console.error(error)
+  }
 }
 
 const assignQualificationUnitForStudent = async () => {
-  const foundUser = await prisma.user.findUnique({
-    where: { oid: userData.oid },
-    include: { students: {} }
-  })
-  const foundQualificationUnit = await prisma.qualificationUnitPart.findFirst({
-    where: {
-      qualificationUnitId: qualificationUnitPart.qualificationUnitId
-    }
-  })
+  try {
+    await prisma.$transaction(async (transaction) => {
+      const foundUser = await transaction.user.findUnique({
+        where: { oid: userData.oid },
+        include: { students: {} }
+      })
+      const foundQualificationUnit = await transaction.qualificationUnitPart.findFirst({
+        where: {
+          qualificationUnitId: qualificationUnitPart.qualificationUnitId
+        }
+      })
 
-  if (foundUser && foundQualificationUnit) {
-    const result = await prisma.assignedQualificationUnitsForStudent.findFirst({
-      where: {
-        AND: [
-          { studentId: foundUser.id },
-          { qualificationUnitId: qualificationUnitPart.qualificationUnitId }
-        ]
+      if (foundUser && foundQualificationUnit) {
+        const result = await transaction.assignedQualificationUnitsForStudent.findFirst({
+          where: {
+            AND: [
+              { studentId: foundUser.id },
+              { qualificationUnitId: qualificationUnitPart.qualificationUnitId }
+            ]
+          }
+        })
+        if (result) {
+          return console.log(`Student oid: '${foundUser.oid}' is already assigned to '${foundQualificationUnit.name}'`)
+        }
+        await transaction.assignedQualificationUnitsForStudent.create({
+          data: {
+            studentId: foundUser.id,
+            qualificationUnitId: qualificationUnitPart.qualificationUnitId
+          }
+        })
+
+        console.log(`Assigned qualificationUnit ${qualificationUnitPart.name} for student oid ${foundUser.oid}`)
       }
     })
-    if (result) {
-      return console.log(`Student oid: '${foundUser.oid}' is already assigned to '${foundQualificationUnit.name}'`)
-    }
-    await prisma.assignedQualificationUnitsForStudent.create({
-      data: {
-        studentId: foundUser.id,
-        qualificationUnitId: qualificationUnitPart.qualificationUnitId
-      }
-    })
 
-    console.log(`Assigned qualificationUnit ${qualificationUnitPart.name} for student oid ${foundUser.oid}`)
+  }
+  catch (error) {
+    console.log(error)
   }
 }
 
 const addRelationsToUnitPartsAndProjects = async () => {
-  const projectIds = qualificationProjects.map(project => project.id)
+  try {
+    await prisma.$transaction(async (transaction) => {
+      const projectIds = qualificationProjects.map(project => project.id)
 
-  const foundRelations = await prisma.qualificationProjectsPartsRelation.findMany({
-    where: {
-      qualificationProjectId: { in: projectIds }
-    }
-  })
-
-  if (foundRelations.length === projectIds.length) {
-    return console.log("UnitParts and projects relations already exists")
-  }
-
-  if (qualificationProjects[0] && qualificationProjects[1]) {
-    await prisma.qualificationProjectsPartsRelation.createMany({
-      data: [
-        {
-          qualificationProjectId: qualificationProjects[0].id,
-          qualificationUnitPartId: qualificationUnitPart.id,
-          partOrderIndex: 1
-        },
-        {
-          qualificationProjectId: qualificationProjects[1].id,
-          qualificationUnitPartId: qualificationUnitPart.id,
-          partOrderIndex: 1
+      const foundRelations = await transaction.qualificationProjectsPartsRelation.findMany({
+        where: {
+          qualificationProjectId: { in: projectIds }
         }
-      ]
+      })
+
+      if (foundRelations.length === projectIds.length) {
+        return console.log("UnitParts and projects relations already exists")
+      }
+
+      if (qualificationProjects[0] && qualificationProjects[1]) {
+        await transaction.qualificationProjectsPartsRelation.createMany({
+          data: [
+            {
+              qualificationProjectId: qualificationProjects[0].id,
+              qualificationUnitPartId: qualificationUnitPart.id,
+              partOrderIndex: 1
+            },
+            {
+              qualificationProjectId: qualificationProjects[1].id,
+              qualificationUnitPartId: qualificationUnitPart.id,
+              partOrderIndex: 1
+            }
+          ]
+        })
+      }
+
+      console.log("Created relation to UnitParts and Projects")
     })
   }
-
-  console.log("Created relation to UnitParts and Projects")
+  catch (error) {
+    console.error(error)
+  }
 }
 
 const assignProjectForStudentAndAddWorktime = async () => {
-  const foundUser = await prisma.user.findUnique({
-    where: {
-      oid: userData.oid
-    },
-    include: { students: true }
-  })
-
-  if (qualificationProjects[0]) {
-    const foundQualificationProject = await prisma.qualificationProject.findUnique({ where: { id: qualificationProjects[0].id } })
-
-    if (!(foundUser && foundUser.students?.userId)) {
-      return console.log(`User with ${userData.oid} missing`)
-    }
-    if (!foundQualificationProject) {
-      return console.log("QualificationProject missing")
-    }
-
-    const assignedProject = {
-      startDate: "2025-02-05 11:00:00+00:00",
-      deadlineDate: "2025-07-05 08:00:00+00:00",
-      projectPlan: "complete project tasks",
-      projectReport: "link to my github with completed tasks"
-    }
-
-    const workTime = {
-      startDate: "2025-02-05 12:00:00+00:00",
-      endDate: "2025-02-05 14:00:00+00:00",
-      description: "Init of project",
-    }
-
-    const foundAssignedProject = await prisma.assignedProjectsForStudent.findFirst({ where: { studentId: foundUser.students.userId, projectId: foundQualificationProject.id, ...assignedProject } })
-    const foundWorktime = await prisma.studentWorktimeTracker.findFirst({ where: { studentId: foundUser.students.userId, projectId: foundQualificationProject.id, ...workTime } })
-
-    if (foundAssignedProject && foundWorktime) {
-      return console.log("Project already assigned and worktime added")
-    }
-    if (!foundAssignedProject) {
-      const savedAssignedProject = await prisma.assignedProjectsForStudent.create({
-        data: {
-          studentId: foundUser.students.userId,
-          projectId: foundQualificationProject.id,
-          ...assignedProject
-        }
+  try {
+    await prisma.$transaction(async (transaction) => {
+      const foundUser = await transaction.user.findUnique({
+        where: {
+          oid: userData.oid
+        },
+        include: { students: true }
       })
-      console.log("Assigned project:", savedAssignedProject)
-    }
-    if (!foundWorktime) {
-      const savedWorktime = await prisma.studentWorktimeTracker.create({
-        data: {
-          studentId: foundUser.students.userId,
-          projectId: foundQualificationProject.id,
-          ...workTime
+
+      if (qualificationProjects[0]) {
+        const foundQualificationProject = await transaction.qualificationProject.findUnique({
+          where: {
+            id: qualificationProjects[0].id
+          }
+        })
+
+        if (!(foundUser && foundUser.students?.userId)) {
+          return console.error(`User with ${userData.oid} missing`)
         }
-      })
-      console.log("Added worktime", savedWorktime)
-    }
+        if (!foundQualificationProject) {
+          return console.error("QualificationProject missing")
+        }
+
+        const assignedProject = {
+          startDate: "2025-02-05 11:00:00+00:00",
+          deadlineDate: "2025-07-05 08:00:00+00:00",
+          projectPlan: "complete project tasks",
+          projectReport: "link to my github with completed tasks"
+        }
+
+        const workTime = {
+          startDate: "2025-02-05 12:00:00+00:00",
+          endDate: "2025-02-05 14:00:00+00:00",
+          description: "Init of project",
+        }
+
+        const foundAssignedProject = await transaction.assignedProjectsForStudent.findFirst({
+          where: {
+            studentId: foundUser.students.userId,
+            projectId: foundQualificationProject.id,
+            ...assignedProject
+          }
+        })
+        const foundWorktime = await transaction.worktimeEntries.findFirst({
+          where: {
+            studentId: foundUser.students.userId,
+            projectId: foundQualificationProject.id,
+            ...workTime
+          }
+        })
+
+        if (foundAssignedProject && foundWorktime) {
+          return console.log("Project already assigned and worktime added")
+        }
+        if (!foundAssignedProject) {
+          const savedAssignedProject = await transaction.assignedProjectsForStudent.create({
+            data: {
+              studentId: foundUser.students.userId,
+              projectId: foundQualificationProject.id,
+              ...assignedProject
+            }
+          })
+          console.log("Assigned project:", savedAssignedProject)
+        }
+        if (!foundWorktime) {
+          const savedWorktime = await transaction.worktimeEntries.create({
+            data: {
+              studentId: foundUser.students.userId,
+              projectId: foundQualificationProject.id,
+              ...workTime
+            }
+          })
+          console.log("Added worktime", savedWorktime)
+        }
+      }
+    })
+
   }
-
+  catch (error) {
+    console.error(error)
+  }
 }
 
 const main = async () => {
@@ -296,7 +372,13 @@ const main = async () => {
 
 main()
   .catch((error) => {
-    console.error(error);
+    if (error instanceof Error) {
+      console.error(error);
+    }
+    else {
+      console.log(error)
+    }
+
     process.exit(1);
   })
   .finally(async () => {
