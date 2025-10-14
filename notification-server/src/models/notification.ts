@@ -1,9 +1,10 @@
-import mongoose from "mongoose";
+import { Schema, model } from "mongoose";
 
-const notificationSchema = new mongoose.Schema({
+const notificationSchema = new Schema({
     recipient: String,
     hasBeenRead: { type: Boolean, default: false },
     time: { type: Date, default: Date.now },
+    id: Schema.Types.ObjectId,
 }, { discriminatorKey: "kind" });
 
 notificationSchema.set("toJSON", {
@@ -14,11 +15,11 @@ notificationSchema.set("toJSON", {
     }
 });
 
-export const Notification = mongoose.model('Notification', notificationSchema);
+export const Notification = model('Notification', notificationSchema);
 
 export const ProjectReturnNotification = Notification.discriminator("ProjectReturnNotification",
-    new mongoose.Schema({ projectId: Number, returnerStudentId: String }, { discriminatorKey: "kind" }));
+    new Schema({ projectId: Number, returnerStudentId: String }, { discriminatorKey: "kind" }));
 
 export const ProjectUpdateNotification = Notification.discriminator("ProjectUpdateNotification",
-    new mongoose.Schema({ projectId: Number, updateMessage: String }, { discriminatorKey: "kind" }
-));
+    new Schema({ projectId: Number, updateMessage: String }, { discriminatorKey: "kind" }
+    ));
