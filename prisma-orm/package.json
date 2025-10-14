@@ -10,6 +10,7 @@
     "migrate:prod": "npx prisma migrate deploy",
     "seed": "npx tsx --env-file=.env prisma/seed.ts",
     "start": "npx prisma generate && npm run migrate:prod",
+    "start:test": "NODE_ENV=test npm start",
     "studio": "npx prisma studio"
   },
   "devDependencies": {

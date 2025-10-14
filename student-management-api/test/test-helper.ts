@@ -1,3 +1,6 @@
+import prisma from "../src/prisma-client";
+import { getExternalQualificationData } from "../src/utils/eperuste";
+
 export const initialProjects = [
   { name: 'TVP-Projekti 1', description: 'Description', materials: '-', duration: 100, isActive: true, includedInParts: [] },
   { name: 'TVP-Projekti 2', description: 'Description', materials: '-', duration: 100, isActive: true, includedInParts: [] },
@@ -22,3 +25,50 @@ export const initialParts = [
   { unitOrderIndex: 5, name: 'Ohjelmointi Teema 2', description: 'Description', materials: '-', qualificationUnitId: 6816480 },
   { unitOrderIndex: 6, name: 'Ohjelmointi Teema 3', description: 'Description', materials: '-', qualificationUnitId: 6816480 }
 ];
+
+// Define interfaces for the data structures
+interface QualificationData {
+  units: any[];
+  competenceRequirementGroups: any[];
+  competenceRequirements: any[];
+}
+
+interface QualificationProject {
+  name: string;
+  description: string;
+  materials: string;
+  duration: number;
+  isActive: boolean;
+  includedInParts: any[];
+}
+
+interface QualificationUnitPart {
+  unitOrderIndex: number;
+  name: string;
+  description: string;
+  materials: string;
+  qualificationUnitId: number;
+}
+
+export const writePartsAndProjectsTestBaseData = async (qualificationData: QualificationData): Promise<void> => {
+  if ((await prisma.qualificationUnit.count()) === 0) {
+
+    await prisma.qualificationUnit.createMany({ data: qualificationData.units });
+    await prisma.qualificationCompetenceRequirements.createMany({ data: qualificationData.competenceRequirementGroups });
+    await prisma.qualificationCompetenceRequirement.createMany({ data: qualificationData.competenceRequirements });
+  }
+  await prisma.$queryRawUnsafe(`TRUNCATE TABLE "qualification_projects" RESTART IDENTITY CASCADE`)
+  //await QualificationProject.truncate({ cascade: true });
+  await prisma.$queryRawUnsafe(`TRUNCATE TABLE "qualification_unit_parts" RESTART IDENTITY CASCADE`)
+  //await QualificationUnitPart.truncate({ cascade: true });
+  await prisma.qualificationProject.createMany({
+    data: initialProjects.map((project: QualificationProject) => ({
+      name: project.name,
+      description: project.description,
+      materials: project.materials,
+      duration: project.duration,
+      isActive: project.isActive
+    }))
+  });
+  await prisma.qualificationUnitPart.createMany({ data: initialParts });
+}

@@ -4,6 +4,7 @@ services:
       context: ./student-management-api
       additional_contexts:
         sequelize-models: ./sequelize-models
+        prisma-orm: ./prisma-orm
     command: npm run test
     depends_on:
       db-migrations:
@@ -25,10 +26,12 @@ services:
       start_period: 1s
   db-migrations:
     build:
-      context: ./sequelize-models
+      context: ./prisma-orm
     depends_on:
       db-test:
         condition: service_healthy
-    command: npm run test:migrate
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db-test:5432/postgres?schema=public
+    command: npm run start:test
 volumes:
   db-test-data:
