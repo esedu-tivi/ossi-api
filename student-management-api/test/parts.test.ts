@@ -1,8 +1,7 @@
 import { after, beforeEach, test } from 'node:test';
 import supertest from 'supertest';
 import app from '../src/app';
-import { QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationProject, QualificationUnit, QualificationUnitPart, sequelize } from 'sequelize-models';
-import { initialParts, initialProjects, writePartsAndProjectsTestBaseData } from './test-helper';
+import { initialParts, writePartsAndProjectsTestBaseData } from './test-helper';
 import assert from 'node:assert';
 import { getExternalQualificationData } from '../src/utils/eperuste';
 import _ from 'lodash';

@@ -1,5 +1,4 @@
 import prisma from "../src/prisma-client";
-import { getExternalQualificationData } from "../src/utils/eperuste";
 
 export const initialProjects = [
   { name: 'TVP-Projekti 1', description: 'Description', materials: '-', duration: 100, isActive: true, includedInParts: [] },
@@ -42,14 +41,6 @@ interface QualificationProject {
   includedInParts: any[];
 }
 
-interface QualificationUnitPart {
-  unitOrderIndex: number;
-  name: string;
-  description: string;
-  materials: string;
-  qualificationUnitId: number;
-}
-
 export const writePartsAndProjectsTestBaseData = async (qualificationData: QualificationData): Promise<void> => {
   if ((await prisma.qualificationUnit.count()) === 0) {
 
@@ -57,10 +48,11 @@ export const writePartsAndProjectsTestBaseData = async (qualificationData: Quali
     await prisma.qualificationCompetenceRequirements.createMany({ data: qualificationData.competenceRequirementGroups });
     await prisma.qualificationCompetenceRequirement.createMany({ data: qualificationData.competenceRequirements });
   }
+
+  // Delete all data from qualification_projects and qualification_unit_parts tables
   await prisma.$queryRawUnsafe(`TRUNCATE TABLE "qualification_projects" RESTART IDENTITY CASCADE`)
-  //await QualificationProject.truncate({ cascade: true });
   await prisma.$queryRawUnsafe(`TRUNCATE TABLE "qualification_unit_parts" RESTART IDENTITY CASCADE`)
-  //await QualificationUnitPart.truncate({ cascade: true });
+
   await prisma.qualificationProject.createMany({
     data: initialProjects.map((project: QualificationProject) => ({
       name: project.name,
@@ -70,5 +62,6 @@ export const writePartsAndProjectsTestBaseData = async (qualificationData: Quali
       isActive: project.isActive
     }))
   });
+
   await prisma.qualificationUnitPart.createMany({ data: initialParts });
 }

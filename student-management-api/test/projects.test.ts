@@ -1,11 +1,9 @@
-import { after, before, beforeEach, test } from 'node:test';
+import { after, beforeEach, test } from 'node:test';
 import supertest from 'supertest';
 import app from '../src/app';
-import { sequelize, QualificationProject, QualificationProjectTag, QualificationUnitPart, QualificationCompetenceRequirements, QualificationCompetenceRequirement } from 'sequelize-models';
 import { initialParts, initialProjects, initialProjectTags, writePartsAndProjectsTestBaseData } from './test-helper';
 import assert from 'node:assert';
 import _ from 'lodash';
-import { QualificationUnit } from 'sequelize-models';
 import { getExternalQualificationData } from '../src/utils/eperuste';
 import prisma from '../src/prisma-client';
 
@@ -147,7 +145,16 @@ test('updating projects works with empty references', async () => {
     competenceRequirements: [],
   };
 
-  const projectUpdateData = { name: 'TVP-Projekti Updated', description: 'Description Updated', materials: 'Updated', duration: 101, isActive: false, includedInParts: [], tags: [], competenceRequirements: [] };
+  const projectUpdateData = {
+    name: 'TVP-Projekti Updated',
+    description: 'Description Updated',
+    materials: 'Updated',
+    duration: 101,
+    isActive: false,
+    includedInParts: [],
+    tags: [],
+    competenceRequirements: []
+  };
 
   const response = await api
     .put(`/qualification/projects/${existingProject.id}`)

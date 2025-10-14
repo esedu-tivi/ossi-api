@@ -3,7 +3,6 @@ services:
     build:
       context: ./student-management-api
       additional_contexts:
-        sequelize-models: ./sequelize-models
         prisma-orm: ./prisma-orm
     command: npm run test
     depends_on:

@@ -1,5 +1,4 @@
 import { ErrorRequestHandler } from "express";
-import { sequelize } from "sequelize-models";
 import { HttpError } from "../classes/HttpError";
 
 const errorHandler: ErrorRequestHandler = async (error, req, res, next) => {
@@ -27,15 +26,6 @@ const errorHandler: ErrorRequestHandler = async (error, req, res, next) => {
     next(error);
 };
 
-const beginTransaction = async (req, res, next) => {
-    res.locals._transaction = await sequelize.transaction();
-    next();
-};
-
-const commitTransaction = async (req, res, next) => {
-    await res.locals._transaction.commit();
-};
-
 const parseId = (req, res, next) => {
     if (req.params) {
         const { id } = req.params
@@ -52,4 +42,4 @@ const parseId = (req, res, next) => {
     next()
 }
 
-export { errorHandler, beginTransaction, commitTransaction, parseId };
+export { errorHandler, parseId };
