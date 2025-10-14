@@ -26,4 +26,4 @@ import prisma from './prisma-client';
 
     redisPublisher.connect();
     app.listen(3000);
-})()
+})

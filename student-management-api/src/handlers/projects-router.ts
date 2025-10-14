@@ -73,13 +73,7 @@ router.get("/:id", parseId, async (req: RequestWithId, res, next) => {
                         qualificationProjectTags: true
                     }
                 },
-                competenceRequirements: {
-                    select: {
-                        id: true,
-                        groupId: true,
-                        description: true,
-                    }
-                }
+                competenceRequirements: true
             }
         })
 
@@ -211,13 +205,7 @@ router.post("/", async (req, res, next) => {
                             qualificationProjectTags: true
                         }
                     },
-                    competenceRequirements: {
-                        select: {
-                            id: true,
-                            groupId: true,
-                            description: true,
-                        }
-                    }
+                    competenceRequirements: true
                 }
             })
             return returnedProject
@@ -229,6 +217,9 @@ router.post("/", async (req, res, next) => {
             tags: createdProject.tags.map(tag => ({ ...tag.qualificationProjectTags })),
             competenceRequirements: createdProject.competenceRequirements.map(requirement => ({ ...requirement }))
         }
+
+
+        console.log('parsedProject in api', parsedProject)
 
         res.json({
             status: 200,
@@ -243,7 +234,7 @@ router.post("/", async (req, res, next) => {
 
 router.put("/:id", parseId, async (req: RequestWithId, res, next) => {
     try {
-        const updatedProjectFields: ProjectBody & { notifyStudents: boolean } = req.body;
+        const updatedProjectFields: ProjectBody & { notifyStudents?: boolean } = req.body;
         const requiredFields = [
             "name",
             "description",
@@ -252,8 +243,7 @@ router.put("/:id", parseId, async (req: RequestWithId, res, next) => {
             "includedInParts",
             "competenceRequirements",
             "tags",
-            "isActive",
-            "notifyStudents"
+            "isActive"
         ]
 
         const missingFields = checkRequiredFields(updatedProjectFields, requiredFields)
@@ -299,7 +289,6 @@ router.put("/:id", parseId, async (req: RequestWithId, res, next) => {
                     parts: {
                         create: projectAddedToParts.map((id, index) => ({
                             qualificationUnitPartId: id,
-                            qualificationProjectId: req.id,
                             partOrderIndex: index + 1
                         })),
                         deleteMany: {
@@ -359,11 +348,7 @@ router.put("/:id", parseId, async (req: RequestWithId, res, next) => {
                 ...updatedProject,
                 parts: updatedProject.parts.map(part => ({ ...part.qualificationUnitParts })),
                 tags: updatedProject.tags.map(tag => ({ ...tag.qualificationProjectTags })),
-                competenceRequirements: updatedProject.competenceRequirements.map(requirement => ({
-                    id: requirement.id,
-                    description: requirement.description,
-                    groupId: requirement.groupId
-                }))
+                competenceRequirements: updatedProject.competenceRequirements
             }
         })
 
