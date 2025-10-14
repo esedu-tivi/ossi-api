@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "compile": "tsc",
-    "start": "npm run compile && node ./dist/index.js"
+    "dev": "tsx watch --inspect=0.0.0.0:9229 src/index.ts",
+    "start": "node ./dist/index.js"
   },
   "dependencies": {
     "axios": "^1.7.7",

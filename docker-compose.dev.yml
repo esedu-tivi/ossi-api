@@ -23,3 +23,11 @@ services:
       - 9232:9229
     volumes:
       - ./messaging-server/src:/usr/server/src:ro
+
+  notificationserver:
+    build:
+      target: dev
+    ports:
+      - 9233:9229
+    volumes:
+      - ./notification-server/src:/usr/server/src:ro

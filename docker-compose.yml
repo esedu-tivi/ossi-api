@@ -37,6 +37,7 @@ services:
       - "3001:3000"
     build:
       context: ./notification-server
+      target: final
     env_file: ".env"
     depends_on:
       redis:
