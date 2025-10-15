@@ -1,12 +1,12 @@
 import { after, before, beforeEach, test } from 'node:test';
 import supertest from 'supertest';
-import app from '../src/app';
+import app from '../src/app.js';
 import { sequelize, QualificationProject, QualificationProjectTag, QualificationUnitPart, QualificationCompetenceRequirements, QualificationCompetenceRequirement } from 'sequelize-models';
-import { initialParts, initialProjects, initialProjectTags } from './test-helper';
+import { initialParts, initialProjects, initialProjectTags } from './test-helper.js';
 import assert from 'node:assert';
 import _ from 'lodash';
 import { QualificationUnit } from 'sequelize-models';
-import { getExternalQualificationData } from '../src/utils/eperuste';
+import { getExternalQualificationData } from '../src/utils/eperuste.js';
 
 const api = supertest(app);
 

@@ -1,4 +1,4 @@
-import { ErrorRequestHandler } from "express";
+import { type ErrorRequestHandler } from "express";
 import { sequelize } from "sequelize-models";
 
 const errorHandler: ErrorRequestHandler = async (error, req, res, next) => {

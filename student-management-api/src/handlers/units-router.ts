@@ -1,7 +1,7 @@
 import axios from "axios";
 import express from "express";
 import { QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationUnitPart, QualificationUnit } from "sequelize-models";
-import { beginTransaction, commitTransaction } from "../utils/middleware";
+import { beginTransaction, commitTransaction } from "../utils/middleware.js";
 
 const router = express();
 

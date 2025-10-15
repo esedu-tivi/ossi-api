@@ -1,7 +1,7 @@
 import 'dotenv/config';
-import app from "./app";
+import app from "./app.js";
 import { MandatoryQualificationUnitsForTitle, Qualification, QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationTitle, QualificationUnit } from 'sequelize-models';
-import { getExternalQualificationData } from './utils/eperuste';
+import { getExternalQualificationData } from './utils/eperuste.js';
 import { redisPublisher } from './redis.js';
 
 (async () => {

@@ -1,7 +1,7 @@
 import { after, test } from 'node:test';
 import supertest from 'supertest';
-import app from '../src/app';
-import { pool } from '../src/postgres-pool';
+import app from '../src/app.js';
+import { pool } from '../src/postgres-pool.js';
 
 const api = supertest(app);
 

@@ -1,8 +1,8 @@
 import express from "express";
 import { Op, Sequelize } from "sequelize";
 import { CompetenceRequirementsInProjects, QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationProject, QualificationProjectPartLinks, QualificationProjectTag, QualificationProjectTagLinks, QualificationUnitPart, sequelize, Student } from "sequelize-models";
-import { beginTransaction, commitTransaction } from "../utils/middleware";
-import { redisPublisher } from "../redis";
+import { beginTransaction, commitTransaction } from "../utils/middleware.js";
+import { redisPublisher } from "../redis.js";
 
 const router = express();
 

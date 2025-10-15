@@ -1,5 +1,5 @@
 import express from "express";
-import { beginTransaction, commitTransaction } from "../utils/middleware";
+import { beginTransaction, commitTransaction } from "../utils/middleware.js";
 import { MandatoryQualificationUnitsForTitle, QualificationTitle, QualificationUnit } from "sequelize-models";
 
 const router = express();
