@@ -24,6 +24,7 @@ services:
   studentmanagementapi:
     build:
       context: ./student-management-api
+      target: final
       additional_contexts:
         sequelize-models: ./sequelize-models
     env_file: ".env"

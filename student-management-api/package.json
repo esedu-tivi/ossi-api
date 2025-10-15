@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "compile": "tsc",
-    "start": "npm run compile && node ./dist/src/index.js",
+    "dev": "tsx watch --inspect=0.0.0.0:9229 src/index.ts",
+    "start": "node ./dist/src/index.js",
     "test": "NODE_ENV=test node --import tsx --test --test-concurrency=1 test/**/*test.ts -- --verbose=TRUE",
     "test:coverage": "NODE_ENV=test node --import tsx --test --experimental-test-coverage test/**/*test.ts"
   },
@@ -30,6 +31,6 @@
     "@types/pg": "^8.11.10",
     "@types/supertest": "^6.0.2",
     "supertest": "^7.0.0",
-    "tsx": "^4.19.2"
+    "tsx": "^4.20.6"
   }
 }
