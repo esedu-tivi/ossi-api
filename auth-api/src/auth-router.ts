@@ -1,6 +1,6 @@
 import axios from "axios";
 import express, { json } from "express";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt, { type JwtPayload } from "jsonwebtoken";
 import { sequelize, Student, Teacher, User, UserAuthorityScope } from "sequelize-models";
 
 interface IdTokenPayload extends JwtPayload {
@@ -11,11 +11,11 @@ interface IdTokenPayload extends JwtPayload {
     upn: string,
 }
 
-async function getPemCertificate(idToken) { 
+async function getPemCertificate(idToken) {
     const jwks = (await axios.get("https://login.microsoftonline.com/common/discovery/keys")).data;
 
     const idTokenKid = jwt.decode(idToken, { complete: true }).header.kid;
-    
+
     const jwksKey = jwks["keys"].find(key => key.kid == idTokenKid);
 
     return "-----BEGIN CERTIFICATE-----\n" + jwksKey.x5c[0] + "\n-----END CERTIFICATE-----";
@@ -29,7 +29,7 @@ router.use(json());
 router.post("/login", async (req, res) => {
     const transaction = await sequelize.transaction();
     await sequelize.query("LOCK TABLE \"users\" IN ACCESS EXCLUSIVE MODE", { transaction });
-    
+
     let idToken: IdTokenPayload;
     try {
         const pem = await getPemCertificate(req.body.idToken);
@@ -45,7 +45,7 @@ router.post("/login", async (req, res) => {
 
     const isUserInDatabase = await User.findOne({ where: { oid: idToken.oid }, transaction }) != null;
     const userScope = idToken.upn.endsWith("@esedulainen.fi") ? UserAuthorityScope.Student : UserAuthorityScope.Teacher;
-    
+
     // create user and teacher or student rows for nonexistant user
     if (!isUserInDatabase) {
         const createdUser = await User.create({
@@ -64,7 +64,7 @@ router.post("/login", async (req, res) => {
                 id: createdUser.id,
                 groupId: idToken.jobTitle,
                 qualificationCompletion: null,
-                qualificationTitleId: null, 
+                qualificationTitleId: null,
                 qualificationId: null
             }, { transaction });
         } else if (userScope == UserAuthorityScope.Teacher) {
