@@ -4,7 +4,7 @@ import { getExternalQualificationData } from './utils/eperuste.js';
 import { redisPublisher } from './redis.js';
 import prisma from './prisma-client.js';
 
-(async () => {
+const main = async () => {
     // we can presume qualification data from ePeruste is not yet, if there are no units in db
 
     if (await prisma.qualificationUnit.count() === 0) {
@@ -26,4 +26,6 @@ import prisma from './prisma-client.js';
 
     redisPublisher.connect();
     app.listen(3000);
-})
+}
+
+main()
