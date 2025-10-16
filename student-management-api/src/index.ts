@@ -1,6 +1,6 @@
 import 'dotenv/config';
-import app from "./app";
-import { getExternalQualificationData } from './utils/eperuste';
+import app from "./app.js";
+import { getExternalQualificationData } from './utils/eperuste.js';
 import { redisPublisher } from './redis.js';
 import prisma from './prisma-client';
 

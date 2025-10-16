@@ -1,4 +1,4 @@
-import { ErrorRequestHandler } from "express";
+import { type ErrorRequestHandler } from "express";
 import { HttpError } from "../classes/HttpError";
 
 const errorHandler: ErrorRequestHandler = async (error, req, res, next) => {

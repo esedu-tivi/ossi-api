@@ -1,9 +1,9 @@
 import { after, beforeEach, test } from 'node:test';
 import supertest from 'supertest';
-import app from '../src/app';
-import { initialParts, writePartsAndProjectsTestBaseData } from './test-helper';
+import app from '../src/app.js';
+import { initialParts, writePartsAndProjectsTestBaseData } from './test-helper.js';
 import assert from 'node:assert';
-import { getExternalQualificationData } from '../src/utils/eperuste';
+import { getExternalQualificationData } from '../src/utils/eperuste.js';
 import _ from 'lodash';
 import prisma from '../src/prisma-client';
 

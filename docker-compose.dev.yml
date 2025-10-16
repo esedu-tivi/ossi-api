@@ -23,3 +23,20 @@ services:
       - 9232:9229
     volumes:
       - ./messaging-server/src:/usr/server/src:ro
+
+  notificationserver:
+    build:
+      target: dev
+    ports:
+      - 9233:9229
+    volumes:
+      - ./notification-server/src:/usr/server/src:ro
+
+  studentmanagementapi:
+    build:
+      target: dev
+    ports:
+      - 9234:9229
+    volumes:
+      - ./student-management-api/src:/usr/server/src:ro
+      - ./student-management-api/test:/usr/server/test:ro

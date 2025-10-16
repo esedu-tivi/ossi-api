@@ -1,5 +1,5 @@
 import express from "express";
-import { parseId } from "../utils/middleware";
+import { parseId } from "../utils/middleware.js";
 import prisma from "../prisma-client";
 import { RequestWithId } from "../types";
 import { HttpError } from "../classes/HttpError";

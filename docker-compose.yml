@@ -24,6 +24,7 @@ services:
   studentmanagementapi:
     build:
       context: ./student-management-api
+      target: final
       additional_contexts:
         prisma-orm: ./prisma-orm
     env_file: ".env"
@@ -37,6 +38,7 @@ services:
       - "3001:3000"
     build:
       context: ./notification-server
+      target: final
     env_file: ".env"
     depends_on:
       redis:

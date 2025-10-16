@@ -1,7 +1,7 @@
 import { after, test } from 'node:test';
 import supertest from 'supertest';
-import app from '../src/app';
-import prisma from '../src/prisma-client';
+import app from '../src/app.js';
+import prisma from '../src/prisma-client.js';
 
 const api = supertest(app);
 

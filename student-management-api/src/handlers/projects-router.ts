@@ -1,6 +1,6 @@
 import express from "express";
-import { parseId } from "../utils/middleware";
-import { redisPublisher } from "../redis";
+import { parseId } from "../utils/middleware.js";
+import { redisPublisher } from "../redis.js";
 import prisma from "../prisma-client";
 import { checkRequiredFields } from "../utils/checkRequiredFields";
 import { RequestWithId } from "../types";

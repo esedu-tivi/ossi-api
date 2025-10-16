@@ -1,10 +1,10 @@
 import { after, beforeEach, test } from 'node:test';
 import supertest from 'supertest';
-import app from '../src/app';
-import { initialParts, initialProjects, initialProjectTags, writePartsAndProjectsTestBaseData } from './test-helper';
+import app from '../src/app.js';
+import { initialParts, initialProjects, initialProjectTags, writePartsAndProjectsTestBaseData } from './test-helper.js';
 import assert from 'node:assert';
 import _ from 'lodash';
-import { getExternalQualificationData } from '../src/utils/eperuste';
+import { getExternalQualificationData } from '../src/utils/eperuste.js';
 import prisma from '../src/prisma-client';
 
 const api = supertest(app);

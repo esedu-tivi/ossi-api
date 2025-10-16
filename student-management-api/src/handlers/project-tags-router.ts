@@ -1,6 +1,6 @@
 import express from "express";
 import prisma from "../prisma-client";
-import { HttpError } from "../classes/HttpError";
+import { HttpError } from "../classes/HttpError.js";
 
 const router = express();
 
