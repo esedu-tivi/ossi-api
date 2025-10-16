@@ -9,10 +9,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model SequelizeMeta {
-  name String @id @db.VarChar(255)
-}
-
 model AssignedProjectsForStudent {
   studentId             Int                                           @map("student_id")
   projectId             Int                                           @map("project_id")
