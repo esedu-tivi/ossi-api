@@ -1,10 +1,10 @@
 import express from "express";
-import { parseId } from "../utils/middleware";
-import prisma from "../prisma-client";
-import { RequestWithId } from "../types";
-import { checkRequiredFields } from "../utils/checkRequiredFields";
-import { HttpError } from "../classes/HttpError";
-import { QualificationUnitPart } from "prisma-orm";
+import { parseId } from "../utils/middleware.js";
+import prisma from "../prisma-client.js";
+import { type RequestWithId } from "../types.js";
+import { checkRequiredFields } from "../utils/checkRequiredFields.js";
+import { HttpError } from "../classes/HttpError.js";
+import { type QualificationUnitPart } from "prisma-orm";
 
 interface BasePartBody {
     name: string,

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { MandatoryQualificationUnitsForTitle, QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationTitle, QualificationUnit } from "prisma-orm";
+import type { MandatoryQualificationUnitsForTitle, QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationTitle, QualificationUnit } from "prisma-orm";
 
 async function getExternalQualificationData(qualificationId: number) {
     const response = await axios.get(`https://virkailija.opintopolku.fi/eperusteet-service/api/external/peruste/${qualificationId}`);

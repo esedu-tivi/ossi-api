@@ -38,6 +38,6 @@ WORKDIR /usr/server
 COPY --chown=node:node --from=deps /usr/server/node_modules ./node_modules/
 COPY --chown=node:node --from=build /usr/server/dist/ ./dist/
 COPY --chown=node:node --from=build /usr/server/package*.json ./
-COPY --from=sequelize-models . ../sequelize-models/
+COPY --from=prisma-orm . ../prisma-orm/
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD [ "npm", "start" ]

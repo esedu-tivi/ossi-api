@@ -2,6 +2,7 @@
   "name": "auth-api",
   "private": "true",
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
     "compile": "tsc",
     "dev": "tsx watch --inspect=0.0.0.0:9229 src/index.ts",

@@ -1,8 +1,8 @@
 import express from "express";
 import { parseId } from "../utils/middleware.js";
-import prisma from "../prisma-client";
-import { RequestWithId } from "../types";
-import { HttpError } from "../classes/HttpError";
+import prisma from "../prisma-client.js";
+import { type RequestWithId } from "../types.js";
+import { HttpError } from "../classes/HttpError.js";
 
 const router = express();
 

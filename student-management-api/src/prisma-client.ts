@@ -6,6 +6,6 @@ const DATABASE_URL = process.env.NODE_ENV === "test"
   : process.env.DATABASE_URL
 
 const adapter = new PrismaPg({ connectionString: DATABASE_URL })
-const prisma = new PrismaClient({ adapter })
+const prisma: PrismaClient = new PrismaClient({ adapter })
 
 export default prisma

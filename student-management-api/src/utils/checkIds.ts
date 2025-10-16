@@ -1,4 +1,4 @@
-import { HttpError } from "../classes/HttpError"
+import { HttpError } from "../classes/HttpError.js"
 
 export const checkIds = (ids: Record<string, string | number>) => {
   for (const index in ids) {

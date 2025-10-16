@@ -1,7 +1,7 @@
 import express from "express";
-import { parseId } from "../utils/middleware";
-import prisma from "../prisma-client";
-import { RequestWithId } from "../types";
+import { parseId } from "../utils/middleware.js";
+import prisma from "../prisma-client.js";
+import { type RequestWithId } from "../types.js";
 
 const router = express.Router();
 

@@ -1,5 +1,5 @@
 import express from "express";
-import prisma from "../prisma-client";
+import prisma from "../prisma-client.js";
 import { HttpError } from "../classes/HttpError.js";
 
 const router = express();

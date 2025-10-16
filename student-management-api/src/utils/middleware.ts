@@ -1,5 +1,5 @@
 import { type ErrorRequestHandler } from "express";
-import { HttpError } from "../classes/HttpError";
+import { HttpError } from "../classes/HttpError.js";
 
 const errorHandler: ErrorRequestHandler = async (error, req, res, next) => {
     console.error('Error:', error)

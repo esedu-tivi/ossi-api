@@ -1,4 +1,4 @@
-import prisma from "../src/prisma-client";
+import prisma from "../src/prisma-client.js";
 
 export const initialProjects = [
   { name: 'TVP-Projekti 1', description: 'Description', materials: '-', duration: 100, isActive: true, includedInParts: [] },
