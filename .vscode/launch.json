@@ -34,8 +34,7 @@
       ],
       "resolveSourceMapLocations": [
         "**",
-        "!**/node_modules/**",
-        "!/usr/sequelize-models/**"
+        "!**/node_modules/**"
       ]
     },
     {
@@ -55,8 +54,47 @@
       ],
       "resolveSourceMapLocations": [
         "**",
-        "!**/node_modules/**",
-        "!/usr/sequelize-models/**"
+        "!**/node_modules/**"
+      ]
+    },
+    {
+      "name": "Attach to: notification-server",
+      "type": "pwa-node",
+      "request": "attach",
+      "port": 9233,
+      "restart": true,
+      "localRoot": "${workspaceFolder}/notification-server",
+      "remoteRoot": "/usr/server",
+      "skipFiles": [
+        "<node_internals>/**",
+        "<node_internals>\\**",
+        "/tmp/**",
+        "${workspaceFolder}/**/node_modules/**",
+        "${workspaceFolder}\\**\\node_modules\\**"
+      ],
+      "resolveSourceMapLocations": [
+        "**",
+        "!**/node_modules/**"
+      ]
+    },
+    {
+      "name": "Attach to: student-management-api",
+      "type": "pwa-node",
+      "request": "attach",
+      "port": 9234,
+      "restart": true,
+      "localRoot": "${workspaceFolder}/student-management-api",
+      "remoteRoot": "/usr/server",
+      "skipFiles": [
+        "<node_internals>/**",
+        "<node_internals>\\**",
+        "/tmp/**",
+        "${workspaceFolder}/**/node_modules/**",
+        "${workspaceFolder}\\**\\node_modules\\**"
+      ],
+      "resolveSourceMapLocations": [
+        "**",
+        "!**/node_modules/**"
       ]
     }
   ]
