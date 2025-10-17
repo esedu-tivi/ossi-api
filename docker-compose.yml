@@ -49,6 +49,8 @@ services:
     build:
       context: ./messaging-server
       target: final
+      additional_contexts:
+        prisma-orm: ./prisma-orm
     ports:
       - "3002:3000"
     environment:
