@@ -2,6 +2,7 @@ services:
   studentmanagementapi:
     build:
       context: ./student-management-api
+      target: dev
       additional_contexts:
         prisma-orm: ./prisma-orm
     command: npm run test
@@ -9,6 +10,9 @@ services:
       db-migrations:
         condition: service_completed_successfully
     env_file: ".env"
+    volumes:
+      - ./student-management-api/src:/usr/server/src:ro
+      - ./student-management-api/test:/usr/server/test:ro
   db-test:
     image: docker.io/postgres
     restart: always
