@@ -271,7 +271,7 @@ const newLocal = `#graphql
         success: Boolean!
         status: Int!
         message: String
-        project: [QualificationProject]
+        project: QualificationProject
     }
 
     type  StudentAssignResponse {
