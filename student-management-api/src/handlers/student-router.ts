@@ -7,6 +7,7 @@ import { enumAssignedProjectsForStudentsProjectStatus, enumStudentsQualification
 import { HttpError } from "../classes/HttpError.js";
 import { checkRequiredFields } from "../utils/checkRequiredFields.js";
 import { checkIds } from "../utils/checkIds.js";
+import { redisPublisher } from "../redis.js";
 
 const router = express.Router();
 
@@ -432,6 +433,17 @@ router.put("/updateStudentProject", async (req: RequestWithUpdateStudentProjectB
         const updateFields = Object.fromEntries(
             Object.entries(update).filter(([_, entry]) => entry !== undefined))
         // console.log(updateFields)
+        //
+        if (updateFields.projectStatus == "RETURNED") {
+            redisPublisher.publish("notification", JSON.stringify({
+                recipients: [1], // TODO: put teachers here instead of [1]
+                notification: {
+                    type: "ProjectReturn",
+                    projectId: updateFields.ProjectId,
+                    returnerStudentId: updateFields.studentId
+                }
+            }));
+        }
 
         await prisma.assignedProjectsForStudent.update({
             where: {
