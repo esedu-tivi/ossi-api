@@ -12,11 +12,11 @@ else
 fi
 
 
-if [ ! -d "./sequelize-models/dist" ]; then
+if [ ! -d "./prisma-orm/dist" ]; then
 (
-   echo 'generating sequelize-models'
-   cd sequelize-models || exit
-   npm run compile
+   echo 'generating prisma-orm'
+   cd prisma-orm || exit
+   npm run build
 )
 fi
 
