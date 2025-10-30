@@ -10,8 +10,8 @@ interface BasePartBody {
     name: string,
     description: string,
     materials: string,
-    projectsInOrder?: number[],
-    parentQualificationUnit?: number
+    projectsInOrder?: [string],
+    parentQualificationUnit?: string
 }
 
 const router = express();
@@ -97,7 +97,7 @@ router.post("/", async (req, res, next) => {
 
         const part = await prisma.$transaction(async (transaction) => {
             const unitOrderIndex = await transaction.qualificationUnitPart.count({
-                where: { qualificationUnitId: partFields.parentQualificationUnit }
+                where: { qualificationUnitId: Number(partFields.parentQualificationUnit) }
             })
 
             const part = await transaction.qualificationUnitPart.create({
@@ -113,7 +113,7 @@ router.post("/", async (req, res, next) => {
             if (partFields.projectsInOrder && partFields.projectsInOrder.length > 0) {
                 await transaction.qualificationProjectsPartsRelation.createMany({
                     data: partFields.projectsInOrder.reduce((acc, projectId, index) => [...acc, ({
-                        qualificationProjectId: projectId,
+                        qualificationProjectId: Number(projectId),
                         qualificationUnitPartId: part.id,
                         partOrderIndex: index
                     })], [])
@@ -155,7 +155,7 @@ router.put("/:id", parseId, async (req: RequestWithId, res, next) => {
                 materials: updatedPartFieldsData.materials
             }
             if (updatedPartFieldsData.parentQualificationUnit) {
-                updatedPartFields.qualificationUnitId = updatedPartFieldsData.parentQualificationUnit
+                updatedPartFields.qualificationUnitId = Number(updatedPartFieldsData.parentQualificationUnit)
             }
 
             await transaction.qualificationUnitPart.update({

@@ -12,10 +12,10 @@ interface ProjectBody {
     name: string
     description: string,
     materials: string,
-    duration: number,
-    includedInParts: [number],
-    competenceRequirements: [number],
-    tags: [number],
+    duration: string,
+    includedInParts: [string],
+    competenceRequirements: [string],
+    tags: [string],
     isActive: boolean
 }
 
@@ -129,19 +129,19 @@ router.post("/", async (req, res, next) => {
 
             const partsCount = await transaction.qualificationUnitPart.count({
                 where: {
-                    id: { in: project.includedInParts }
+                    id: { in: project.includedInParts.map(id => Number(id)) }
                 }
             })
 
             const competenceRequirementsCount = await transaction.qualificationCompetenceRequirement.count({
                 where: {
-                    id: { in: project.competenceRequirements }
+                    id: { in: project.competenceRequirements.map(id => Number(id)) }
                 }
             })
 
             const tagsCount = await transaction.qualificationProjectTag.count({
                 where: {
-                    id: { in: project.tags }
+                    id: { in: project.tags.map(id => Number(id)) }
                 }
             })
 
@@ -162,14 +162,14 @@ router.post("/", async (req, res, next) => {
                     name: project.name,
                     description: project.description,
                     materials: project.materials,
-                    duration: project.duration,
+                    duration: Number(project.duration),
                     isActive: project.isActive,
                     competenceRequirements: {
-                        connect: project.competenceRequirements.map(id => ({ id }))
+                        connect: project.competenceRequirements.map(id => ({ id: Number(id) }))
                     },
                     tags: {
                         create: project.tags.map(tagId => ({
-                            qualificationProjectTags: { connect: { id: tagId } }
+                            qualificationProjectTags: { connect: { id: Number(tagId) } }
                         }))
                     }
                 },
@@ -179,10 +179,10 @@ router.post("/", async (req, res, next) => {
             })
 
             const partsRelations = project.includedInParts.map(async (id) => {
-                const lastPartOrderIndex = await transaction.qualificationProjectsPartsRelation.count({ where: { qualificationUnitPartId: id } })
+                const lastPartOrderIndex = await transaction.qualificationProjectsPartsRelation.count({ where: { qualificationUnitPartId: Number(id) } })
                 return (
                     {
-                        qualificationUnitPartId: id,
+                        qualificationUnitPartId: Number(id),
                         qualificationProjectId: createdProject.id,
                         partOrderIndex: lastPartOrderIndex
                     })
@@ -269,13 +269,13 @@ router.put("/:id", parseId, async (req: RequestWithId, res, next) => {
 
             const projectRemovedFromParts = projectToUpdate.parts
                 .filter(part => !updatedProjectFields.includedInParts
-                    .includes(part.qualificationUnitParts.id))
+                    .map(Number).includes(Number(part.qualificationUnitParts.id)))
                 .map(part => part.qualificationUnitParts.id)
 
             const projectAddedToParts = updatedProjectFields.includedInParts
                 .filter(id => !projectToUpdate.parts
                     .map(part => part.qualificationUnitParts.id)
-                    .includes(id)
+                    .includes(Number(id))
                 )
 
             await transaction.qualificationProject.update({
@@ -284,11 +284,11 @@ router.put("/:id", parseId, async (req: RequestWithId, res, next) => {
                     name: updatedProjectFields.name,
                     description: updatedProjectFields.description,
                     materials: updatedProjectFields.materials,
-                    duration: updatedProjectFields.duration,
+                    duration: Number(updatedProjectFields.duration),
                     isActive: updatedProjectFields.isActive,
                     parts: {
                         create: projectAddedToParts.map((id, index) => ({
-                            qualificationUnitPartId: id,
+                            qualificationUnitPartId: Number(id),
                             partOrderIndex: index + 1
                         })),
                         deleteMany: {
@@ -300,11 +300,11 @@ router.put("/:id", parseId, async (req: RequestWithId, res, next) => {
                     tags: {
                         deleteMany: {},
                         create: updatedProjectFields.tags.map(tagId => ({
-                            qualificationProjectTags: { connect: { id: tagId } }
+                            qualificationProjectTags: { connect: { id: Number(tagId) } }
                         }))
                     },
                     competenceRequirements: {
-                        set: updatedProjectFields.competenceRequirements.map(id => ({ id }))
+                        set: updatedProjectFields.competenceRequirements.map(id => ({ id: Number(id) }))
                     }
                 }
             })
