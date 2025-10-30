@@ -436,15 +436,14 @@ router.put("/updateStudentProject", async (req: RequestWithUpdateStudentProjectB
 
         const updateFields = Object.fromEntries(
             Object.entries(update).filter(([_, entry]) => entry !== undefined))
-        // console.log(updateFields)
-        //
+
         if (updateFields.projectStatus == "RETURNED") {
             redisPublisher.publish("notification", JSON.stringify({
                 recipients: [1], // TODO: put teachers here instead of [1]
                 notification: {
                     type: "ProjectReturn",
-                    projectId: updateFields.ProjectId,
-                    returnerStudentId: updateFields.studentId
+                    projectId: projectId,
+                    returnerStudentId: studentId
                 }
             }));
         }
