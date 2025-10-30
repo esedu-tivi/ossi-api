@@ -1,9 +1,9 @@
 import express, { type Request } from "express";
 import jwt, { type JwtPayload } from "jsonwebtoken";
 import { parseId } from "../utils/middleware.js";
-import prisma from "../prisma-client.js";
+import prisma from "prisma-orm";
 import { type RequestWithId } from "../types.js";
-import { enumAssignedProjectsForStudentsProjectStatus, enumStudentsQualificationCompletion, enumUsersScope } from "prisma-orm";
+import type { enumAssignedProjectsForStudentsProjectStatus, enumStudentsQualificationCompletion, enumUsersScope } from "prisma-orm";
 import { HttpError } from "../classes/HttpError.js";
 import { checkRequiredFields } from "../utils/checkRequiredFields.js";
 import { checkIds } from "../utils/checkIds.js";

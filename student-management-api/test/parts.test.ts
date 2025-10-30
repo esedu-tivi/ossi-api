@@ -5,7 +5,7 @@ import { initialParts, writePartsAndProjectsTestBaseData } from './test-helper.j
 import assert from 'node:assert';
 import { getExternalQualificationData } from '../src/utils/eperuste.js';
 import _ from 'lodash';
-import prisma from '../src/prisma-client.js';
+import prisma from 'prisma-orm';
 
 const api = supertest(app);
 

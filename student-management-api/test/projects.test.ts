@@ -5,7 +5,7 @@ import { initialParts, initialProjects, initialProjectTags, writePartsAndProject
 import assert from 'node:assert';
 import _ from 'lodash';
 import { getExternalQualificationData } from '../src/utils/eperuste.js';
-import prisma from '../src/prisma-client.js';
+import prisma from 'prisma-orm';
 
 const api = supertest(app);
 

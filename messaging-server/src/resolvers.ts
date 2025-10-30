@@ -1,15 +1,7 @@
-import { PrismaClient } from "prisma-orm"
-import { PrismaPg } from "@prisma/adapter-pg"
+import prisma from "prisma-orm"
 
 import { User, ResolverContext } from './types.js';
 //import { pool } from './postgres-pool.js';
-
-const DATABASE_URL = process.env.NODE_ENV === "test"
-  ? process.env.DATABASE_URL_TEST
-  : process.env.DATABASE_URL
-
-const adapter = new PrismaPg({ connectionString: DATABASE_URL })
-const prisma = new PrismaClient({ adapter })
 
 export const getUserFromDatabase = async (email: string): Promise<User | null> => {
   try {

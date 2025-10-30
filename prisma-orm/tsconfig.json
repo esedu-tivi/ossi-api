@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "noEmitOnError": false,
+    "rootDir": ".",
     "declaration": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -24,12 +26,12 @@
     ]
   },
   "include": [
-    "prisma",
-    "generated/prisma"
+    "index.ts",
+    "prisma/**/*.ts",
+    "generated/**/*.ts"
   ],
   "exclude": [
     "node_modules",
-    "dist",
-    "prisma/seed.ts"
+    "dist"
   ]
 }

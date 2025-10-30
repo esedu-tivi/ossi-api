@@ -1,9 +1,6 @@
 import "dotenv";
-import { PrismaClient, enumUsersScope, type QualificationProject, type QualificationUnitPart, type Qualification, type QualificationUnit, Prisma } from "../dist/generated/prisma/client.js"
-import { PrismaPg } from "@prisma/adapter-pg";
-
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
-const prisma = new PrismaClient({ adapter })
+import prisma, { enumUsersScope } from "../index.js"
+import type { QualificationProject, QualificationUnitPart, Qualification, QualificationUnit } from "../index.js"
 
 const userData = {
   oid: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',

@@ -1,7 +1,7 @@
 import express from "express";
 import { parseId } from "../utils/middleware.js";
 import { redisPublisher } from "../redis.js";
-import prisma from "../prisma-client.js";
+import prisma from "prisma-orm";
 import { checkRequiredFields } from "../utils/checkRequiredFields.js";
 import { type RequestWithId } from "../types.js";
 import { HttpError } from "../classes/HttpError.js";

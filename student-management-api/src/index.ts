@@ -2,7 +2,7 @@ import 'dotenv/config';
 import app from "./app.js";
 import { getExternalQualificationData } from './utils/eperuste.js';
 import { redisPublisher } from './redis.js';
-import prisma from './prisma-client.js';
+import prisma from 'prisma-orm';
 
 const main = async () => {
     // we can presume qualification data from ePeruste is not yet, if there are no units in db
