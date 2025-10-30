@@ -13,53 +13,44 @@ Note: If using Node.js, version 22.11.0 (latest LTS version currently) is recomm
 
 ## 1. Installation
 
-> [!IMPORTANT]
-> Current implementation requires that **prisma-orm/** contains **dist/** built via `npm run build`
-
 ### 1.1 dependencies
-
-> [!NOTE]
-> do only one of the following
-
-[fd](https://github.com/sharkdp/fd)
-
-```
-fd package.json -x npm install --prefix {//}
-```
-
-[find](https://www.gnu.org/software/findutils/)
-
-```
-find . -name package.json -not -path "*/node_modules/*" -execdir npm install \;
-```
-
-Manual
-
-> Within the directories `api-gateway` `student-management-api` `notification-server` `messaging-server` `auth-api` run:
 
 ```
 npm install
 ```
 
+> [!IMPORTANT]
+> Current implementation requires that **prisma-orm/** contains **dist/** built via `npm run build`
+>
+> `npm install` script should handle this on unix-likes
+
 ### 1.2 Run
-
-dev
-
-```
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
-```
 
 production
 
 ```
-docker compose -f docker-compose.yml -d --build
+npm start
 ```
 
-test
+dev
 
 ```
-docker compose -f docker-compose.test.yml --build
+npm run start:dev
 ```
+
+stop running containers
+
+```
+npm stop
+```
+
+tests
+
+```
+npm test
+```
+
+> todo: make express in student-management-api stop after tests
 
 > [!NOTE]
 > The API is exposed through port 3000.
@@ -71,7 +62,7 @@ docker compose -f docker-compose.test.yml --build
 If you want sample data in the database, run seeds:
 
 ```
-docker compose run --rm db-migrations npm run seed
+npm run seed
 ```
 
 ... todo ...
