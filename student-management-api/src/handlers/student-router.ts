@@ -84,6 +84,10 @@ router.get("/:id/studying_qualification", parseId, async (req: RequestWithId, re
             throw new HttpError(404, "Student not found")
         }
 
+        if (!student.qualificationId) {
+            throw new HttpError(404, "qualificationId missing or it's null")
+        }
+
         const studyingQualification = await prisma.qualification.findFirst({ where: { id: student.qualificationId } })
 
         if (!studyingQualification) {
