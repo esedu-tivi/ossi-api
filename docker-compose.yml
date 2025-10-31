@@ -62,7 +62,7 @@ services:
       mongo:
         condition: service_healthy
   db:
-    image: docker.io/postgres
+    image: docker.io/postgres:18-alpine
     restart: always
     environment:
       POSTGRES_PASSWORD: postgres

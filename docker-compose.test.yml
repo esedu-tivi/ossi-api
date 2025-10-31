@@ -14,7 +14,7 @@ services:
       - ./student-management-api/src:/usr/server/src:ro
       - ./student-management-api/test:/usr/server/test:ro
   db-test:
-    image: docker.io/postgres
+    image: docker.io/postgres:18-alpine
     restart: always
     environment:
       POSTGRES_PASSWORD: postgres
