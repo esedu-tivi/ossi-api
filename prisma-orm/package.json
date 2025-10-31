@@ -9,7 +9,7 @@
     "build": "npm run generate && npx tsc --build",
     "migrate:dev": "npx prisma migrate dev && npm run build",
     "migrate:prod": "npx prisma migrate deploy",
-    "seed": "npx tsx --env-file=.env prisma/seed.ts",
+    "seed": "node --env-file=.env ./dist/prisma/seed.js",
     "start": "npx prisma generate && npm run migrate:prod",
     "start:test": "NODE_ENV=test npm start",
     "studio": "npx prisma studio"
