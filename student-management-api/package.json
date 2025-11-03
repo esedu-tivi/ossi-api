@@ -11,8 +11,6 @@
     "test:coverage": "NODE_ENV=test node --import tsx --test --experimental-test-coverage test/**/*test.ts"
   },
   "dependencies": {
-    "@prisma/adapter-pg": "^6.18.0",
-    "@prisma/client": "^6.18.0",
     "axios": "^1.7.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

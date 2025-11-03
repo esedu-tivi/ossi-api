@@ -4,6 +4,9 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "generate": "npx prisma generate --schema=./prisma/schema.prisma",
     "build": "npm run generate && npx tsc --build",
@@ -24,5 +27,11 @@
     "@prisma/adapter-pg": "^6.18.0",
     "@prisma/client": "^6.18.0",
     "dotenv": "^17.2.2"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
   }
 }
