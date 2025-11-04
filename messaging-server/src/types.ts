@@ -12,7 +12,7 @@ export interface User {
   lastName: string;
   email: string;
   phoneNumber: string;
-  archived: boolean;
+  archived: boolean | null;
 }
 
 export interface IMessage {

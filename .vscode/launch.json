@@ -34,8 +34,7 @@
       ],
       "resolveSourceMapLocations": [
         "**",
-        "!**/node_modules/**",
-        "!/usr/sequelize-models/**"
+        "!**/node_modules/**"
       ]
     },
     {
@@ -55,12 +54,11 @@
       ],
       "resolveSourceMapLocations": [
         "**",
-        "!**/node_modules/**",
-        "!/usr/sequelize-models/**"
+        "!**/node_modules/**"
       ]
     },
     {
-      "name": "Attach to: notificationserver",
+      "name": "Attach to: notification-server",
       "type": "pwa-node",
       "request": "attach",
       "port": 9233,
@@ -76,8 +74,7 @@
       ],
       "resolveSourceMapLocations": [
         "**",
-        "**/node_modules/**",
-        "/usr/sequelize-models/**"
+        "!**/node_modules/**"
       ]
     },
     {
@@ -97,8 +94,7 @@
       ],
       "resolveSourceMapLocations": [
         "**",
-        "**/node_modules/**",
-        "/usr/sequelize-models/**"
+        "!**/node_modules/**"
       ]
     }
   ]

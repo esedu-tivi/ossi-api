@@ -1,98 +1,118 @@
-import axios from "axios";
 import express from "express";
-import { QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationUnitPart, QualificationUnit } from "sequelize-models";
-import { beginTransaction, commitTransaction } from "../utils/middleware.js";
+import { parseId } from "../utils/middleware.js";
+import prisma from "prisma-orm";
+import { type RequestWithId } from "../types.js";
+import { HttpError } from "../classes/HttpError.js";
 
 const router = express();
 
-router.get("/", beginTransaction, async (req, res, next) => {
+interface RequestWithPartOrder extends RequestWithId {
+    body: {
+        partOrder: string[]
+    }
+}
+
+router.get("/", async (req, res, next) => {
     try {
-        const units = await QualificationUnit.findAll({
-            transaction: res.locals._transaction
-        });
+        const units = await prisma.qualificationUnit.findMany()
 
         res.json({
             status: 200,
             success: true,
             units: units
-        });
-        
-        next();
-    } catch (e) {
-        next(e)
-    }
-}, commitTransaction);
+        })
 
-router.get("/:id/competence_requirements", beginTransaction, async (req, res, next) => {
+    } catch (error) {
+        next(error)
+    }
+})
+
+router.get("/:id/competence_requirements", parseId, async (req: RequestWithId, res, next) => {
     try {
-        const qualificationCompetenceRequirements = await QualificationCompetenceRequirements.findAll({
+        const qualificationCompetenceRequirements = await prisma.qualificationCompetenceRequirements.findMany({
             where: {
-                qualificationUnitId: req.params.id
+                qualificationUnitId: req.id
             },
-            include: [QualificationCompetenceRequirements.associations.requirements],
-            transaction: res.locals._transaction
-        });
-            
-        res.json(qualificationCompetenceRequirements);
-        
-        next();
-    } catch (e) {
-        next(e)
-    }
-}, commitTransaction);
+            include: {
+                requirements: {
+                    select: {
+                        id: true,
+                        groupId: true,
+                        description: true
+                    }
+                }
+            },
+        })
 
-router.get("/:id/parts", beginTransaction, async (req, res, next) => {
+        res.json(qualificationCompetenceRequirements)
+
+    } catch (error) {
+        next(error)
+    }
+})
+
+router.get("/:id/parts", parseId, async (req: RequestWithId, res, next) => {
     try {
-        const parts = await QualificationUnitPart.findAll({
+        const parts = await prisma.qualificationUnitPart.findMany({
             where: {
-                qualificationUnitId: req.params.id
+                qualificationUnitId: req.id
             },
-            order: [["unit_order_index", "ASC"]],
-            transaction: res.locals._transaction
-        });
-
-        res.json(parts);
-        
-        next();
-    } catch (e) {
-        next(e)
-    }
-}, commitTransaction);
-
-router.post("/:id/part_order", beginTransaction, async (req, res, next) => {
-    try {
-        const unitId = Number(req.params.id);
-        const partOrder = req.body.partOrder;
-        
-        for (let index = 0; index < partOrder.length; index++) {
-            const part = await QualificationUnitPart.findByPk(partOrder[index], {
-                transaction: res.locals._transaction
-            });
-
-            if (part.qualificationUnitId != unitId) {
-                res.json({
-                    status: 400,
-                    success: false,
-                    message: "Updating a part order that doesn't belong to the specified unit."
-                });
-
-                throw Error();
+            orderBy: {
+                unitOrderIndex: "asc"
             }
+        })
 
-            await part.update({ unitOrderIndex: index }, { 
-                transaction: res.locals._transaction
-            });
+        res.json(parts)
+
+    } catch (error) {
+        next(error)
+    }
+})
+
+router.post("/:id/part_order", parseId, async (req: RequestWithPartOrder, res, next) => {
+    try {
+        const { partOrder } = req.body;
+
+        if (!partOrder) {
+            throw new HttpError(400, "partOrder missing from body")
         }
 
-        res.json({
-            status: 200,
-            success: true
-        });
-        
-        next();
-    } catch (e) {
-        next(e)
-    }
-}, commitTransaction);
+        const partIds = partOrder.map(Number)
 
-export const UnitsRouter = router;
+        // Validate that all elements in partOrder are numbers
+        if (partIds.includes(NaN) || partOrder.includes("")) {
+            throw new HttpError(400, "partOrder contains non-numeric values")
+        }
+
+        await prisma.$transaction(async (transaction) => {
+            const parts = await transaction.qualificationUnitPart.findMany({
+                where: {
+                    id: { in: partIds },
+                    qualificationUnitId: req.id,
+                },
+            });
+
+            if (parts.length !== partIds.length) {
+                throw new HttpError(400, "Updating a part order that doesn't belong to the specified unit or part not found.")
+            }
+
+            const updates = partIds.map((partId, index) =>
+                transaction.qualificationUnitPart.update({
+                    where: { id: partId },
+                    data: { unitOrderIndex: index },
+                })
+            )
+
+            await Promise.all(updates);
+
+            res.json({
+                status: 200,
+                success: true,
+            })
+        })
+    } catch (error) {
+        next(error)
+    }
+})
+
+export const UnitsRouter = router

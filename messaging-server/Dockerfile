@@ -2,6 +2,7 @@ FROM node:22-alpine AS base
 RUN apk add --update dumb-init
 USER node
 WORKDIR /usr/server
+COPY --from=prisma-orm . ../prisma-orm/
 COPY --chown=node:node package*.json ./
 RUN npm install
 
@@ -36,5 +37,6 @@ WORKDIR /usr/server
 COPY --chown=node:node --from=deps /usr/server/node_modules ./node_modules/
 COPY --chown=node:node --from=build /usr/server/dist/ ./dist/
 COPY --chown=node:node --from=build /usr/server/package*.json ./
+COPY --from=prisma-orm . ../prisma-orm/
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD [ "npm", "start" ]

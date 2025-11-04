@@ -1,7 +1,7 @@
 import { after, test } from 'node:test';
 import supertest from 'supertest';
 import app from '../src/app.js';
-import { pool } from '../src/postgres-pool.js';
+import prisma from 'prisma-orm';
 
 const api = supertest(app);
 
@@ -13,5 +13,5 @@ test('students are returned as json', async () => {
 });
 
 after(async () => {
-  await pool.end();
+  await prisma.$disconnect();
 });

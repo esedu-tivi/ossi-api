@@ -46,7 +46,7 @@ const newLocal = `#graphql
 
     type QualificationTitle {
         id: Int!
-        name: String!
+        name: String
         mandatoryUnits: [QualificationUnit!]!
     }
 
@@ -271,7 +271,7 @@ const newLocal = `#graphql
         success: Boolean!
         status: Int!
         message: String
-        project: [QualificationProject]
+        project: QualificationProject
     }
 
     type  StudentAssignResponse {

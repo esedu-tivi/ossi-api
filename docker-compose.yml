@@ -17,7 +17,7 @@ services:
       context: ./auth-api
       target: final
       additional_contexts:
-        sequelize-models: ./sequelize-models
+        prisma-orm: ./prisma-orm
     env_file: ".env"
     depends_on:
       - db
@@ -26,7 +26,7 @@ services:
       context: ./student-management-api
       target: final
       additional_contexts:
-        sequelize-models: ./sequelize-models
+        prisma-orm: ./prisma-orm
     env_file: ".env"
     depends_on:
       db-migrations:
@@ -49,6 +49,8 @@ services:
     build:
       context: ./messaging-server
       target: final
+      additional_contexts:
+        prisma-orm: ./prisma-orm
     ports:
       - "3002:3000"
     environment:
@@ -60,7 +62,7 @@ services:
       mongo:
         condition: service_healthy
   db:
-    image: docker.io/postgres
+    image: docker.io/postgres:18-alpine
     restart: always
     environment:
       POSTGRES_PASSWORD: postgres
@@ -75,11 +77,12 @@ services:
       start_period: 1s
   db-migrations:
     build:
-      context: ./sequelize-models
+      context: ./prisma-orm
+    env_file: ".env"
     depends_on:
       db:
         condition: service_healthy
-    command: node migrator up
+    command: npm start
   mongo:
     image: docker.io/mongo
     restart: always

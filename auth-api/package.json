@@ -14,16 +14,14 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
     "jsonwebtoken": "^9.0.2",
-    "pg": "^8.13.0",
-    "sequelize": "^6.37.5",
-    "sequelize-models": "file:../sequelize-models"
+    "prisma-orm": "file:../prisma-orm",
+    "typescript": "^5.6.2"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.6.1",
-    "@types/pg": "^8.11.10",
     "tsx": "^4.20.6",
     "typescript": "^5.6.2"
   }

@@ -1,7 +1,8 @@
 import axios from "axios";
 import express, { json } from "express";
 import jwt, { type JwtPayload } from "jsonwebtoken";
-import { sequelize, Student, Teacher, User, UserAuthorityScope } from "sequelize-models";
+import prisma, { enumUsersScope } from "prisma-orm"
+import { HttpError } from "./classes/HttpError.js";
 
 interface IdTokenPayload extends JwtPayload {
     oid: string,
@@ -27,77 +28,110 @@ router.use(json());
 
 // intended for basic ossi login, job supervisor scopes should be created in a seperate endpoint?
 router.post("/login", async (req, res) => {
-    const transaction = await sequelize.transaction();
-    await sequelize.query("LOCK TABLE \"users\" IN ACCESS EXCLUSIVE MODE", { transaction });
-
-    let idToken: IdTokenPayload;
     try {
-        const pem = await getPemCertificate(req.body.idToken);
-        idToken = jwt.verify(req.body.idToken, pem, { algorithms: ["RS256"] }) as IdTokenPayload;
-    } catch (e) {
-        console.log(e);
-        return res.json({
-            status: 401,
-            success: false,
-            message: "Error while verifying ID token, logged."
+        const userData = await prisma.$transaction(async (transaction) => {
+
+            // Prisma ORM do not have table lock functionality built-in, so need use raw query
+            await transaction.$queryRaw`LOCK TABLE "users" IN ACCESS EXCLUSIVE MODE`
+
+            let idToken: IdTokenPayload;
+            try {
+                const pem = await getPemCertificate(req.body.idToken);
+                idToken = jwt.verify(req.body.idToken, pem, { algorithms: ["RS256"] }) as IdTokenPayload;
+            } catch (e) {
+                console.log(e);
+                throw new HttpError(401, "Error while verifying ID token, logged.")
+            }
+
+            const isUserInDatabase = await transaction.user.findFirst({ where: { oid: idToken.oid } }) != null;
+            const userScope = idToken.upn.endsWith("@esedulainen.fi") ? enumUsersScope.STUDENT : enumUsersScope.TEACHER;
+
+            // create user and teacher or student rows for nonexistant user
+            if (!isUserInDatabase) {
+                const createdUser = await transaction.user.create({
+                    data: {
+                        oid: idToken.oid,
+                        isSetUp: false,
+                        firstName: idToken.given_name,
+                        lastName: idToken.family_name,
+                        email: idToken.upn,
+                        phoneNumber: "",
+                        scope: userScope,
+                        archived: false,
+                    }
+                })
+
+                if (userScope === enumUsersScope.STUDENT) {
+                    await transaction.student.create({
+                        data: {
+                            userId: createdUser.id,
+                            groupId: idToken.jobTitle,
+                            qualificationCompletion: null,
+                            qualificationTitleId: null,
+                            qualificationId: null
+                        }
+                    })
+                } else if (userScope === enumUsersScope.TEACHER) {
+                    await transaction.teacher.create({
+                        data: {
+                            userId: createdUser.id,
+                            teachingQualificationTitleId: null,
+                            teachingQualificationId: null
+                        }
+                    })
+                }
+            }
+
+            const user = await transaction.user.findFirst({ where: { oid: idToken.oid } });
+
+            //Need use findUnique because we do not have findByPk() in the Prisma ORM
+            const profile = userScope == enumUsersScope.STUDENT
+                ? await transaction.student.findUnique({ where: { userId: user.id } })
+                : await transaction.teacher.findUnique({ where: { userId: user.id } });
+
+            const userData = {
+                id: user.id,
+                oid: user.oid,
+                email: user.email,
+                isSetUp: user.isSetUp,
+                type: idToken.upn.endsWith("@esedulainen.fi") ? "STUDENT" : "TEACHER",
+                scope: userScope,
+                profile
+            };
+
+            return userData
+        });
+
+        //If Prisma ORM rollback transaction and we do not have userData
+        if (!userData) {
+            throw new HttpError(400)
+        }
+
+        // In Prisma ORM we do not need manually commit transaction, so we can return response
+        res.json({
+            status: 200,
+            success: true,
+            token: jwt.sign(userData, process.env.JWT_SECRET_KEY ?? "", {
+                expiresIn: "1d"
+            }),
         });
     }
-
-    const isUserInDatabase = await User.findOne({ where: { oid: idToken.oid }, transaction }) != null;
-    const userScope = idToken.upn.endsWith("@esedulainen.fi") ? UserAuthorityScope.Student : UserAuthorityScope.Teacher;
-
-    // create user and teacher or student rows for nonexistant user
-    if (!isUserInDatabase) {
-        const createdUser = await User.create({
-            oid: idToken.oid,
-            isSetUp: false,
-            firstName: idToken.given_name,
-            lastName: idToken.family_name,
-            email: idToken.upn,
-            phoneNumber: "",
-            scope: userScope,
-            archived: false,
-        }, { transaction });
-
-        if (userScope == UserAuthorityScope.Student) {
-            await Student.create({
-                id: createdUser.id,
-                groupId: idToken.jobTitle,
-                qualificationCompletion: null,
-                qualificationTitleId: null,
-                qualificationId: null
-            }, { transaction });
-        } else if (userScope == UserAuthorityScope.Teacher) {
-            await Teacher.create({
-                id: createdUser.id,
-                teachingQualificationTitleId: null,
-                teachingQualificationId: null
-            }, { transaction });
+    catch (error) {
+        console.error(error)
+        if (error instanceof HttpError) {
+            if (error.message) {
+                return res.json({
+                    status: error.statusCode,
+                    success: false,
+                    message: error.message
+                })
+            }
+            return res.json({
+                status: error.statusCode,
+                success: false
+            })
         }
     }
-
-    const user = await User.findOne({ where: { oid: idToken.oid }, transaction });
-    const profile = userScope == UserAuthorityScope.Student ? await Student.findByPk(user.id, { transaction }) : await Teacher.findByPk(user.id, { transaction });
-
-    const userData = {
-        id: user.id,
-        oid: user.oid,
-        email: user.email,
-        isSetUp: user.isSetUp,
-        type: idToken.upn.endsWith("@esedulainen.fi") ? "STUDENT" : "TEACHER",
-        scope: userScope,
-        profile: profile
-    };
-
-    res.json({
-        status: 200,
-        success: true,
-        token: jwt.sign(userData, process.env.JWT_SECRET_KEY ?? "", {
-            expiresIn: "1d"
-        }),
-    });
-
-    await transaction.commit();
-});
+})
 
 export const AuthRouter = router;

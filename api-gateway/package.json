@@ -16,7 +16,6 @@
         "@types/jsonwebtoken": "^9.0.7",
         "@types/mongoose": "^5.11.97",
         "@types/node": "^24.6.2",
-        "@types/pg": "^8.11.10",
         "tsx": "^4.20.6",
         "typescript": "^5.8.3"
     },
@@ -32,7 +31,6 @@
         "graphql-tools": "^9.0.18",
         "jsonwebtoken": "^9.0.2",
         "mongoose": "^8.9.5",
-        "pg": "^8.13.0",
         "redis": "^4.6.13"
     }
 }

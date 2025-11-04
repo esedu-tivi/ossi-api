@@ -1,12 +1,12 @@
 import express from "express";
-import { QualificationProjectTag } from "sequelize-models";
-import { beginTransaction, commitTransaction } from "../utils/middleware.js";
+import prisma from "prisma-orm";
+import { HttpError } from "../classes/HttpError.js";
 
 const router = express();
 
-router.get("/", beginTransaction, async (req, res, next) => {
+router.get("/", async (req, res, next) => {
     try {
-        const tags = await QualificationProjectTag.findAll({ transaction: res.locals._transaction });
+        const tags = await prisma.qualificationProjectTag.findMany()
 
         res.json({
             status: 200,
@@ -14,32 +14,35 @@ router.get("/", beginTransaction, async (req, res, next) => {
             tags: tags
         });
 
-        next();
-    } catch (e) {
+    }
+    catch (e) {
         next(e);
     }
-}, commitTransaction);
+});
 
-router.post("/", beginTransaction, async (req, res, next) => {
+router.post("/", async (req, res, next) => {
     try {
-        const tagName = req.body.tagName
+        const { name } = req.body
 
-        const tag = await QualificationProjectTag.create({
-            name: tagName
-        }, {
-            transaction: res.locals._transaction 
-        });
+        if (!name || name === '') {
+            throw new HttpError(400, `tagName missing or it's empty.`)
+        }
+
+        const tag = await prisma.qualificationProjectTag.create({
+            data: {
+                name: name
+            }
+        })
 
         res.json({
             status: 200,
             success: true,
             tag: tag
         });
-        
-        next();
-    } catch (e) {
-        next(e);
+
+    } catch (error) {
+        next(error)
     }
-}, commitTransaction);
+})
 
 export const ProjectTagsRouter = router;

@@ -1,27 +1,17 @@
 import { after, beforeEach, test } from 'node:test';
 import supertest from 'supertest';
 import app from '../src/app.js';
-import { QualificationCompetenceRequirement, QualificationCompetenceRequirements, QualificationProject, QualificationUnit, QualificationUnitPart, sequelize } from 'sequelize-models';
-import { initialParts, initialProjects } from './test-helper.js';
+import { initialParts, writePartsAndProjectsTestBaseData } from './test-helper.js';
 import assert from 'node:assert';
 import { getExternalQualificationData } from '../src/utils/eperuste.js';
 import _ from 'lodash';
+import prisma from 'prisma-orm';
 
 const api = supertest(app);
 
 beforeEach(async () => {
-  if ((await QualificationUnit.findAll()).length == 0) {
-    const qualificationData = await getExternalQualificationData(7861752);
-
-    await QualificationUnit.bulkCreate(qualificationData.units);
-    await QualificationCompetenceRequirements.bulkCreate(qualificationData.competenceRequirementGroups);
-    await QualificationCompetenceRequirement.bulkCreate(qualificationData.competenceRequirements);
-  }
-
-  await QualificationProject.truncate({ cascade: true });
-  await QualificationUnitPart.truncate({ cascade: true });
-  await QualificationProject.bulkCreate(initialProjects);
-  await QualificationUnitPart.bulkCreate(initialParts);
+  const qualificationData = await getExternalQualificationData(7861752);
+  await writePartsAndProjectsTestBaseData(qualificationData)
 });
 
 test('right number of unit parts are returned as json', async () => {
@@ -30,38 +20,42 @@ test('right number of unit parts are returned as json', async () => {
     .expect(200)
     .expect('Content-Type', /application\/json/);
 
-  assert.strictEqual(response.body.length, initialParts.length);
+  assert.strictEqual(response.body.parts.length, initialParts.length);
 });
 
 test('right unit part is returned when using id', async () => {
-  const partToRequest = await QualificationUnitPart.findOne();
+  const partToRequest = await prisma.qualificationUnitPart.findFirst();
 
   const response = await api
     .get(`/qualification/parts/${partToRequest.id}`)
     .expect(200)
     .expect('Content-Type', /application\/json/);
-  
-  assert.strictEqual(response.body.name, partToRequest.name);
+
+  assert.strictEqual(response.body.part.name, partToRequest.name);
 });
 
 test('adding parts works', async () => {
   await api
     .post('/qualification/parts')
-    .send({ name: 'Ohjelmointi Teema 4', description: 'Description', materials: '-', parentQualificationUnit: 6816480})
+    .send({ name: 'Ohjelmointi Teema 4', description: 'Description', materials: '-', parentQualificationUnit: 6816480 })
     .expect(200)
     .expect('Content-Type', /application\/json/);
 
   const response = await api
     .get('/qualification/parts');
 
-  assert.strictEqual(response.body.length, initialParts.length + 1);
+  assert.strictEqual(response.body.parts.length, initialParts.length + 1);
 });
 
 test('updating parts works', async () => {
-  const partToUpdate = await QualificationUnitPart.findOne();
-  const projects = (await QualificationProject.findAll({ include: [{ association: QualificationProject.associations.tags }] })).reverse();
+  const partToUpdate = await prisma.qualificationUnitPart.findFirst();
+  const projects = (await prisma.qualificationProject
+    .findMany({
+      include: { tags: true }
+    }))
+    .reverse();
 
-  const updatedPart = { 
+  const updatedPart = {
     name: "Updated",
     qualificationUnitId: partToUpdate.qualificationUnitId,
     description: "Updated",
@@ -88,13 +82,13 @@ test('updating parts works', async () => {
     .expect(200)
     .expect('Content-Type', /application\/json/);
 
-    console.log(partData.body)
-    console.log(expectedPartData)
+  console.log(partData.body)
+  console.log(expectedPartData)
 
-  assert(_.isEqual(partData.body, expectedPartData));
-  projects.forEach(project => assert(projectData.body.find(projectTransported => projectTransported.id == project.id)))
+  assert(_.isEqual(partData.body.part, expectedPartData));
+  projects.forEach(project => assert(projectData.body.find(projectTransported => projectTransported.id === project.id)))
 });
 
 after(async () => {
-  await sequelize.close();
+  await prisma.$disconnect();
 });
