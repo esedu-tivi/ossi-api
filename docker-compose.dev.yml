@@ -6,7 +6,7 @@ services:
     ports:
       - 9230:9229
     volumes:
-      - ./api-gateway/src:/app/src:ro
+      - ./api-gateway/src/:/app/src:ro
 
   authapi:
     build:
@@ -14,7 +14,7 @@ services:
     ports:
       - 9231:9229
     volumes:
-      - ./auth-api/src:/app/src:ro
+      - ./auth-api/src/:/app/src:ro
       - ./prisma-orm/:/prisma-orm
 
   messagingserver:
@@ -23,7 +23,7 @@ services:
     ports:
       - 9232:9229
     volumes:
-      - ./messaging-server/src:/app/src:ro
+      - ./messaging-server/src/:/app/src:ro
       - ./prisma-orm/:/prisma-orm
 
   notificationserver:
@@ -32,7 +32,7 @@ services:
     ports:
       - 9233:9229
     volumes:
-      - ./notification-server/src:/app/src:ro
+      - ./notification-server/src/:/app/src:ro
 
   studentmanagementapi:
     build:
@@ -40,6 +40,6 @@ services:
     ports:
       - 9234:9229
     volumes:
-      - ./student-management-api/src:/app/src:ro
-      - ./student-management-api/test:/app/test:ro
+      - ./student-management-api/src/:/app/src:ro
+      - ./student-management-api/test/:/app/test:ro
       - ./prisma-orm/:/prisma-orm

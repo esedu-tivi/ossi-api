@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "private": true,
     "scripts": {
+        "install": "cd prisma-orm && npm install && npm run build",
         "seed": "docker compose run --env-from-file=.env --rm db-migrations npm run seed",
         "start": "docker compose -f docker-compose.yml up -d --build",
         "start:dev": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build",
@@ -14,7 +15,6 @@
         "auth-api",
         "messaging-server",
         "notification-server",
-        "student-management-api",
-        "prisma-orm"
+        "student-management-api"
     ]
 }
