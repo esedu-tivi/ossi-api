@@ -1,4 +1,6 @@
 ---
+name: ossi-api
+
 services:
   api:
     build:
@@ -8,12 +10,12 @@ services:
       - "3000:3000"
     env_file: ".env"
     depends_on:
-      - messagingserver
-      - studentmanagementapi
-      - notificationserver
-      - authapi
+      - messaging-server
+      - student-management-api
+      - notification-server
+      - auth-api
 
-  authapi:
+  auth-api:
     build:
       context: ./auth-api
       additional_contexts:
@@ -22,7 +24,7 @@ services:
     depends_on:
       - db
 
-  studentmanagementapi:
+  student-management-api:
     build:
       context: ./student-management-api
       target: final
@@ -35,7 +37,7 @@ services:
       redis:
         condition: service_healthy
 
-  notificationserver:
+  notification-server:
     ports:
       - "3001:3000"
     build:
@@ -48,7 +50,7 @@ services:
       mongo:
         condition: service_healthy
 
-  messagingserver:
+  messaging-server:
     build:
       context: ./messaging-server
       target: final

@@ -1,6 +1,6 @@
 ---
 services:
-  studentmanagementapi:
+  student-management-api:
     build:
       context: ./student-management-api
       target: dev
