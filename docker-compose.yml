@@ -12,27 +12,29 @@ services:
       - studentmanagementapi
       - notificationserver
       - authapi
+
   authapi:
     build:
       context: ./auth-api
-      target: final
       additional_contexts:
-        prisma-orm: ./prisma-orm
+        prisma-orm: service:db-migrations
     env_file: ".env"
     depends_on:
       - db
+
   studentmanagementapi:
     build:
       context: ./student-management-api
       target: final
       additional_contexts:
-        prisma-orm: ./prisma-orm
+        prisma-orm: service:db-migrations
     env_file: ".env"
     depends_on:
       db-migrations:
         condition: service_completed_successfully
       redis:
         condition: service_healthy
+
   notificationserver:
     ports:
       - "3001:3000"
@@ -45,12 +47,13 @@ services:
         condition: service_healthy
       mongo:
         condition: service_healthy
+
   messagingserver:
     build:
       context: ./messaging-server
       target: final
       additional_contexts:
-        prisma-orm: ./prisma-orm
+        prisma-orm: service:db-migrations
     ports:
       - "3002:3000"
     environment:
@@ -61,6 +64,7 @@ services:
         condition: service_healthy
       mongo:
         condition: service_healthy
+
   db:
     image: docker.io/postgres:18-alpine
     restart: always
@@ -75,6 +79,7 @@ services:
       interval: 2s
       retries: 5
       start_period: 1s
+
   db-migrations:
     build:
       context: ./prisma-orm
@@ -83,6 +88,7 @@ services:
       db:
         condition: service_healthy
     command: npm start
+
   mongo:
     image: docker.io/mongo
     restart: always
@@ -92,6 +98,7 @@ services:
       - mongo-data:/data/db
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+
   pgadmin:
     restart: always
     image: docker.io/dpage/pgadmin4
@@ -101,6 +108,7 @@ services:
       PGADMIN_LISTEN_ADDRESS: 0.0.0.0
     ports:
       - "5433:80"
+
   redis:
     image: docker.io/redis
     restart: always
