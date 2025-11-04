@@ -1,3 +1,4 @@
+---
 services:
   studentmanagementapi:
     build:
@@ -13,6 +14,7 @@ services:
     volumes:
       - ./student-management-api/src:/usr/server/src:ro
       - ./student-management-api/test:/usr/server/test:ro
+
   db-test:
     image: docker.io/postgres:18-alpine
     restart: always
@@ -27,6 +29,7 @@ services:
       interval: 2s
       retries: 5
       start_period: 1s
+
   db-migrations:
     build:
       context: ./prisma-orm
@@ -36,5 +39,6 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db-test:5432/postgres?schema=public
     command: npm run start:test
+
 volumes:
   db-test-data:
