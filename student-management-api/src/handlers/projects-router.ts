@@ -309,9 +309,18 @@ router.put("/:id", parseId, async (req: RequestWithId, res, next) => {
                 }
             })
 
-            // TODO: implement to only notify students that are doing the project
             if (updatedProjectFields.notifyStudents) {
-                const students = await transaction.student.findMany();
+                const students = await transaction.student.findMany({
+                    where: {
+                        assignedProjectsForStudent: {
+                            some: {
+                                projectId: projectToUpdate.id
+                            }
+                        }
+                    }
+                });
+
+                console.log('students to notify:', students)
 
                 const notificationPayload = {
                     recipients: students.map(student => student.userId),

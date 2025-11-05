@@ -273,29 +273,48 @@ router.post("/assignProjectToStudent", async (req: RequestWithAssignProjectToStu
             throw new HttpError(404, "student not found")
         }
 
-        const project = await prisma.qualificationProject.findUnique({ where: { id: parsedProjectId } })
+        const assignedProject = await prisma.$transaction(async (transaction) => {
+            const project = await transaction.qualificationProject.findUnique({ where: { id: parsedProjectId } })
 
-        if (!project) {
-            throw new HttpError(404, "project not found")
-        }
-
-        const alreadyAssignedProject = await prisma.assignedProjectsForStudent.findFirst({
-            where: {
-                studentId: parsedStudentId,
-                projectId: parsedProjectId
+            if (!project) {
+                throw new HttpError(404, "project not found")
             }
+
+            const alreadyAssignedProject = await transaction.assignedProjectsForStudent.findFirst({
+                where: {
+                    studentId: parsedStudentId,
+                    projectId: parsedProjectId
+                }
+            })
+
+            if (alreadyAssignedProject) {
+                throw new HttpError(403, `Already assigned project ${parsedProjectId} to student ${studentId}`)
+            }
+
+            const assignedProject = await transaction.assignedProjectsForStudent.create({
+                data: {
+                    studentId: parsedStudentId,
+                    projectId: parsedProjectId
+                }
+            })
+            await transaction.student.update({
+                where: {
+                    userId: student.userId,
+                },
+                data: {
+                    assignedProjectsForStudent: {
+                        connect: {
+                            studentId_projectId: {
+                                studentId: parsedStudentId,
+                                projectId: parsedProjectId
+                            }
+                        }
+                    }
+                }
+            })
+            return assignedProject
         })
 
-        if (alreadyAssignedProject) {
-            throw new HttpError(403, `Already assigned project ${parsedProjectId} to student ${studentId}`)
-        }
-
-        const assignedProject = await prisma.assignedProjectsForStudent.create({
-            data: {
-                studentId: parsedStudentId,
-                projectId: parsedProjectId
-            }
-        })
 
         console.log(assignedProject)
         res.json({
