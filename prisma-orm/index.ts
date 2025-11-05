@@ -8,18 +8,20 @@ const DATABASE_URL = process.env.NODE_ENV === "test"
 
 const adapter = new PrismaPg({ connectionString: DATABASE_URL })
 
+//Store Prisma client as a global variable to do prevent client reloading by hot reload in non-production environment
+
 const globalForPrisma = globalThis as unknown as {
-  prisma?: PrismaClient;
+  prisma: PrismaClient;
 };
 
 const prisma =
   globalForPrisma.prisma ||
   new PrismaClient({
     adapter,
-    log: ['query', 'error', 'warn'],
+    log: process.env.NODE_ENV !== 'production' ? ['query', 'error', 'warn'] : [],
   });
 
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma;
 }
 
