@@ -1,4 +1,4 @@
-import { ProjectReturnNotification, ProjectUpdateNotification } from '../models/notification.js';
+import { ProjectReturnNotification, ProjectStatusChangeNotification, ProjectUpdateNotification } from '../models/notification.js';
 
 export const notificationSubscriberHandler = async (notificationPayload) => {
     const { recipients, notification } = JSON.parse(notificationPayload);
@@ -15,6 +15,11 @@ export const notificationSubscriberHandler = async (notificationPayload) => {
             recipient,
             ...notification
         }));
+    } else if (notification.type == "ProjectStatusChange") {
+        notifications = recipients.map(recipient => new ProjectStatusChangeNotification({
+            recipient,
+            ...notification
+        }))
     } else {
         throw Error();
     }
