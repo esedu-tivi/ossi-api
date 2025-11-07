@@ -1,10 +1,11 @@
 import express from "express";
 import { parseId } from "../utils/middleware.js";
 import { redisPublisher } from "../redis.js";
-import prisma from "prisma-orm";
+import prisma, { enumAssignedProjectsForStudentsProjectStatus } from "prisma-orm";
 import { checkRequiredFields } from "../utils/checkRequiredFields.js";
 import { type RequestWithId } from "../types.js";
 import { HttpError } from "../classes/HttpError.js";
+import { checkIds } from "../utils/checkIds.js";
 
 const router = express();
 
@@ -309,9 +310,18 @@ router.put("/:id", parseId, async (req: RequestWithId, res, next) => {
                 }
             })
 
-            // TODO: implement to only notify students that are doing the project
             if (updatedProjectFields.notifyStudents) {
-                const students = await transaction.student.findMany();
+                const students = await transaction.student.findMany({
+                    where: {
+                        assignedProjectsForStudent: {
+                            some: {
+                                projectId: projectToUpdate.id
+                            }
+                        }
+                    }
+                });
+
+                console.log('students to notify:', students)
 
                 const notificationPayload = {
                     recipients: students.map(student => student.userId),
@@ -359,6 +369,61 @@ router.put("/:id", parseId, async (req: RequestWithId, res, next) => {
         })
 
     } catch (error) {
+        next(error)
+    }
+})
+
+router.put("/:id/change_status", parseId, async (req: RequestWithId, res, next) => {
+    try {
+        console.log('req.body', req.body)
+        const { status, studentId, teacherComment }: { status: enumAssignedProjectsForStudentsProjectStatus, studentId: string, teacherComment: string | null } = req.body
+
+        checkIds({ studentId })
+
+        if (status === 'ACCEPTED' || status === 'REJECTED') {
+            const project = await prisma.assignedProjectsForStudent.update({
+                where: {
+                    studentId_projectId: {
+                        studentId: Number(studentId),
+                        projectId: req.id
+                    }
+                },
+                data: {
+                    projectStatus: status,
+                    teacherComment
+                }
+            })
+            console.log(project)
+
+            const notificationPayload = {
+                recipients: [studentId],
+                notification: {
+                    type: "ProjectStatusChange",
+                    projectId: project.projectId,
+                    status: project.projectStatus,
+                    message: `Projektin palautus on ${status === 'ACCEPTED' ? 'hyväksytty' : 'hylätty'}`,
+                    teacherComment: project.teacherComment
+                }
+            };
+
+            redisPublisher.publish('notification', JSON.stringify(notificationPayload));
+
+            return res.json({
+                status: 200,
+                success: true,
+                message: `Status changed to '${project.projectStatus}' ${project.teacherComment ? `with ${project.teacherComment} comment` : ''}`
+            })
+        }
+        else {
+            return res.json({
+                status: 400,
+                success: false,
+                message: 'status should only be accepted or rejected'
+            })
+        }
+
+    }
+    catch (error) {
         next(error)
     }
 })

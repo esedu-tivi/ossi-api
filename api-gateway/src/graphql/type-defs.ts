@@ -181,7 +181,17 @@ const newLocal = `#graphql
         time: DateTime!
     }
 
-    union Notification = ProjectReturnNotification | ProjectUpdateNotification
+    type ProjectStatusChangeNotification {
+        id: ID! 
+        project: QualificationProject!
+        message: String!
+        status: ProjectStatus!
+        teacherComment: String
+        hasBeenRead: Boolean!
+        time: DateTime!
+    }
+
+    union Notification = ProjectReturnNotification | ProjectUpdateNotification | ProjectStatusChangeNotification
 
     type NotificationsResponse {
         success: Boolean!
@@ -409,6 +419,12 @@ const newLocal = `#graphql
         project: QualificationProject
     }
 
+    type ChangeProjectStatusResponse {
+    status: Int!
+    success: Boolean!
+    message: String,
+    }
+
     type UpdatePartOrderResponse {
         status: Int!
         success: Boolean!
@@ -472,6 +488,7 @@ const newLocal = `#graphql
         updateProject(id: ID!, project: UpdateProjectInput!): UpdateProjectResponse! @authenticatedAsTeacher
         createPart(part: CreatePartInput!): CreatePartResponse! @authenticatedAsTeacher
         updatePart(id: ID!, part: CreatePartInput!): UpdatePartResponse! @authenticatedAsTeacher
+        changeProjectStatus(id: ID!, status: ProjectStatus!, studentId: ID!, teacherComment: String): ChangeProjectStatusResponse! @authenticatedAsTeacher
         updatePartOrder(unitId: ID!, partOrder: [ID!]!): GenericResponse! @authenticatedAsTeacher
         createProjectTag(name: String!): CreateProjectTagResponse! @authenticatedAsTeacher
         assignProjectToStudent(studentId: ID! , projectId:ID! ): GenericResponse!  @authenticated

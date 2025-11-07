@@ -1,6 +1,6 @@
 import express, { json } from "express";
 import jsonwebtoken from "jsonwebtoken";
-import { Notification, ProjectReturnNotification, ProjectUpdateNotification } from '../models/notification.js';
+import { Notification, ProjectReturnNotification, ProjectStatusChangeNotification, ProjectUpdateNotification } from '../models/notification.js';
 
 const router = express()
 
@@ -62,7 +62,7 @@ router.post("/:id/mark_as_read", async (req, res) => {
     }, {
         hasBeenRead: true
     });
-    
+
     if (!notification) {
         return res.json({
             success: false,
@@ -73,7 +73,7 @@ router.post("/:id/mark_as_read", async (req, res) => {
 
     return res.json({
         success: true,
-        status: 200 
+        status: 200
     });
 });
 
@@ -82,7 +82,7 @@ router.post("/:id/mark_as_read", async (req, res) => {
 router.post("/send_notification", (req, res) => {
     const recipients = req.body.recipients;
     const requestNotification = req.body.notification;
-    
+
     let notifications;
 
     if (requestNotification.type == "ProjectReturn") {
@@ -95,10 +95,15 @@ router.post("/send_notification", (req, res) => {
             recipient,
             ...requestNotification
         }));
+    } else if (requestNotification.type == "ProjectStatusChange") {
+        notifications = recipients.map(recipient => new ProjectStatusChangeNotification({
+            recipient,
+            ...requestNotification
+        }));
     } else {
         throw Error();
     }
-    
+
     notifications.forEach(async notification => await notification.save())
 
     res.json({});

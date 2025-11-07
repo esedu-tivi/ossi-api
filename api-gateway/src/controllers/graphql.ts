@@ -27,6 +27,7 @@ import { QualificationUnit } from "../graphql/resolvers/unit.js";
 import { User } from "../graphql/resolvers/user.js";
 import { dateTimeScalar } from "../graphql/scalars/datetime.js";
 import typeDefs from "../graphql/type-defs.js";
+import { ProjectStatusChangeNotification } from "../graphql/resolvers/project-status-change-notification.js";
 
 const graphqlRouter = express.Router();
 
@@ -35,6 +36,7 @@ const resolvers = {
     Notification,
     ProjectReturnNotification,
     ProjectUpdateNotification,
+    ProjectStatusChangeNotification,
     User,
     Query: {
         ...Query,

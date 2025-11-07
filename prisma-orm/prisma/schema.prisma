@@ -20,6 +20,8 @@ model AssignedProjectsForStudent {
   projectStatus         enumAssignedProjectsForStudentsProjectStatus? @default(WORKING) @map("project_status")
   qualificationProjects QualificationProject                          @relation(fields: [projectId], references: [id], map: "fkey_projectId_studentProject")
   worktimeEntries       WorktimeEntries[]
+  Student               Student?                                      @relation(fields: [studentUserId], references: [userId])
+  studentUserId         Int?
 
   @@id([studentId, projectId])
   @@map("assigned_projects_for_students")
@@ -188,6 +190,7 @@ model Student {
   qualificationId                       Int?                                  @map("qualification_id")
   qualificationCompletion               enumStudentsQualificationCompletion?  @map("qualification_completion")
   assignedQualificationUnitsForStudents AssignedQualificationUnitsForStudent?
+  assignedProjectsForStudent            AssignedProjectsForStudent[]
   users                                 User                                  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   supervisedStudentsByJobSupervisors    SupervisedStudentsByJobSupervisor[]
 

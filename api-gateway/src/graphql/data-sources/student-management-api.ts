@@ -80,6 +80,12 @@ class StudentManagementAPI extends RESTDataSource {
         );
     }
 
+    async changeProjectStatus(id, args) {
+        return this.put(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/qualification/projects/${id}/change_status`, { body: args }
+        )
+    }
+
     async getParts() {
         return this.get(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/qualification/parts"

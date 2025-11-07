@@ -23,3 +23,7 @@ export const ProjectReturnNotification = Notification.discriminator("ProjectRetu
 export const ProjectUpdateNotification = Notification.discriminator("ProjectUpdateNotification",
     new Schema({ projectId: Number, updateMessage: String }, { discriminatorKey: "kind" }
     ));
+
+export const ProjectStatusChangeNotification = Notification.discriminator("ProjectStatusChangeNotification",
+    new Schema({ projectId: Number, message: String, status: { type: String, enum: ["ACCEPTED", "REJECTED"] }, teacherComment: String }, { discriminatorKey: "kind" }
+    ));
