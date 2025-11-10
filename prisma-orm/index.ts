@@ -18,7 +18,7 @@ const prisma =
   globalForPrisma.prisma ||
   new PrismaClient({
     adapter,
-    log: process.env.NODE_ENV !== 'production' ? ['query', 'error', 'warn'] : [],
+    log: process.env.NODE_ENV !== 'production' ? ['error', 'warn'] : [],
   });
 
 if (process.env.NODE_ENV !== 'production') {
@@ -27,5 +27,10 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Re-export everything from generated client (types + helpers)
 export * from "./generated/prisma/client.js"
+
+export type { PrismaClient } from "./generated/prisma/client.js"
+export * from "./generated/prisma/enums.js"
+
+export * from "@prisma/client/runtime/library"
 
 export default prisma

@@ -8,7 +8,7 @@ const errorHandler: ErrorRequestHandler = async (error, req, res, next) => {
             return res.json({
                 status: 404,
                 success: false,
-                message: error.message
+                message: `[${error.code}] Not found`
             })
         }
     }
@@ -19,9 +19,6 @@ const errorHandler: ErrorRequestHandler = async (error, req, res, next) => {
             message: error.message
         })
     }
-    if (res.locals._transaction) {
-        await res.locals._transaction.rollback();
-    }
 
     next(error);
 };
@@ -29,6 +26,7 @@ const errorHandler: ErrorRequestHandler = async (error, req, res, next) => {
 const parseId = (req, res, next) => {
     if (req.params) {
         const { id } = req.params
+        console.log(id)
 
         if (id === "" || Number.isNaN(Number(id))) {
             return res.json({
