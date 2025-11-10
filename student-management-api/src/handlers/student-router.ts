@@ -460,9 +460,21 @@ router.put("/updateStudentProject", async (req: RequestWithUpdateStudentProjectB
         const updateFields = Object.fromEntries(
             Object.entries(update).filter(([_, entry]) => entry !== undefined))
 
+        const teachers = await prisma.teacher.findMany({
+            where: {
+                teachingQualificationProject: {
+                    some: { id: Number(projectId) }
+                }
+            }
+        })
+
+        const teacherIds = teachers.map(teacher => teacher.userId)
+
+        console.log('teacherIds', teacherIds)
+
         if (updateFields.projectStatus == "RETURNED") {
             redisPublisher.publish("notification", JSON.stringify({
-                recipients: [1], // TODO: put teachers here instead of [1]
+                recipients: teacherIds,
                 notification: {
                     type: "ProjectReturn",
                     projectId: projectId,

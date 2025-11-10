@@ -102,6 +102,7 @@ model QualificationProject {
   parts                       QualificationProjectsPartsRelation[]
   tags                        QualificationProjectsTagsRelation[]
   competenceRequirements      QualificationCompetenceRequirement[]
+  teachers                    Teacher[]
 
   @@map("qualification_projects")
 }
@@ -208,10 +209,11 @@ model SupervisedStudentsByJobSupervisor {
 }
 
 model Teacher {
-  userId                       Int  @id @map("user_id")
+  userId                       Int                    @id @map("user_id")
   teachingQualificationTitleId Int?
   teachingQualificationId      Int?
-  users                        User @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users                        User                   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  teachingQualificationProject QualificationProject[]
 
   @@map("teachers")
 }
