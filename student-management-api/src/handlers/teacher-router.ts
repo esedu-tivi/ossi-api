@@ -28,7 +28,7 @@ router.post("/:id/assignTeachingProject", parseId, async (req: RequestWithIdAndP
 
         checkIds({ projectId })
 
-        const response = await prisma.teacher.update({
+        await prisma.teacher.update({
             where: { userId: req.id },
             data: {
                 teachingQualificationProject: {
@@ -36,10 +36,38 @@ router.post("/:id/assignTeachingProject", parseId, async (req: RequestWithIdAndP
                 }
             }
         })
+
         res.json({
-            status: 200,
+            status: 201,
             success: true,
             message: "Successfully assigned project"
+        })
+
+    } catch (error) {
+        console.error(error)
+        next(error)
+    }
+})
+
+router.delete("/:id/unassignTeachingProject", parseId, async (req: RequestWithIdAndProjectId, res: Response, next: NextFunction) => {
+    try {
+        const { projectId } = req.body
+
+        checkIds({ projectId })
+
+        await prisma.teacher.update({
+            where: { userId: req.id },
+            data: {
+                teachingQualificationProject: {
+                    disconnect: { id: Number(projectId) }
+                }
+            }
+        })
+
+        res.json({
+            status: 204,
+            success: true,
+            message: "Successfully unassigned project"
         })
 
     } catch (error) {

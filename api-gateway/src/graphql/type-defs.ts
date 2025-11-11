@@ -444,6 +444,12 @@ const newLocal = `#graphql
         message: String
     }
 
+    type UnassignTeachingProjectResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+    }
+
     # --- End of Responses
 
 
@@ -563,6 +569,7 @@ const newLocal = `#graphql
         markMessageAsRead(messageId: ID!): Message!
 
         assignTeachingProject(userId: ID!, projectId: ID!): AssignTeachingProjectResponse @authenticatedAsTeacher
+        unassignTeachingProject(userId: ID!, projectId: ID!): UnassignTeachingProjectResponse @authenticatedAsTeacher
     }
 
     # --- End of Query & Mutation ---

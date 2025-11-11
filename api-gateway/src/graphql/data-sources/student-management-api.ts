@@ -224,9 +224,14 @@ class StudentManagementAPI extends RESTDataSource {
     }
 
     async assignTeachingProject(args) {
-        console.log('args', args)
         return this.post(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/teachers/${args.userId}/assignTeachingProject`, { body: args }
+        )
+    }
+
+    async unassignTeachingProject(args) {
+        return this.delete(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/teachers/${args.userId}/unassignTeachingProject`, { body: args }
         )
     }
 

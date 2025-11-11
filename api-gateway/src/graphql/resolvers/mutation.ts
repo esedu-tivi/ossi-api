@@ -76,6 +76,10 @@ const assignTeachingProject = async (parent, args, context, info) => {
     return await context.dataSources.studentManagementAPI.assignTeachingProject(args)
 }
 
+const unassignTeachingProject = async (parent, args, context, info) => {
+    return await context.dataSources.studentManagementAPI.unassignTeachingProject(args)
+}
+
 export const Mutation = {
     login,
     setUpStudent,
@@ -94,4 +98,5 @@ export const Mutation = {
     markNotificationAsRead,
     debugSendNotification,
     assignTeachingProject,
+    unassignTeachingProject,
 }
