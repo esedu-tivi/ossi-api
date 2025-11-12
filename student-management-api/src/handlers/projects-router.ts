@@ -393,7 +393,6 @@ router.put("/:id/change_status", parseId, async (req: RequestWithId, res, next) 
                     teacherComment
                 }
             })
-            console.log(project)
 
             const notificationPayload = {
                 recipients: [studentId],

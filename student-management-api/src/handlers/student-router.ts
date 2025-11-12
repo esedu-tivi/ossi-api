@@ -45,9 +45,8 @@ interface StudentSetupWithIdRequest extends RequestWithId {
     }
 }
 
-interface ParsedStudent extends Omit<User, "id"> {
+interface ParsedStudent {
     id: number,
-    userId: number;
     groupId: string;
     qualificationTitleId: number | null;
     qualificationId: number | null;
@@ -58,14 +57,14 @@ type StudentWithUserAndGroup = Student & { users: User, group: StudentGroup };
 
 const parseStudent = (student: StudentWithUserAndGroup): ParsedStudent | null => {
     const returnStudent: ParsedStudent = {
-        userId: student.userId,
+        id: student.users.id,
         groupId: student.group.groupName || null,
         ...student.users,
         qualificationTitleId: student.qualificationTitleId,
         qualificationId: student.qualificationId,
         qualificationCompletion: student.qualificationCompletion,
     };
-    delete returnStudent.id;
+
     return returnStudent || null;
 };
 
@@ -349,8 +348,6 @@ router.post("/assignProjectToStudent", async (req: RequestWithAssignProjectToStu
             return assignedProject
         })
 
-
-        console.log(assignedProject)
         res.json({
             status: 200,
             success: true,
@@ -494,7 +491,7 @@ router.put("/updateStudentProject", async (req: RequestWithUpdateStudentProjectB
         const updateFields = Object.fromEntries(
             Object.entries(update).filter(([_, entry]) => entry !== undefined))
 
-        const teachers = await prisma.teacher.findMany({
+        const teachersByQualificationProject = await prisma.teacher.findMany({
             where: {
                 teachingQualificationProject: {
                     some: { id: Number(projectId) }
@@ -502,9 +499,44 @@ router.put("/updateStudentProject", async (req: RequestWithUpdateStudentProjectB
             }
         })
 
-        const teacherIds = teachers.map(teacher => teacher.userId)
+        const teachersByProjectTagFilter = await prisma.teacher.findMany({
+            where: {
+                projectTagFilter: {
+                    some: {
+                        qualificationProjectsTagsRelations: {
+                            some: {
+                                qualificationProjectId: Number(projectId)
+                            }
+                        }
+                    }
+                },
+                teachingQualificationProject: {
+                    some: { id: Number(projectId) }
+                }
+            }
+        })
 
-        console.log('teacherIds', teacherIds)
+        const teachersByStudentGroup = await prisma.teacher.findMany({
+            where: {
+                studentGroups: {
+                    some: {
+                        students: {
+                            some: {
+                                userId: Number(studentId)
+                            }
+                        }
+                    }
+                }
+            }
+        })
+
+        const projectTagFilterUserIds = teachersByProjectTagFilter.map(teacher => teacher.userId)
+        const qualificationProjectUserIds = teachersByQualificationProject.map(teacher => teacher.userId)
+        const studentGroupUserIds = teachersByStudentGroup.map(teacher => teacher.userId)
+
+        const teacherIds = [...new Set([...projectTagFilterUserIds, ...qualificationProjectUserIds, ...studentGroupUserIds])]
+
+        console.log('teacher userIds who will receive notification:', teacherIds)
 
         if (updateFields.projectStatus == "RETURNED") {
             redisPublisher.publish("notification", JSON.stringify({

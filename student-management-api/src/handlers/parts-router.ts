@@ -19,7 +19,6 @@ router.get("/", async (req, res, next) => {
     // We don't need to use transactions in read-only operation
     const parts = await prisma.qualificationUnitPart.findMany()
 
-    console.log(parts)
     res.json({
         status: 200,
         success: true,
