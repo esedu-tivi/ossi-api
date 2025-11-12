@@ -1,7 +1,7 @@
 import axios from "axios";
 import express, { json } from "express";
 import jwt, { type JwtPayload } from "jsonwebtoken";
-import prisma, { enumUsersScope } from "prisma-orm"
+import prisma, { enumUsersScope, type StudentGroup } from "prisma-orm"
 import { HttpError } from "./classes/HttpError.js";
 
 interface IdTokenPayload extends JwtPayload {
@@ -61,14 +61,33 @@ router.post("/login", async (req, res) => {
                     }
                 })
 
-                if (userScope === enumUsersScope.STUDENT) {
+                if (userScope === enumUsersScope.STUDENT && createdUser) {
                     await transaction.student.create({
                         data: {
                             userId: createdUser.id,
-                            groupId: idToken.jobTitle,
                             qualificationCompletion: null,
                             qualificationTitleId: null,
                             qualificationId: null
+                        }
+                    })
+
+                    let studentGroup: StudentGroup | null;
+
+                    studentGroup = await transaction.studentGroup.findFirst({
+                        where: { groupName: idToken.jobTitle }
+                    })
+
+                    if (!studentGroup) {
+                        studentGroup = await transaction.studentGroup.create({
+                            data: {
+                                groupName: idToken.jobTitle
+                            }
+                        })
+                    }
+                    await transaction.student.update({
+                        where: { userId: createdUser.id },
+                        data: {
+                            studentGroupId: studentGroup.id
                         }
                     })
                 } else if (userScope === enumUsersScope.TEACHER) {

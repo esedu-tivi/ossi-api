@@ -3,7 +3,7 @@ import jwt, { type JwtPayload } from "jsonwebtoken";
 import { parseId } from "../utils/middleware.js";
 import prisma from "prisma-orm";
 import { type RequestWithId } from "../types.js";
-import type { enumAssignedProjectsForStudentsProjectStatus, enumStudentsQualificationCompletion, enumUsersScope } from "prisma-orm";
+import type { enumAssignedProjectsForStudentsProjectStatus, enumStudentsQualificationCompletion, enumUsersScope, Student, StudentGroup, User } from "prisma-orm";
 import { HttpError } from "../classes/HttpError.js";
 import { checkRequiredFields } from "../utils/checkRequiredFields.js";
 import { checkIds } from "../utils/checkIds.js";
@@ -45,31 +45,65 @@ interface StudentSetupWithIdRequest extends RequestWithId {
     }
 }
 
+interface ParsedStudent extends Omit<User, "id"> {
+    id: number,
+    userId: number;
+    groupId: string;
+    qualificationTitleId: number | null;
+    qualificationId: number | null;
+    qualificationCompletion: enumStudentsQualificationCompletion;
+}
+
+type StudentWithUserAndGroup = Student & { users: User, group: StudentGroup };
+
+const parseStudent = (student: StudentWithUserAndGroup): ParsedStudent | null => {
+    const returnStudent: ParsedStudent = {
+        userId: student.userId,
+        groupId: student.group.groupName || null,
+        ...student.users,
+        qualificationTitleId: student.qualificationTitleId,
+        qualificationId: student.qualificationId,
+        qualificationCompletion: student.qualificationCompletion,
+    };
+    delete returnStudent.id;
+    return returnStudent || null;
+};
+
 router.get("/", async (req, res) => {
-    const students = await prisma.student.findMany()
-    const users = await prisma.user.findMany({ where: { id: { in: students.map(student => student.userId) } } })
+    const students = await prisma.student.findMany({
+        include: {
+            group: true,
+            users: true
+        }
+    })
 
     res.json({
         status: 200,
         success: true,
-        students: students.map(student => ({ ...student, ...users.find(user => user.id == student.userId) }))
+        students: students.map(student => (parseStudent(student)))
     })
 })
 
 router.get("/:id", parseId, async (req: RequestWithId, res, next) => {
     try {
-        const user = await prisma.user.findUnique({ where: { id: req.id } })
-        const student = await prisma.student.findUnique({ where: { userId: req.id } })
-        console.log(user, student)
+        const student = await prisma.student.findUnique({
+            where: { userId: req.id },
+            include: {
+                group: true,
+                users: true
+            }
+        })
 
-        if (!user || !student) {
-            throw new HttpError(404, "User or student not found")
+        if (!student) {
+            throw new HttpError(404, "Student not found")
         }
+
+        const parsedStudent = parseStudent(student)
 
         res.json({
             status: 200,
             success: true,
-            student: { ...user, ...student }
+            student: parsedStudent
         })
     } catch (error) {
         next(error)

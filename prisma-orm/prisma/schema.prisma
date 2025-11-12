@@ -87,6 +87,7 @@ model QualificationProjectTag {
   id                                 Int                                 @id @default(autoincrement())
   name                               String?                             @db.VarChar(128)
   qualificationProjectsTagsRelations QualificationProjectsTagsRelation[]
+  teachers                           Teacher[]
 
   @@map("qualification_project_tags")
 }
@@ -186,7 +187,7 @@ model WorktimeEntries {
 
 model Student {
   userId                                Int                                   @id @map("user_id")
-  groupId                               String                                @map("group_id") @db.VarChar(128)
+  group                                 StudentGroup?                         @relation(fields: [studentGroupId], references: [id])
   qualificationTitleId                  Int?                                  @map("qualification_title_id")
   qualificationId                       Int?                                  @map("qualification_id")
   qualificationCompletion               enumStudentsQualificationCompletion?  @map("qualification_completion")
@@ -194,8 +195,16 @@ model Student {
   assignedProjectsForStudent            AssignedProjectsForStudent[]
   users                                 User                                  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   supervisedStudentsByJobSupervisors    SupervisedStudentsByJobSupervisor[]
+  studentGroupId                        Int?
 
   @@map("students")
+}
+
+model StudentGroup {
+  id        Int       @id @default(autoincrement())
+  groupName String    @unique
+  teachers  Teacher[]
+  students  Student[]
 }
 
 model SupervisedStudentsByJobSupervisor {
@@ -209,11 +218,13 @@ model SupervisedStudentsByJobSupervisor {
 }
 
 model Teacher {
-  userId                       Int                    @id @map("user_id")
+  userId                       Int                       @id @map("user_id")
   teachingQualificationTitleId Int?
   teachingQualificationId      Int?
-  users                        User                   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users                        User                      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   teachingQualificationProject QualificationProject[]
+  projectTagFilter             QualificationProjectTag[]
+  studentGroups                StudentGroup[]
 
   @@map("teachers")
 }

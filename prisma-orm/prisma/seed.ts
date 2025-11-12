@@ -1,6 +1,6 @@
 import "dotenv";
 import prisma, { enumUsersScope } from "../index.js"
-import type { QualificationProject, QualificationUnitPart, Qualification, QualificationUnit } from "../index.js"
+import type { QualificationProject, QualificationUnitPart, Qualification, QualificationUnit, StudentGroup } from "../index.js"
 
 const userData = {
   oid: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
@@ -58,12 +58,37 @@ const addStudent = async () => {
         return console.log('Student is already in the database')
       }
       const createdUser = await transaction.user.create({ data: userData })
-      const createdStudent = await transaction.student.create({
+
+      await transaction.student.create({
         data: {
           userId: createdUser.id,
-          groupId: 'TiVi23A',
           qualificationTitleId: 10224,
           qualificationId: qualification.id,
+        }
+      })
+      let studentGroup: StudentGroup | null;
+      const groupName = 'TiVi23A'
+
+      studentGroup = await transaction.studentGroup.findFirst({
+        where: { groupName }
+      })
+      if (!studentGroup) {
+        studentGroup = await transaction.studentGroup.create({
+          data: { groupName }
+        })
+      }
+
+      await transaction.student.update({
+        where: { userId: createdUser.id },
+        data: {
+          studentGroupId: studentGroup.id
+        }
+      })
+
+      const createdStudent = await transaction.student.findFirst({
+        where: { userId: createdUser.id },
+        include: {
+          group: true
         }
       })
 
