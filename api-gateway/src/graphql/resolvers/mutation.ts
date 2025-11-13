@@ -88,6 +88,14 @@ const unassignStudentGroups = async (parent, args, context, info) => {
     return await context.dataSources.studentManagementAPI.unassignStudentGroups(args)
 }
 
+const assignTags = async (parent, args, context, info) => {
+    return await context.dataSources.studentManagementAPI.assignTags(args)
+}
+
+const unassignTags = async (parent, args, context, info) => {
+    return await context.dataSources.studentManagementAPI.unassignTags(args)
+}
+
 export const Mutation = {
     login,
     setUpStudent,
@@ -109,4 +117,6 @@ export const Mutation = {
     unassignTeachingProject,
     assignStudentGroups,
     unassignStudentGroups,
+    assignTags,
+    unassignTags,
 }

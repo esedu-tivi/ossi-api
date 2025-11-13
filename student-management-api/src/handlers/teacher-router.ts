@@ -148,4 +148,76 @@ router.delete("/:id/unassignStudentGroups", parseId, async (req: Omit<RequestWit
     }
 })
 
+router.post("/:id/assignTags", parseId, async (req: Omit<RequestWithId, 'body'> & { body: { tagIds: string[] } }, res: Response, next: NextFunction) => {
+    try {
+        const { tagIds } = req.body
+        if (
+            !tagIds ||
+            !Array.isArray(tagIds) ||
+            !tagIds.every((id) => typeof id === "string")
+        ) {
+            return res.json({
+                status: 400,
+                success: false,
+                message: `tagIds missing from body or not an array of strings`
+            })
+        }
+
+        await prisma.teacher.update({
+            where: { userId: req.id },
+            data: {
+                projectTagFilter: {
+                    connect: tagIds.map((tagId: string) => ({ id: Number(tagId) }))
+                }
+            }
+        })
+
+        res.json({
+            status: 201,
+            success: true,
+            message: "Successfully assigned projectTagFilter(s)"
+        })
+
+    } catch (error) {
+        console.error(error)
+        next(error)
+    }
+})
+
+router.delete("/:id/unassignTags", parseId, async (req: Omit<RequestWithId, 'body'> & { body: { tagIds: string[] } }, res: Response, next: NextFunction) => {
+    try {
+        const { tagIds } = req.body
+        if (
+            !tagIds ||
+            !Array.isArray(tagIds) ||
+            !tagIds.every((id) => typeof id === "string")
+        ) {
+            return res.json({
+                status: 400,
+                success: false,
+                message: `tagIds missing from body or not an array of strings`
+            })
+        }
+
+        await prisma.teacher.update({
+            where: { userId: req.id },
+            data: {
+                projectTagFilter: {
+                    disconnect: tagIds.map((tagId: string) => ({ id: Number(tagId) }))
+                }
+            }
+        })
+
+        res.json({
+            status: 204,
+            success: true,
+            message: "Successfully unassigned projectTagFilter(s)"
+        })
+
+    } catch (error) {
+        console.error(error)
+        next(error)
+    }
+})
+
 export const TeacherRouter = router;
