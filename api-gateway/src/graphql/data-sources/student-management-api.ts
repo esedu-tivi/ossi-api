@@ -258,6 +258,12 @@ class StudentManagementAPI extends RESTDataSource {
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/teachers/${args.userId}/unassignTags`, { body: args }
         )
     }
+
+    async updateTagAssigns(args) {
+        return this.patch(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/teachers/${args.userId}/updateTagAssigns`, { body: args }
+        )
+    }
 }
 
 export { StudentManagementAPI };

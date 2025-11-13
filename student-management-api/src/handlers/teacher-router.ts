@@ -220,4 +220,44 @@ router.delete("/:id/unassignTags", parseId, async (req: Omit<RequestWithId, 'bod
     }
 })
 
+router.patch("/:id/updateTagAssigns", parseId, async (req: Omit<RequestWithId, 'body'> & { body: { assignedTagIds: string[], unassignedTagIds: string[] } }, res: Response, next: NextFunction) => {
+    try {
+        const { assignedTagIds, unassignedTagIds } = req.body
+        if (
+            !assignedTagIds ||
+            !Array.isArray(assignedTagIds) ||
+            !assignedTagIds.every((id) => typeof id === "string") ||
+            !unassignedTagIds ||
+            !Array.isArray(unassignedTagIds) ||
+            !unassignedTagIds.every((id) => typeof id === "string")
+        ) {
+            return res.json({
+                status: 400,
+                success: false,
+                message: `assignedTagIds or/and unassignedTagIds missing from body or not an array of strings`
+            })
+        }
+
+        await prisma.teacher.update({
+            where: { userId: req.id },
+            data: {
+                projectTagFilter: {
+                    connect: assignedTagIds.map((tagId: string) => ({ id: Number(tagId) })),
+                    disconnect: unassignedTagIds.map((tagId: string) => ({ id: Number(tagId) }))
+                }
+            }
+        })
+
+        res.json({
+            status: 204,
+            success: true,
+            message: "Successfully assigned and unassigned projectTagFilter(s)"
+        })
+
+    }
+    catch (error) {
+        next(error)
+    }
+})
+
 export const TeacherRouter = router;

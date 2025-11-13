@@ -474,6 +474,12 @@ const newLocal = `#graphql
         message: String
     }
 
+    type updateTagAssignsResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+    }
+
     # --- End of Responses
 
 
@@ -600,6 +606,7 @@ const newLocal = `#graphql
 
         assignTags(userId: ID!, tagIds: [ID!]!): AssignTagsResponse @authenticatedAsTeacher
         unassignTags(userId: ID!, tagIds: [ID!]!): UnassignTagsResponse @authenticatedAsTeacher
+        updateTagAssigns(userId: ID!, assignedTagIds: [ID!]!, unassignedTagIds: [ID!]!): updateTagAssignsResponse @authenticatedAsTeacher
     }
 
     # --- End of Query & Mutation ---
