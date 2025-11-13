@@ -139,7 +139,47 @@ router.delete("/:id/unassignStudentGroups", parseId, async (req: Omit<RequestWit
         res.json({
             status: 204,
             success: true,
-            message: "Successfully unassigned studentGroup"
+            message: "Successfully unassigned studentGroup(s)"
+        })
+
+    } catch (error) {
+        console.error(error)
+        next(error)
+    }
+})
+
+router.patch("/:id/updateStudentGroupAssigns", parseId, async (req: Omit<RequestWithId, 'body'> & { body: { assignGroupIds: string[], unassignGroupIds: string[] } }, res: Response, next: NextFunction) => {
+    try {
+        const { assignGroupIds, unassignGroupIds } = req.body
+        if (
+            !assignGroupIds ||
+            !Array.isArray(assignGroupIds) ||
+            !assignGroupIds.every((id) => typeof id === "string") ||
+            !unassignGroupIds ||
+            !Array.isArray(unassignGroupIds) ||
+            !unassignGroupIds.every((id) => typeof id === "string")
+        ) {
+            return res.json({
+                status: 400,
+                success: false,
+                message: `assignGroupIds and/or unassignGroupIds missing from body or not an array of strings`
+            })
+        }
+
+        await prisma.teacher.update({
+            where: { userId: req.id },
+            data: {
+                studentGroups: {
+                    connect: assignGroupIds.map((groupId: string) => ({ groupName: groupId })),
+                    disconnect: unassignGroupIds.map((groupId: string) => ({ groupName: groupId }))
+                }
+            }
+        })
+
+        res.json({
+            status: 204,
+            success: true,
+            message: "Successfully assigned and unassigned studentGroup(s)"
         })
 
     } catch (error) {

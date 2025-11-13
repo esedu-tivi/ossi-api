@@ -462,6 +462,12 @@ const newLocal = `#graphql
         message: String
     }
 
+    type updateStudentGroupAssignsResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+    }
+
     type AssignTagsResponse {
         success: Boolean!
         status: Int!
@@ -603,6 +609,7 @@ const newLocal = `#graphql
 
         assignStudentGroups(userId: ID!, groupIds: [ID!]!): AssignStudentGroupsResponse @authenticatedAsTeacher
         unassignStudentGroups(userId: ID!, groupIds: [ID!]!): UnassignStudentGroupsResponse @authenticatedAsTeacher
+        updateStudentGroupAssigns(userId: ID!, assignGroupIds: [ID!]!, unassignGroupIds: [ID!]!): updateStudentGroupAssignsResponse @authenticatedAsTeacher
 
         assignTags(userId: ID!, tagIds: [ID!]!): AssignTagsResponse @authenticatedAsTeacher
         unassignTags(userId: ID!, tagIds: [ID!]!): UnassignTagsResponse @authenticatedAsTeacher
