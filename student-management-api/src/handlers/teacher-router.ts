@@ -76,4 +76,76 @@ router.delete("/:id/unassignTeachingProject", parseId, async (req: RequestWithId
     }
 })
 
+router.post("/:id/assignStudentGroups", parseId, async (req: Omit<RequestWithId, 'body'> & { body: { groupIds: string[] } }, res: Response, next: NextFunction) => {
+    try {
+        const { groupIds } = req.body
+        if (
+            !groupIds ||
+            !Array.isArray(groupIds) ||
+            !groupIds.every((id) => typeof id === "string")
+        ) {
+            return res.json({
+                status: 400,
+                success: false,
+                message: `groupIds missing from body or not an array of strings`
+            })
+        }
+
+        await prisma.teacher.update({
+            where: { userId: req.id },
+            data: {
+                studentGroups: {
+                    connect: groupIds.map((groupId: string) => ({ groupName: groupId }))
+                }
+            }
+        })
+
+        res.json({
+            status: 201,
+            success: true,
+            message: "Successfully assigned studentGroup"
+        })
+
+    } catch (error) {
+        console.error(error)
+        next(error)
+    }
+})
+
+router.delete("/:id/unassignStudentGroups", parseId, async (req: Omit<RequestWithId, 'body'> & { body: { groupIds: string[] } }, res: Response, next: NextFunction) => {
+    try {
+        const { groupIds } = req.body
+        if (
+            !groupIds ||
+            !Array.isArray(groupIds) ||
+            !groupIds.every((id) => typeof id === "string")
+        ) {
+            return res.json({
+                status: 400,
+                success: false,
+                message: `groupIds missing from body or not an array of strings`
+            })
+        }
+
+        await prisma.teacher.update({
+            where: { userId: req.id },
+            data: {
+                studentGroups: {
+                    disconnect: groupIds.map((groupId: string) => ({ groupName: groupId }))
+                }
+            }
+        })
+
+        res.json({
+            status: 204,
+            success: true,
+            message: "Successfully unassigned studentGroup"
+        })
+
+    } catch (error) {
+        console.error(error)
+        next(error)
+    }
+})
+
 export const TeacherRouter = router;

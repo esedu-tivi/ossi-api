@@ -450,6 +450,18 @@ const newLocal = `#graphql
         message: String
     }
 
+    type AssignStudentGroupsResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+    }
+
+    type UnassignStudentGroupsResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+    }
+
     # --- End of Responses
 
 
@@ -570,6 +582,9 @@ const newLocal = `#graphql
 
         assignTeachingProject(userId: ID!, projectId: ID!): AssignTeachingProjectResponse @authenticatedAsTeacher
         unassignTeachingProject(userId: ID!, projectId: ID!): UnassignTeachingProjectResponse @authenticatedAsTeacher
+
+        assignStudentGroups(userId: ID!, groupIds: [ID!]!): AssignStudentGroupsResponse @authenticatedAsTeacher
+        unassignStudentGroups(userId: ID!, groupIds: [ID!]!): UnassignStudentGroupsResponse @authenticatedAsTeacher
     }
 
     # --- End of Query & Mutation ---
