@@ -6,7 +6,7 @@ import { type RequestWithId } from "../types.js";
 import type { enumAssignedProjectsForStudentsProjectStatus, enumStudentsQualificationCompletion, enumUsersScope, Student, StudentGroup, User } from "prisma-orm";
 import { HttpError } from "../classes/HttpError.js";
 import { checkRequiredFields } from "../utils/checkRequiredFields.js";
-import { checkIds } from "../utils/checkIds.js";
+import { checkIds, NeededType } from "../utils/checkIds.js";
 import { redisPublisher } from "../redis.js";
 
 const router = express.Router();
@@ -183,7 +183,7 @@ router.get("/:id/single_assigned_project/:projectId", parseId, async (req: Reque
     //table assigned_projects_for_students
     try {
         const projectId = req.params.projectId
-        checkIds({ projectId })
+        checkIds({ projectId }, NeededType.NUMBER)
         const foundAssignedProject = await prisma.assignedProjectsForStudent.findFirst({
             where: {
                 studentId: req.id,
@@ -295,7 +295,7 @@ router.post("/assignProjectToStudent", async (req: RequestWithAssignProjectToStu
         // console.log("assign to backend ", req.body.studentId, req.body.projectId)
         const { studentId, projectId } = req.body
 
-        checkIds({ studentId, projectId })
+        checkIds({ studentId, projectId }, NeededType.NUMBER)
 
         const parsedStudentId = parseInt(studentId)
         const parsedProjectId = parseInt(projectId)
@@ -365,7 +365,7 @@ router.delete("/unassignProjectFromStudent", async (req, res, next) => {
         console.log("removed ", req.body)
         const { studentId, projectId } = req.body
 
-        checkIds({ studentId, projectId })
+        checkIds({ studentId, projectId }, NeededType.NUMBER)
 
         const parsedStudentId = parseInt(studentId)
         const parsedProjectId = parseInt(projectId)
@@ -420,7 +420,7 @@ router.post("/createWorktimeEntry", async (req, res, next) => {
             throw new HttpError(400, `missing entry object fields: ${missingEntryFields}`)
         }
 
-        checkIds({ studentId, projectId })
+        checkIds({ studentId, projectId }, NeededType.NUMBER)
 
         const parsedStudentId = parseInt(studentId)
         const parsedProjectId = parseInt(projectId)
@@ -458,7 +458,7 @@ router.post("/createWorktimeEntry", async (req, res, next) => {
 
 router.delete("/deleteWorktimeEntry", async (req, res, next) => {
     const { id } = req.body
-    checkIds({ id })
+    checkIds({ id }, NeededType.NUMBER)
     const parsedId = parseInt(id)
     try {
         const entry = await prisma.$transaction(async transaction => {
@@ -486,7 +486,7 @@ router.put("/updateStudentProject", async (req: RequestWithUpdateStudentProjectB
         // console.log("updateProject: ", req.body)
         const { studentId, projectId, update } = req.body
 
-        checkIds({ studentId, projectId })
+        checkIds({ studentId, projectId }, NeededType.NUMBER)
 
         const updateFields = Object.fromEntries(
             Object.entries(update).filter(([_, entry]) => entry !== undefined))

@@ -1,11 +1,11 @@
-import express from "express";
+import express, { type NextFunction, type Response } from "express";
 import { parseId } from "../utils/middleware.js";
 import { redisPublisher } from "../redis.js";
 import prisma, { enumAssignedProjectsForStudentsProjectStatus } from "prisma-orm";
 import { checkRequiredFields } from "../utils/checkRequiredFields.js";
 import { type RequestWithId } from "../types.js";
 import { HttpError } from "../classes/HttpError.js";
-import { checkIds } from "../utils/checkIds.js";
+import { checkIds, NeededType } from "../utils/checkIds.js";
 
 const router = express();
 
@@ -252,6 +252,10 @@ router.put("/:id", parseId, async (req: RequestWithId, res, next) => {
             throw new HttpError(400, `Missing fields: ${missingFields}`)
         }
 
+        checkIds(updatedProjectFields.competenceRequirements, NeededType.NUMBER)
+        checkIds(updatedProjectFields.includedInParts, NeededType.NUMBER)
+        checkIds(updatedProjectFields.tags, NeededType.NUMBER)
+
         const updatedProject = await prisma.$transaction(async (transaction) => {
             const projectToUpdate = await transaction.qualificationProject.findFirst({
                 where: { id: req.id },
@@ -373,12 +377,12 @@ router.put("/:id", parseId, async (req: RequestWithId, res, next) => {
     }
 })
 
-router.patch("/:id/change_status", parseId, async (req: RequestWithId, res, next) => {
+router.patch("/:id/change_status", parseId, async (req: RequestWithId, res: Response, next: NextFunction) => {
     try {
         console.log('req.body', req.body)
         const { status, studentId, teacherComment }: { status: enumAssignedProjectsForStudentsProjectStatus, studentId: string, teacherComment: string | null } = req.body
 
-        checkIds({ studentId })
+        checkIds({ studentId }, NeededType.NUMBER)
 
         if (status === 'ACCEPTED' || status === 'REJECTED') {
             const project = await prisma.assignedProjectsForStudent.update({

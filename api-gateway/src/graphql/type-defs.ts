@@ -450,6 +450,12 @@ const newLocal = `#graphql
         message: String
     }
 
+    type UpdateTeachingProjectsResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+    }
+
     type AssignStudentGroupsResponse {
         success: Boolean!
         status: Int!
@@ -462,7 +468,7 @@ const newLocal = `#graphql
         message: String
     }
 
-    type updateStudentGroupAssignsResponse {
+    type UpdateStudentGroupAssignsResponse {
         success: Boolean!
         status: Int!
         message: String
@@ -480,7 +486,7 @@ const newLocal = `#graphql
         message: String
     }
 
-    type updateTagAssignsResponse {
+    type UpdateTagAssignsResponse {
         success: Boolean!
         status: Int!
         message: String
@@ -606,14 +612,15 @@ const newLocal = `#graphql
 
         assignTeachingProject(userId: ID!, projectId: ID!): AssignTeachingProjectResponse @authenticatedAsTeacher
         unassignTeachingProject(userId: ID!, projectId: ID!): UnassignTeachingProjectResponse @authenticatedAsTeacher
+        updateTeachingProjectAssigns(userId: ID!, assignProjectIds: [ID!]!, unassignProjectIds: [ID!]!): UpdateTeachingProjectAssignsResponse @authenticatedAsTeacher
 
         assignStudentGroups(userId: ID!, groupIds: [ID!]!): AssignStudentGroupsResponse @authenticatedAsTeacher
         unassignStudentGroups(userId: ID!, groupIds: [ID!]!): UnassignStudentGroupsResponse @authenticatedAsTeacher
-        updateStudentGroupAssigns(userId: ID!, assignGroupIds: [ID!]!, unassignGroupIds: [ID!]!): updateStudentGroupAssignsResponse @authenticatedAsTeacher
+        updateStudentGroupAssigns(userId: ID!, assignGroupIds: [ID!]!, unassignGroupIds: [ID!]!): UpdateStudentGroupAssignsResponse @authenticatedAsTeacher
 
         assignTags(userId: ID!, tagIds: [ID!]!): AssignTagsResponse @authenticatedAsTeacher
         unassignTags(userId: ID!, tagIds: [ID!]!): UnassignTagsResponse @authenticatedAsTeacher
-        updateTagAssigns(userId: ID!, assignedTagIds: [ID!]!, unassignedTagIds: [ID!]!): updateTagAssignsResponse @authenticatedAsTeacher
+        updateTagAssigns(userId: ID!, assignedTagIds: [ID!]!, unassignedTagIds: [ID!]!): UpdateTagAssignsResponse @authenticatedAsTeacher
     }
 
     # --- End of Query & Mutation ---

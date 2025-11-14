@@ -2,7 +2,7 @@ import express, { type NextFunction, type Response } from "express";
 import { parseId } from "../utils/middleware.js";
 import prisma from "prisma-orm";
 import { type RequestWithId } from "../types.js";
-import { checkIds } from "../utils/checkIds.js";
+import { checkIds, NeededType } from "../utils/checkIds.js";
 const router = express.Router();
 
 interface RequestWithIdAndProjectId extends RequestWithId {
@@ -26,7 +26,7 @@ router.post("/:id/assignTeachingProject", parseId, async (req: RequestWithIdAndP
     try {
         const { projectId } = req.body
 
-        checkIds({ projectId })
+        checkIds({ projectId }, NeededType.NUMBER)
 
         await prisma.teacher.update({
             where: { userId: req.id },
@@ -53,7 +53,7 @@ router.delete("/:id/unassignTeachingProject", parseId, async (req: RequestWithId
     try {
         const { projectId } = req.body
 
-        checkIds({ projectId })
+        checkIds({ projectId }, NeededType.NUMBER)
 
         await prisma.teacher.update({
             where: { userId: req.id },
@@ -76,20 +76,39 @@ router.delete("/:id/unassignTeachingProject", parseId, async (req: RequestWithId
     }
 })
 
+router.patch("/:id/updateTeachingProjectAssigns", parseId, async (req: Omit<RequestWithId, 'body'> & { body: { assignProjectIds: string[], unassignProjectIds: string[] } }, res: Response, next: NextFunction) => {
+    try {
+        const { assignProjectIds, unassignProjectIds } = req.body
+
+        checkIds(assignProjectIds, NeededType.NUMBER)
+        checkIds(unassignProjectIds, NeededType.NUMBER)
+
+        await prisma.teacher.update({
+            where: { userId: req.id },
+            data: {
+                teachingQualificationProject: {
+                    connect: assignProjectIds.map((projectId: string) => ({ id: Number(projectId) })),
+                    disconnect: unassignProjectIds.map((projectId: string) => ({ id: Number(projectId) }))
+                }
+            }
+        })
+
+        res.json({
+            status: 204,
+            success: true,
+            message: "Successfully assigned and/or unassigned project(s)"
+        })
+
+    } catch (error) {
+        console.error(error)
+        next(error)
+    }
+})
+
 router.post("/:id/assignStudentGroups", parseId, async (req: Omit<RequestWithId, 'body'> & { body: { groupIds: string[] } }, res: Response, next: NextFunction) => {
     try {
         const { groupIds } = req.body
-        if (
-            !groupIds ||
-            !Array.isArray(groupIds) ||
-            !groupIds.every((id) => typeof id === "string")
-        ) {
-            return res.json({
-                status: 400,
-                success: false,
-                message: `groupIds missing from body or not an array of strings`
-            })
-        }
+        checkIds(groupIds, NeededType.STRING)
 
         await prisma.teacher.update({
             where: { userId: req.id },
@@ -115,17 +134,7 @@ router.post("/:id/assignStudentGroups", parseId, async (req: Omit<RequestWithId,
 router.delete("/:id/unassignStudentGroups", parseId, async (req: Omit<RequestWithId, 'body'> & { body: { groupIds: string[] } }, res: Response, next: NextFunction) => {
     try {
         const { groupIds } = req.body
-        if (
-            !groupIds ||
-            !Array.isArray(groupIds) ||
-            !groupIds.every((id) => typeof id === "string")
-        ) {
-            return res.json({
-                status: 400,
-                success: false,
-                message: `groupIds missing from body or not an array of strings`
-            })
-        }
+        checkIds(groupIds, NeededType.STRING)
 
         await prisma.teacher.update({
             where: { userId: req.id },
@@ -151,20 +160,8 @@ router.delete("/:id/unassignStudentGroups", parseId, async (req: Omit<RequestWit
 router.patch("/:id/updateStudentGroupAssigns", parseId, async (req: Omit<RequestWithId, 'body'> & { body: { assignGroupIds: string[], unassignGroupIds: string[] } }, res: Response, next: NextFunction) => {
     try {
         const { assignGroupIds, unassignGroupIds } = req.body
-        if (
-            !assignGroupIds ||
-            !Array.isArray(assignGroupIds) ||
-            !assignGroupIds.every((id) => typeof id === "string") ||
-            !unassignGroupIds ||
-            !Array.isArray(unassignGroupIds) ||
-            !unassignGroupIds.every((id) => typeof id === "string")
-        ) {
-            return res.json({
-                status: 400,
-                success: false,
-                message: `assignGroupIds and/or unassignGroupIds missing from body or not an array of strings`
-            })
-        }
+        checkIds(assignGroupIds, NeededType.STRING)
+        checkIds(unassignGroupIds, NeededType.STRING)
 
         await prisma.teacher.update({
             where: { userId: req.id },
@@ -191,17 +188,7 @@ router.patch("/:id/updateStudentGroupAssigns", parseId, async (req: Omit<Request
 router.post("/:id/assignTags", parseId, async (req: Omit<RequestWithId, 'body'> & { body: { tagIds: string[] } }, res: Response, next: NextFunction) => {
     try {
         const { tagIds } = req.body
-        if (
-            !tagIds ||
-            !Array.isArray(tagIds) ||
-            !tagIds.every((id) => typeof id === "string")
-        ) {
-            return res.json({
-                status: 400,
-                success: false,
-                message: `tagIds missing from body or not an array of strings`
-            })
-        }
+        checkIds(tagIds, NeededType.NUMBER)
 
         await prisma.teacher.update({
             where: { userId: req.id },
@@ -227,17 +214,7 @@ router.post("/:id/assignTags", parseId, async (req: Omit<RequestWithId, 'body'> 
 router.delete("/:id/unassignTags", parseId, async (req: Omit<RequestWithId, 'body'> & { body: { tagIds: string[] } }, res: Response, next: NextFunction) => {
     try {
         const { tagIds } = req.body
-        if (
-            !tagIds ||
-            !Array.isArray(tagIds) ||
-            !tagIds.every((id) => typeof id === "string")
-        ) {
-            return res.json({
-                status: 400,
-                success: false,
-                message: `tagIds missing from body or not an array of strings`
-            })
-        }
+        checkIds(tagIds, NeededType.NUMBER)
 
         await prisma.teacher.update({
             where: { userId: req.id },
@@ -263,20 +240,8 @@ router.delete("/:id/unassignTags", parseId, async (req: Omit<RequestWithId, 'bod
 router.patch("/:id/updateTagAssigns", parseId, async (req: Omit<RequestWithId, 'body'> & { body: { assignedTagIds: string[], unassignedTagIds: string[] } }, res: Response, next: NextFunction) => {
     try {
         const { assignedTagIds, unassignedTagIds } = req.body
-        if (
-            !assignedTagIds ||
-            !Array.isArray(assignedTagIds) ||
-            !assignedTagIds.every((id) => typeof id === "string") ||
-            !unassignedTagIds ||
-            !Array.isArray(unassignedTagIds) ||
-            !unassignedTagIds.every((id) => typeof id === "string")
-        ) {
-            return res.json({
-                status: 400,
-                success: false,
-                message: `assignedTagIds or/and unassignedTagIds missing from body or not an array of strings`
-            })
-        }
+        checkIds(assignedTagIds, NeededType.NUMBER)
+        checkIds(unassignedTagIds, NeededType.NUMBER)
 
         await prisma.teacher.update({
             where: { userId: req.id },
