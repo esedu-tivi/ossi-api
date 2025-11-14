@@ -373,7 +373,7 @@ router.put("/:id", parseId, async (req: RequestWithId, res, next) => {
     }
 })
 
-router.put("/:id/change_status", parseId, async (req: RequestWithId, res, next) => {
+router.patch("/:id/change_status", parseId, async (req: RequestWithId, res, next) => {
     try {
         console.log('req.body', req.body)
         const { status, studentId, teacherComment }: { status: enumAssignedProjectsForStudentsProjectStatus, studentId: string, teacherComment: string | null } = req.body

@@ -81,7 +81,7 @@ class StudentManagementAPI extends RESTDataSource {
     }
 
     async changeProjectStatus(id, args) {
-        return this.put(
+        return this.patch(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/qualification/projects/${id}/change_status`, { body: args }
         )
     }
