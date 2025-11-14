@@ -456,6 +456,12 @@ const newLocal = `#graphql
         message: String
     }
 
+    type UpdateTeachingProjectAssignsResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+    }
+
     type AssignStudentGroupsResponse {
         success: Boolean!
         status: Int!
