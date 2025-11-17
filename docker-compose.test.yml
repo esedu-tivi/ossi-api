@@ -12,8 +12,9 @@ services:
         condition: service_completed_successfully
     env_file: ".env"
     volumes:
-      - ./student-management-api/src:/usr/server/src:ro
-      - ./student-management-api/test:/usr/server/test:ro
+      - ./student-management-api/src/:/app/src:ro
+      - ./student-management-api/test/:/app/test:ro
+      - ./prisma-orm/:/prisma-orm
 
   db-test:
     image: docker.io/postgres:18-alpine

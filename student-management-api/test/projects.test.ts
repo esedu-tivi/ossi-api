@@ -44,7 +44,7 @@ test('right number of project tags are returned as json', async () => {
     .expect(200)
     .expect('Content-Type', /application\/json/);
 
-  assert.strictEqual(response.body.tags.length, initialProjectTags.length);
+  assert.strictEqual(response.body.projectTags.length, initialProjectTags.length);
 });
 
 test('adding projects works with empty references', async () => {
@@ -63,14 +63,14 @@ test('adding projects works with empty references', async () => {
 test('adding project tags works', async () => {
   await api
     .post('/qualification/projects/tags')
-    .send({ name: 'React' })
+    .send({ tagName: 'React' })
     .expect(200)
     .expect('Content-Type', /application\/json/);
 
   const response = await api
     .get('/qualification/projects/tags');
 
-  assert.strictEqual(response.body.tags.length, initialProjectTags.length + 1);
+  assert.strictEqual(response.body.projectTags.length, initialProjectTags.length + 1);
 });
 
 test('right project is returned when using id', async () => {
@@ -216,11 +216,11 @@ test('all tags are retrieved', async () => {
 
   const expectedTags = await prisma.qualificationProjectTag.findMany();
 
-  assert(_.isEqual(expectedTags, response.body.tags))
+  assert(_.isEqual(expectedTags, response.body.projectTags))
 });
 
 test('tags are created', async () => {
-  const tagCreateData = { name: "test tag" };
+  const tagCreateData = { tagName: "test tag" };
 
   const response = await api
     .post("/qualification/projects/tags")
@@ -230,7 +230,7 @@ test('tags are created', async () => {
 
   const expectedTag = {
     id: response.body.tag.id,
-    name: tagCreateData.name
+    name: tagCreateData.tagName
   }
 
   assert(_.isEqual(expectedTag, response.body.tag))
