@@ -11,7 +11,7 @@ router.get("/", async (req, res, next) => {
         res.json({
             status: 200,
             success: true,
-            tags: tags
+            projectTags: tags
         });
 
     }
@@ -22,15 +22,17 @@ router.get("/", async (req, res, next) => {
 
 router.post("/", async (req, res, next) => {
     try {
-        const { name } = req.body
+        const { tagName } = req.body
 
-        if (!name || name === '') {
+        console.log(req.body)
+
+        if (!tagName || tagName === '') {
             throw new HttpError(400, `tagName missing or it's empty.`)
         }
 
         const tag = await prisma.qualificationProjectTag.create({
             data: {
-                name: name
+                name: tagName
             }
         })
 
