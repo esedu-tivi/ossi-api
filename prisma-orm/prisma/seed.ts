@@ -1,6 +1,12 @@
 import "dotenv";
 import prisma, { enumUsersScope } from "../index.js"
-import type { QualificationProject, QualificationUnitPart, Qualification, QualificationUnit, StudentGroup } from "../index.js"
+import type { QualificationProject, QualificationUnitPart, Qualification, QualificationUnit, StudentGroup, Prisma } from "../index.js"
+
+type TeacherData = {
+  user: Prisma.UserCreateInput
+  teacher: Omit<Prisma.TeacherCreateInput, 'users'>
+  studentGroup: Prisma.StudentGroupCreateInput
+}
 
 const userData = {
   oid: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
@@ -9,6 +15,23 @@ const userData = {
   email: "sposti@localhost.fi",
   phoneNumber: "+358123456789",
   scope: "STUDENT" as enumUsersScope,
+}
+
+const teacherData: TeacherData = {
+  user: {
+    oid: 'dd61f69e-9baf-478a-83ca-cbb5e9c051ec',
+    firstName: "ossi",
+    lastName: "opettaja",
+    email: "ossi.opettaja@esedu.fi",
+    phoneNumber: "+358123456789",
+    scope: "TEACHER" as enumUsersScope,
+  },
+  teacher: {
+    teachingQualificationId: 7861752,
+  },
+  studentGroup: {
+    groupName: "TiVi24A"
+  }
 }
 
 const qualification: Qualification = {
@@ -372,11 +395,39 @@ const assignProjectForStudentAndAddWorktime = async () => {
         }
       }
     })
-
   }
   catch (error) {
     console.error(error)
   }
+}
+
+const addTeacher = async (teacherData: TeacherData) => {
+  const newTeacher = await prisma.user.upsert(
+    {
+      where: { oid: teacherData.user.oid },
+      update: {},
+      create: {
+        ...teacherData.user,
+        teachers: {
+          create: {
+            ...teacherData.teacher,
+            studentGroups: {
+              connectOrCreate: {
+                where: { groupName: teacherData.studentGroup.groupName },
+                create: { groupName: teacherData.studentGroup.groupName }
+              }
+            }
+          }
+        }
+      },
+      include: {
+        teachers: true,
+      }
+    }
+  )
+
+  console.log("Added teacher", newTeacher)
+  return newTeacher
 }
 
 const main = async () => {
@@ -390,6 +441,7 @@ const main = async () => {
   await assignQualificationUnitForStudent()
   await addRelationsToUnitPartsAndProjects()
   await assignProjectForStudentAndAddWorktime()
+  await addTeacher(teacherData)
 }
 
 main()
