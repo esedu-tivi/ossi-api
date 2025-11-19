@@ -1,18 +1,42 @@
-import { ErrorRequestHandler } from "express";
-import { sequelize } from "sequelize-models";
+import { type ErrorRequestHandler } from "express";
+import { HttpError } from "../classes/HttpError.js";
 
 const errorHandler: ErrorRequestHandler = async (error, req, res, next) => {
-    await res.locals._transaction.rollback();
+    console.error('Error:', error)
+    if (error.name === 'PrismaClientKnownRequestError') {
+        if (error.code === "P2025") {
+            return res.json({
+                status: 404,
+                success: false,
+                message: `[${error.code}] Not found`
+            })
+        }
+    }
+    if (error instanceof HttpError) {
+        return res.json({
+            status: error.statusCode,
+            success: false,
+            message: error.message
+        })
+    }
+
     next(error);
 };
 
-const beginTransaction = async (req, res, next) => {
-    res.locals._transaction = await sequelize.transaction();
-    next();
-};
+const parseId = (req, res, next) => {
+    if (req.params) {
+        const { id } = req.params
 
-const commitTransaction = async (req, res, next) => {
-    await res.locals._transaction.commit();
-};
+        if (id === "" || Number.isNaN(Number(id))) {
+            return res.json({
+                status: 400,
+                success: false,
+                message: "malformatted id"
+            })
+        }
+        req.id = Number(id)
+    }
+    next()
+}
 
-export { errorHandler, beginTransaction, commitTransaction };
+export { errorHandler, parseId };

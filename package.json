@@ -1,0 +1,21 @@
+{
+    "name": "ossi-api",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "install": "cd prisma-orm && npm install && npm run build",
+        "seed": "docker compose run -v ./prisma-orm/:/app --env-from-file=.env --rm db-migrations npm run seed",
+        "start": "docker compose -f docker-compose.yml up -d --build",
+        "start:dev": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build",
+        "studio": "docker compose run -v ./prisma-orm/:/app --env-from-file=.env -p 5556:5555 --rm db-migrations npm run studio",
+        "stop": "docker compose stop",
+        "test": "docker compose -f docker-compose.test.yml up"
+    },
+    "workspaces": [
+        "api-gateway",
+        "auth-api",
+        "messaging-server",
+        "notification-server",
+        "student-management-api"
+    ]
+}

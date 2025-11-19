@@ -1,0 +1,47 @@
+---
+name: ossi-api
+
+services:
+  api:
+    build:
+      target: dev
+    ports:
+      - 9230:9229
+    volumes:
+      - ./api-gateway/src/:/app/src:ro
+
+  auth-api:
+    build:
+      target: dev
+    ports:
+      - 9231:9229
+    volumes:
+      - ./auth-api/src/:/app/src:ro
+      - ./prisma-orm/:/prisma-orm
+
+  messaging-server:
+    build:
+      target: dev
+    ports:
+      - 9232:9229
+    volumes:
+      - ./messaging-server/src/:/app/src:ro
+      - ./prisma-orm/:/prisma-orm
+
+  notification-server:
+    build:
+      target: dev
+    ports:
+      - 9233:9229
+    volumes:
+      - ./notification-server/src/:/app/src:ro
+
+  student-management-api:
+    build:
+      target: dev
+    ports:
+      - 9234:9229
+    volumes:
+      - ./student-management-api/src/:/app/src:ro
+      - ./student-management-api/test/:/app/test:ro
+      - ./prisma-orm/:/prisma-orm

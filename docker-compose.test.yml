@@ -1,16 +1,23 @@
+---
 services:
-  studentmanagementapi:
+  student-management-api:
     build:
       context: ./student-management-api
+      target: dev
       additional_contexts:
-        sequelize-models: ./sequelize-models
+        prisma-orm: ./prisma-orm
     command: npm run test
     depends_on:
       db-migrations:
         condition: service_completed_successfully
     env_file: ".env"
+    volumes:
+      - ./student-management-api/src/:/app/src:ro
+      - ./student-management-api/test/:/app/test:ro
+      - ./prisma-orm/:/prisma-orm
+
   db-test:
-    image: docker.io/postgres
+    image: docker.io/postgres:18-alpine
     restart: always
     environment:
       POSTGRES_PASSWORD: postgres
@@ -23,12 +30,16 @@ services:
       interval: 2s
       retries: 5
       start_period: 1s
+
   db-migrations:
     build:
-      context: ./sequelize-models
+      context: ./prisma-orm
     depends_on:
       db-test:
         condition: service_healthy
-    command: npm run test:migrate
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db-test:5432/postgres?schema=public
+    command: npm run start:test
+
 volumes:
   db-test-data:

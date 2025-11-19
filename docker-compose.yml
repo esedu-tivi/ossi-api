@@ -1,48 +1,61 @@
+---
+name: ossi-api
+
 services:
   api:
     build:
       context: ./api-gateway
+      target: final
     ports:
       - "3000:3000"
     env_file: ".env"
     depends_on:
-      - messagingserver
-      - studentmanagementapi
-      - notificationserver
-      - authapi
-  authapi:
+      - messaging-server
+      - student-management-api
+      - notification-server
+      - auth-api
+
+  auth-api:
     build:
       context: ./auth-api
       additional_contexts:
-        sequelize-models: ./sequelize-models
+        prisma-orm: service:db-migrations
     env_file: ".env"
     depends_on:
       - db
-  studentmanagementapi:
+
+  student-management-api:
     build:
       context: ./student-management-api
+      target: final
       additional_contexts:
-        sequelize-models: ./sequelize-models
+        prisma-orm: service:db-migrations
     env_file: ".env"
     depends_on:
       db-migrations:
         condition: service_completed_successfully
       redis:
         condition: service_healthy
-  notificationserver:
+
+  notification-server:
     ports:
       - "3001:3000"
     build:
       context: ./notification-server
+      target: final
     env_file: ".env"
     depends_on:
       redis:
         condition: service_healthy
       mongo:
         condition: service_healthy
-  messagingserver:
+
+  messaging-server:
     build:
       context: ./messaging-server
+      target: final
+      additional_contexts:
+        prisma-orm: service:db-migrations
     ports:
       - "3002:3000"
     environment:
@@ -53,8 +66,9 @@ services:
         condition: service_healthy
       mongo:
         condition: service_healthy
+
   db:
-    image: docker.io/postgres
+    image: docker.io/postgres:18-alpine
     restart: always
     environment:
       POSTGRES_PASSWORD: postgres
@@ -67,13 +81,16 @@ services:
       interval: 2s
       retries: 5
       start_period: 1s
+
   db-migrations:
     build:
-      context: ./sequelize-models
+      context: ./prisma-orm
+    env_file: ".env"
     depends_on:
       db:
         condition: service_healthy
-    command: node migrator up
+    command: npm start
+
   mongo:
     image: docker.io/mongo
     restart: always
@@ -83,6 +100,7 @@ services:
       - mongo-data:/data/db
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+
   pgadmin:
     restart: always
     image: docker.io/dpage/pgadmin4
@@ -92,11 +110,12 @@ services:
       PGADMIN_LISTEN_ADDRESS: 0.0.0.0
     ports:
       - "5433:80"
+
   redis:
     image: docker.io/redis
     restart: always
     healthcheck:
-       test: ["CMD", "redis-cli","ping"]
+      test: ["CMD", "redis-cli", "ping"]
 
 volumes:
   db-data:

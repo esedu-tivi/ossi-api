@@ -2,33 +2,34 @@
   "name": "student-management-api",
   "private": "true",
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
     "compile": "tsc",
-    "start": "npm run compile && node ./dist/src/index.js",
-    "test": "NODE_ENV=test node --import tsx --test --test-concurrency=1 test/**/*test.ts -- --verbose=TRUE",
-    "test:coverage": "NODE_ENV=test node --import tsx --test --experimental-test-coverage test/**/*test.ts"
+    "dev": "tsx watch --inspect=0.0.0.0:9229 src/index.ts",
+    "start": "node ./dist/src/index.js",
+    "test": "NODE_ENV=test node --import tsx --test --test-concurrency=1 test/*.test.ts",
+    "test:coverage": "NODE_ENV=test node --import tsx --test --experimental-test-coverage test/*.test.ts"
   },
   "dependencies": {
-    "@types/cors": "^2.8.17",
-    "@types/express": "^4.17.21",
-    "@types/node": "^22.6.1",
-    "@types/redis": "^4.0.10",
     "axios": "^1.7.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
     "jsonwebtoken": "^9.0.2",
-    "pg": "^8.13.0",
+    "prisma-orm": "file:../prisma-orm",
     "redis": "^5.0.1",
-    "sequelize": "^6.37.6",
-    "sequelize-models": "file:../sequelize-models",
     "typescript": "^5.6.2"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
     "@types/jsonwebtoken": "^9.0.7",
-    "@types/pg": "^8.11.10",
+    "@types/lodash": "^4.17.20",
+    "@types/node": "^22.6.1",
+    "@types/redis": "^4.0.10",
     "@types/supertest": "^6.0.2",
+    "lodash": "^4.17.21",
     "supertest": "^7.0.0",
-    "tsx": "^4.19.2"
+    "tsx": "^4.20.6"
   }
 }

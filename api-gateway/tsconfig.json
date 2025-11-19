@@ -1,12 +1,24 @@
 {
     "compilerOptions": {
-      "rootDirs": ["src"],
-      "outDir": "dist",
-      "lib": ["es2020"],
-      "target": "es2020",
-      "module": "esnext",
-      "moduleResolution": "node",
-      "esModuleInterop": true,
-      "types": ["node"]
-    }  
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "target": "es2022",
+        "allowJs": true,
+        "resolveJsonModule": true,
+        "moduleDetection": "force",
+        "isolatedModules": true,
+        "verbatimModuleSyntax": true,
+        "noUncheckedIndexedAccess": true,
+        "noImplicitOverride": true,
+        "module": "NodeNext",
+        "outDir": "dist",
+        "declaration": true,
+        "sourceMap": true,
+        "declarationMap": true,
+        // "noEmit": true,
+        // "strict": true,
+        "lib": [
+            "es2022"
+        ]
+    }
 }

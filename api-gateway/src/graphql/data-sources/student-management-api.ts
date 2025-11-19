@@ -1,4 +1,4 @@
-import { AugmentedRequest, RESTDataSource } from "@apollo/datasource-rest";
+import { type AugmentedRequest, RESTDataSource } from "@apollo/datasource-rest";
 
 class StudentManagementAPI extends RESTDataSource {
     override baseURL = process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL;
@@ -24,11 +24,11 @@ class StudentManagementAPI extends RESTDataSource {
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/qualification/titles/${id}/mandatory_units`,
         );
     }
-	async getStudents() {
-		return this.get(
-			process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + '/students'
-		);
-	}
+    async getStudents() {
+        return this.get(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + '/students'
+        );
+    }
     async getStudent(id) {
         return this.get(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/${id}`,
@@ -41,7 +41,7 @@ class StudentManagementAPI extends RESTDataSource {
         )
     }
 
-    async setUpStudent(id, studentSetupData) { 
+    async setUpStudent(id, studentSetupData) {
         return this.post(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/${id}/student_setup`,
             { body: studentSetupData }
@@ -62,7 +62,7 @@ class StudentManagementAPI extends RESTDataSource {
 
     async createProject(project) {
         return this.post(
-            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/qualification/projects", 
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/qualification/projects",
             { body: project }
         );
     }
@@ -80,6 +80,12 @@ class StudentManagementAPI extends RESTDataSource {
         );
     }
 
+    async changeProjectStatus(id, args) {
+        return this.patch(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/qualification/projects/${id}/change_status`, { body: args }
+        )
+    }
+
     async getParts() {
         return this.get(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/qualification/parts"
@@ -94,7 +100,7 @@ class StudentManagementAPI extends RESTDataSource {
 
     async createPart(part) {
         return this.post(
-            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/qualification/parts", 
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/qualification/parts",
             { body: part }
         );
     }
@@ -172,6 +178,103 @@ class StudentManagementAPI extends RESTDataSource {
         return this.get(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/${id}/assigned_qualification_units`
         );
+    }
+
+    async getStudentAssignedProjects(studentId) {
+        const res = await this.get(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/${studentId}/assigned_projects`
+        );
+
+        return res
+    }
+    async getStudentSingleAssignedProject(studentId, projectId) {
+        const res = await this.get(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/${studentId}/single_assigned_project/${projectId}`
+        );
+
+        return res
+    }
+
+    async assignProjectToStudent(args) {
+        return this.post(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/assignProjectToStudent`, { body: args }
+        );
+    }
+
+    async updateStudentProject(args) {
+        return this.put(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/updateStudentProject`, { body: args }
+        );
+    }
+
+    async unassignProjectFromStudent(args) {
+        return this.delete(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/unassignProjectFromStudent/`, { body: args }
+        );
+    }
+    async createWorktimeEntry(args) {
+        return this.post(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/createWorktimeEntry/`, { body: args }
+        );
+    }
+    async deleteWorktimeEntry(args) {
+        return this.delete(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/deleteWorktimeEntry/`, { body: args }
+        );
+    }
+
+    async assignTeachingProject(args) {
+        return this.post(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/teachers/${args.userId}/assignTeachingProject`, { body: args }
+        )
+    }
+
+    async unassignTeachingProject(args) {
+        return this.delete(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/teachers/${args.userId}/unassignTeachingProject`, { body: args }
+        )
+    }
+
+    async updateTeachingProjectAssigns(args) {
+        return this.patch(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/teachers/${args.userId}/updateTeachingProjectAssigns`, { body: args }
+        )
+    }
+
+    async assignStudentGroups(args) {
+        return this.post(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/teachers/${args.userId}/assignStudentGroups`, { body: args }
+        )
+    }
+
+    async unassignStudentGroups(args) {
+        return this.delete(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/teachers/${args.userId}/unassignStudentGroups`, { body: args }
+        )
+    }
+
+    async updateStudentGroupAssigns(args) {
+        return this.patch(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/teachers/${args.userId}/updateStudentGroupAssigns`, { body: args }
+        )
+    }
+
+    async assignTags(args) {
+        return this.post(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/teachers/${args.userId}/assignTags`, { body: args }
+        )
+    }
+
+    async unassignTags(args) {
+        return this.delete(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/teachers/${args.userId}/unassignTags`, { body: args }
+        )
+    }
+
+    async updateTagAssigns(args) {
+        return this.patch(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/teachers/${args.userId}/updateTagAssigns`, { body: args }
+        )
     }
 }
 

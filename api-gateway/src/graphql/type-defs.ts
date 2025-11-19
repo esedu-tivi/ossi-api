@@ -1,9 +1,12 @@
-const typeDefs = `#graphql
+const newLocal = `#graphql
     scalar DateTime
 
     directive @authenticated on FIELD_DEFINITION
     directive @authenticatedAsTeacher on FIELD_DEFINITION
     directive @authenticatedAsStudent on FIELD_DEFINITION
+
+
+    # --- Enums ---
     
     enum AuthorityScope {
         STUDENT
@@ -17,12 +20,21 @@ const typeDefs = `#graphql
         TEACHER
         JOB_SUPERVISOR
     }
+    enum ProjectStatus {
+        WORKING
+        RETURNED
+        ACCEPTED
+        REJECTED
+    }
 
     enum QualificationCompletion {
         FULL_COMPLETION
         PARTIAL_COMPLETION
     }
-    
+
+
+    # --- Types ---
+
     type AuthResponse {
         token: String!
     }
@@ -40,7 +52,7 @@ const typeDefs = `#graphql
 
     type QualificationTitle {
         id: Int!
-        name: String!
+        name: String
         mandatoryUnits: [QualificationUnit!]!
     }
 
@@ -84,7 +96,7 @@ const typeDefs = `#graphql
     }
 
     type QualificationProject {
-        id: Int!
+        id: ID!
         name: String!
         description: String!
         duration: String!
@@ -93,6 +105,37 @@ const typeDefs = `#graphql
         includedInQualificationUnitParts: [QualificationUnitPart!]!
         competenceRequirements: [VocationalCompetenceRequirementDescription!]!
         tags: [QualificationProjectTag!]!
+    }
+
+    type WorktimeEntry{
+        startDate: DateTime
+        endDate: DateTime
+        description: String
+        id:ID
+    }
+
+    type AssignedProjects {
+        projectId: ID
+        projectStatus: ProjectStatus
+        startDate: DateTime
+        deadlineDate: DateTime
+        projectPlan: String
+        projectReport: String
+        teacherComment: String
+        parentProject: QualificationProject
+        worktimeEntries: [WorktimeEntry!]
+    }
+
+    type AssignedProject {
+        projectId: ID
+        projectStatus: ProjectStatus
+        startDate: DateTime
+        deadlineDate: DateTime
+        projectPlan: String
+        projectReport: String
+        teacherComment: String
+        parentProject: QualificationProject
+        worktimeEntries: [WorktimeEntry!]
     }
 
     interface User { 
@@ -113,7 +156,9 @@ const typeDefs = `#graphql
         qualificationCompletion: QualificationCompletion
         studyingQualification: Qualification
         studyingQualificationTitle: QualificationTitle
-        assignedQualificationUnits: [QualificationUnit!]!
+        assignedQualificationUnits: [QualificationUnit!]
+        assignedProjects: [AssignedProjects!]
+        assignedProjectSingle(projectId:ID!): AssignedProjectSingleResponse!
     }
 
     type Teacher implements User {
@@ -142,7 +187,48 @@ const typeDefs = `#graphql
         time: DateTime!
     }
 
-    union Notification = ProjectReturnNotification | ProjectUpdateNotification
+    type ProjectStatusChangeNotification {
+        id: ID! 
+        project: QualificationProject!
+        message: String!
+        status: ProjectStatus!
+        teacherComment: String
+        hasBeenRead: Boolean!
+        time: DateTime!
+    }
+
+        type Subscription {
+        messageReceived(conversationId: ID!): Message!
+        conversationUpdated(userId: ID!): Conversation!
+    }
+
+    type Message {
+        id: ID!
+        conversationId: ID!
+        sender: User!
+        content: String!
+        readBy: [User!]!
+        createdAt: String!
+    }
+
+    type Conversation {
+        id: ID!
+        participants: [User!]!
+        lastMessage: Message
+        createdAt: String!
+    }
+
+    #--- End of Types ---
+
+
+    # --- Unions ---
+
+    union Notification = ProjectReturnNotification | ProjectUpdateNotification | ProjectStatusChangeNotification
+
+    #--- End of Unions
+
+
+    # --- Responses ---
 
     type NotificationsResponse {
         success: Boolean!
@@ -157,7 +243,7 @@ const typeDefs = `#graphql
         message: String
         notification: Notification
     }
- 
+
     type UnreadNotificationCountResponse {
         success: Boolean!
         status: Int!
@@ -213,19 +299,19 @@ const typeDefs = `#graphql
         message: String
         part: QualificationUnitPart
     }
-    
-    type ProjectsResponse {
-        success: Boolean!
-        status: Int!
-        message: String
-        projects: [QualificationProject!]
-    }
 
     type ProjectResponse {
         success: Boolean!
         status: Int!
         message: String
         project: QualificationProject
+    }
+
+    type ProjectsResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+        projects: [QualificationProject!]
     }
     
     type ProjectTagsResponse {
@@ -235,62 +321,24 @@ const typeDefs = `#graphql
         projectTags: [QualificationProjectTag!]
     }
 
-    type Query {
-        me: MeResponse! @authenticated
-        amISetUp: AmISetUpResponse! @authenticated
-        students: StudentsResponse! @authenticatedAsTeacher
-        titles: TitlesResponse! @authenticated
-        units: UnitsResponse! @authenticated
-        parts: PartsResponse! @authenticated
-        part(id: ID!): PartResponse! @authenticated
-        projects: ProjectsResponse! @authenticated
-        project(id: ID!): ProjectResponse! @authenticated
-        projectTags: ProjectTagsResponse! @authenticated
-        notifications: NotificationsResponse! @authenticated
-        notification(id: ID!): NotificationResponse! @authenticated
-        unreadNotificationCount: UnreadNotificationCountResponse! @authenticated 
-        conversations: [Conversation!]!
-        conversation(id: ID!): Conversation
-        messages(conversationId: ID!): [Message!]!
-        searchUsers(query: String!): [User!]!
+    type StudentAssignResponse {
+        success: Boolean!
+        status: Int!
+        message: String
     }
 
-    input CreateProjectInput {
-        name: String!
-        description: String!
-        materials: String!
-        duration: Int!
-        includedInParts: [ID!]!
-        competenceRequirements: [ID!]!
-        tags: [ID!]!
-        isActive: Boolean!
+    type StudentProjectUpdateResponse {
+        success: Boolean!
+        status: Int!
+        message: String
     }
 
-    input UpdateProjectInput {
-        name: String!
-        description: String!
-        materials: String!
-        duration: Int!
-        includedInParts: [ID!]!
-        competenceRequirements: [ID!]!
-        tags: [ID!]!
-        isActive: Boolean!
-        notifyStudents: Boolean!
+    type StudentUnassignProjectResponse {
+        success: Boolean!
+        status: Int!
+        message: String
     }
 
-    input CreatePartInput {
-        name: String!
-        description: String!
-        materials: String!
-        projectsInOrder: [ID!]
-        parentQualificationUnit: ID!
-    }
-
-    input StudentSetupInput {
-        qualificationId: ID!
-        qualificationCompletion: QualificationCompletion!
-    }
-    
     type LoginResponse {
         status: Int!
         success: Boolean!
@@ -332,6 +380,12 @@ const typeDefs = `#graphql
         project: QualificationProject
     }
 
+    type ChangeProjectStatusResponse {
+        status: Int!
+        success: Boolean!
+        message: String,
+    }
+
     type UpdatePartOrderResponse {
         status: Int!
         success: Boolean!
@@ -344,16 +398,198 @@ const typeDefs = `#graphql
         message: String
         tag: QualificationProjectTag
     }
-    
+
+    # update WIP
+    type ProjectUpdateResponse {
+        status: Int!
+        success: Boolean!
+        message: String
+    }
+
     type MarkNotificationAsReadResponse {
         status: Int!
         success: Boolean!
         message: String
     }
 
+    type GenericResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+    }
+
+    type WorktimeEntryResponse {
+        success: Boolean!
+        status: Int!
+        message: String!,
+        entry: WorktimeEntry!
+    }
+
+    type AssignedProjectSingleResponse { 
+        success: Boolean!
+        status: Int!
+        message: String,
+        project(projectId:ID!): AssignedProject
+    }
+
+    type UpdateAssignedProjectResponse {
+        success: Boolean!
+        status:Int!
+        project: AssignedProject
+    }
+
+    type AssignTeachingProjectResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+    }
+
+    type UnassignTeachingProjectResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+    }
+
+    type UpdateTeachingProjectsResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+    }
+
+    type UpdateTeachingProjectAssignsResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+    }
+
+    type AssignStudentGroupsResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+    }
+
+    type UnassignStudentGroupsResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+    }
+
+    type UpdateStudentGroupAssignsResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+    }
+
+    type AssignTagsResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+    }
+
+    type UnassignTagsResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+    }
+
+    type UpdateTagAssignsResponse {
+        success: Boolean!
+        status: Int!
+        message: String
+    }
+
+    # --- End of Responses
+
+
+    # --- Inputs ---
+
+    input CreateProjectInput {
+        name: String!
+        description: String!
+        materials: String!
+        duration: Int!
+        includedInParts: [ID!]!
+        competenceRequirements: [ID!]!
+        tags: [ID!]!
+        isActive: Boolean!
+    }
+
+    input UpdateProjectInput {
+        name: String
+        description: String
+        materials: String
+        duration: Int
+        includedInParts: [ID!]
+        competenceRequirements: [ID!]
+        tags: [ID!]
+        isActive: Boolean
+        notifyStudents: Boolean
+    }
+
+    input CreatePartInput {
+        name: String!
+        description: String!
+        materials: String!
+        projectsInOrder: [ID!]
+        parentQualificationUnit: ID!
+    }
+
+    input StudentSetupInput {
+        qualificationId: ID!
+        qualificationCompletion: QualificationCompletion!
+    }
+
+    input AssignProject {
+        student: ID!
+        project: ID!
+    }
+    # update WIP
+    input UpdateStudentProjectInput {
+        projectStatus: ProjectStatus
+        startDate: DateTime
+        deadlineDate: DateTime
+        projectPlan: String
+        projectReport: String
+        teacherComment: String
+    }
+
+    input StudentWorktimeInput {
+        startDate: DateTime!
+        endDate: DateTime!
+        description: String
+    }
+
+    # --- End of Inputs ---
+
+
+
+    # --- Query & Mutation ---
+
+    type Query {
+        me: MeResponse! @authenticated
+        amISetUp: AmISetUpResponse! @authenticated
+        students: StudentsResponse! @authenticatedAsTeacher
+        titles: TitlesResponse! @authenticated
+        units: UnitsResponse! @authenticated
+        parts: PartsResponse! @authenticated
+        part(id: ID!): PartResponse! @authenticated
+        projects: ProjectsResponse! @authenticated
+        project(id: ID!): ProjectResponse! @authenticated
+        projectTags: ProjectTagsResponse! @authenticated
+        # assignedProjects: AssignedProjects @authenticated
+        # assignedProject(projectId:ID):AssignedProject @ authenticated
+        notifications: NotificationsResponse! @authenticated
+        notification(id: ID!): NotificationResponse! @authenticated
+        unreadNotificationCount: UnreadNotificationCountResponse! @authenticated 
+        conversations: [Conversation!]!
+        conversation(id: ID!): Conversation
+        messages(conversationId: ID!): [Message!]!
+        searchUsers(query: String!): [User!]!
+    }
+
     type Mutation {
         login(idToken: String!): LoginResponse!
-       
+
         # this mutation can only be done once by a student, while a student's profile has not been set up
         # assigns TVP for the student automatically, if FullCompletion is chosen
         # after performing this mutation a new token should be generated
@@ -363,9 +599,14 @@ const typeDefs = `#graphql
         updateProject(id: ID!, project: UpdateProjectInput!): UpdateProjectResponse! @authenticatedAsTeacher
         createPart(part: CreatePartInput!): CreatePartResponse! @authenticatedAsTeacher
         updatePart(id: ID!, part: CreatePartInput!): UpdatePartResponse! @authenticatedAsTeacher
-        updatePartOrder(unitId: ID!, partOrder: [ID!]!): UpdatePartOrderResponse! @authenticatedAsTeacher
+        changeProjectStatus(id: ID!, status: ProjectStatus!, studentId: ID!, teacherComment: String): ChangeProjectStatusResponse! @authenticatedAsTeacher
+        updatePartOrder(unitId: ID!, partOrder: [ID!]!): GenericResponse! @authenticatedAsTeacher
         createProjectTag(name: String!): CreateProjectTagResponse! @authenticatedAsTeacher
-
+        assignProjectToStudent(studentId: ID! , projectId:ID! ): GenericResponse!  @authenticated
+        updateStudentProject(studentId: ID! , projectId:ID!, update: UpdateStudentProjectInput!) : GenericResponse @authenticated
+        unassignProjectFromStudent(studentId:ID! , projectId:ID!) : GenericResponse   @authenticated
+        createWorktimeEntry(studentId:ID! , projectId:ID!, entry: StudentWorktimeInput): WorktimeEntryResponse @authenticated
+        deleteWorktimeEntry(id:ID!): WorktimeEntryResponse @authenticated
         markNotificationAsRead(id: ID!): MarkNotificationAsReadResponse! @authenticated
         
         # remove once not needed
@@ -374,28 +615,23 @@ const typeDefs = `#graphql
         createConversation(participantIds: [ID!]!): Conversation!
         sendMessage(conversationId: ID!, content: String!): Message!
         markMessageAsRead(messageId: ID!): Message!
+
+        assignTeachingProject(userId: ID!, projectId: ID!): AssignTeachingProjectResponse @authenticatedAsTeacher
+        unassignTeachingProject(userId: ID!, projectId: ID!): UnassignTeachingProjectResponse @authenticatedAsTeacher
+        updateTeachingProjectAssigns(userId: ID!, assignProjectIds: [ID!]!, unassignProjectIds: [ID!]!): UpdateTeachingProjectAssignsResponse @authenticatedAsTeacher
+
+        assignStudentGroups(userId: ID!, groupIds: [ID!]!): AssignStudentGroupsResponse @authenticatedAsTeacher
+        unassignStudentGroups(userId: ID!, groupIds: [ID!]!): UnassignStudentGroupsResponse @authenticatedAsTeacher
+        updateStudentGroupAssigns(userId: ID!, assignGroupIds: [ID!]!, unassignGroupIds: [ID!]!): UpdateStudentGroupAssignsResponse @authenticatedAsTeacher
+
+        assignTags(userId: ID!, tagIds: [ID!]!): AssignTagsResponse @authenticatedAsTeacher
+        unassignTags(userId: ID!, tagIds: [ID!]!): UnassignTagsResponse @authenticatedAsTeacher
+        updateTagAssigns(userId: ID!, assignedTagIds: [ID!]!, unassignedTagIds: [ID!]!): UpdateTagAssignsResponse @authenticatedAsTeacher
     }
 
-    type Subscription {
-        messageReceived(conversationId: ID!): Message!
-        conversationUpdated(userId: ID!): Conversation!
-    }
+    # --- End of Query & Mutation ---
 
-    type Message {
-        id: ID!
-        conversationId: ID!
-        sender: User!
-        content: String!
-        readBy: [User!]!
-        createdAt: String!
-    }
-
-    type Conversation {
-        id: ID!
-        participants: [User!]!
-        lastMessage: Message
-        createdAt: String!
-    }
 `
+const typeDefs = newLocal
 
 export default typeDefs
