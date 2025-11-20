@@ -16,17 +16,17 @@
     "seed": "tsx prisma/seed.ts",
     "start": "npx prisma generate && npm run migrate:prod",
     "start:test": "NODE_ENV=test npm start",
-    "studio": "npx prisma studio"
+    "studio": "npx prisma studio --port 5555 --browser none"
   },
   "devDependencies": {
     "@types/node": "^24.5.2",
-    "prisma": "^6.18.0",
+    "prisma": "^7.0.0",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "@prisma/adapter-pg": "^6.18.0",
-    "@prisma/client": "^6.18.0",
+    "@prisma/adapter-pg": "^7.0.0",
+    "@prisma/client": "^7.0.0",
     "dotenv": "^17.2.2"
   },
   "exports": {

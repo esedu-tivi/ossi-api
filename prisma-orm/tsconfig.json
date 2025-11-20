@@ -28,7 +28,8 @@
   "include": [
     "index.ts",
     "prisma/**/*.ts",
-    "generated/**/*.ts"
+    "generated/**/*.ts",
+    "prisma.config.ts"
   ],
   "exclude": [
     "node_modules",

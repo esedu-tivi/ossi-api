@@ -7,8 +7,7 @@ export default defineConfig({
     path: path.join("prisma", "migrations"),
     seed: "tsx prisma/seed.ts",
   },
-  engine: "classic",
   datasource: {
-    url: process.env.DATABASE_URL || "",
+    url: process.env.DATABASE_URL!,
   }
 })
