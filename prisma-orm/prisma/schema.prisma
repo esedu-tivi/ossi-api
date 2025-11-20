@@ -47,6 +47,9 @@ model JobSupervisor {
   userId                             Int                                 @id @map("user_id")
   users                              User                                @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   supervisedStudentsByJobSupervisors SupervisedStudentsByJobSupervisor[] @ignore
+  internships                        Internship[]
+  workplace                          Workplace?                          @relation(fields: [workplaceId], references: [id])
+  workplaceId                        Int?
 
   @@map("job_supervisors")
 }
@@ -195,6 +198,7 @@ model Student {
   users                                 User                                  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   supervisedStudentsByJobSupervisors    SupervisedStudentsByJobSupervisor[]
   studentGroupId                        Int?
+  internships                           Internship[]
 
   @@map("students")
 }
@@ -224,6 +228,7 @@ model Teacher {
   teachingQualificationProject QualificationProject[]
   projectTagFilter             QualificationProjectTag[]
   studentGroups                StudentGroup[]
+  studentInternships           Internship[]
 
   @@map("teachers")
 }
@@ -243,6 +248,28 @@ model User {
   teachers       Teacher?
 
   @@map("users")
+}
+
+model Workplace {
+  id            Int             @id @default(autoincrement())
+  name          String
+  internShips   Internship[]
+  jobSupervisor JobSupervisor[]
+}
+
+model Internship {
+  id                  Int           @id @default(autoincrement())
+  startDate           DateTime
+  endDate             DateTime
+  info                String
+  workplace           Workplace     @relation(fields: [workplaceId], references: [id])
+  workplaceId         Int
+  teacher             Teacher       @relation(fields: [teacherUserId], references: [userId])
+  teacherUserId       Int
+  student             Student       @relation(fields: [studentUserId], references: [userId])
+  studentUserId       Int
+  jobSupervisor       JobSupervisor @relation(fields: [jobSupervisorUserId], references: [userId])
+  jobSupervisorUserId Int
 }
 
 enum enumAssignedProjectsForStudentsProjectStatus {
