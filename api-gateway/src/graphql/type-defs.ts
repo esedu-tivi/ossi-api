@@ -218,6 +218,11 @@ const newLocal = `#graphql
         createdAt: String!
     }
 
+    type Workplace {
+        id: ID!
+        name: String!
+    }
+
     #--- End of Types ---
 
 
@@ -498,6 +503,18 @@ const newLocal = `#graphql
         message: String
     }
 
+    type WorkplacesResponse {
+        success: Boolean!
+        status: Int!
+        workplaces: [Workplace]!
+    }
+
+    type CreateWorkplaceResponse {
+        success: Boolean!
+        status: Int!
+        workplace: Workplace!
+    }
+
     # --- End of Responses
 
 
@@ -585,6 +602,7 @@ const newLocal = `#graphql
         conversation(id: ID!): Conversation
         messages(conversationId: ID!): [Message!]!
         searchUsers(query: String!): [User!]!
+        workplaces: WorkplacesResponse! @authenticated
     }
 
     type Mutation {
@@ -627,6 +645,7 @@ const newLocal = `#graphql
         assignTags(userId: ID!, tagIds: [ID!]!): AssignTagsResponse @authenticatedAsTeacher
         unassignTags(userId: ID!, tagIds: [ID!]!): UnassignTagsResponse @authenticatedAsTeacher
         updateTagAssigns(userId: ID!, assignedTagIds: [ID!]!, unassignedTagIds: [ID!]!): UpdateTagAssignsResponse @authenticatedAsTeacher
+        createWorkplace(name: String!): CreateWorkplaceResponse! @authenticatedAsTeacher
     }
 
     # --- End of Query & Mutation ---

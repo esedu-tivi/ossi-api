@@ -276,6 +276,18 @@ class StudentManagementAPI extends RESTDataSource {
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/teachers/${args.userId}/updateTagAssigns`, { body: args }
         )
     }
+
+    async getAllWorkplaces() {
+        return this.get(
+            this.baseURL + "/workplace"
+        );
+    }
+
+    async createWorkplace(args) {
+        return this.post(
+            this.baseURL + "/workplace", { body: args }
+        )
+    }
 }
 
 export { StudentManagementAPI };
