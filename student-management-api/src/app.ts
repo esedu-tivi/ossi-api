@@ -8,6 +8,7 @@ import { ProjectTagsRouter } from "./handlers/project-tags-router.js"
 import { errorHandler } from './utils/middleware.js';
 import { TeacherRouter } from './handlers/teacher-router.js';
 import { TitlesRouter } from './handlers/titles-router.js';
+import { WorkplaceRouter } from './handlers/workplace-router.js';
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use("/qualification/parts", PartsRouter);
 app.use("/qualification/units", UnitsRouter);
 app.use("/qualification/titles", TitlesRouter);
 app.use("/qualification", QualificationRouter);
+app.use("/workplace", WorkplaceRouter)
 
 app.use(errorHandler);
 
