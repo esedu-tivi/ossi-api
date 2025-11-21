@@ -19,7 +19,7 @@ WORKDIR /app
 # Create the necessary directories with correct permissions
 COPY --chown=node:node --from=dev /app/node_modules ./node_modules
 COPY --chown=node:node --from=dev /app/prisma/schema.prisma ./prisma/schema.prisma
-COPY --chown=node:node --from=dev /app/prisma/migrations ./migrations
+COPY --chown=node:node --from=dev /app/prisma/migrations ./prisma/migrations
 COPY --chown=node:node --from=dev /app/dist ./dist
 COPY --chown=node:node --from=dev /app/package*.json ./
 COPY --chown=node:node --from=dev /app/dist/prisma.config.js ./
