@@ -288,6 +288,12 @@ class StudentManagementAPI extends RESTDataSource {
             this.baseURL + "/workplace", { body: args }
         )
     }
+
+    async editWorkplace(args) {
+        return this.put(
+            this.baseURL + `/workplace/${args.id}`, { body: args }
+        )
+    }
 }
 
 export { StudentManagementAPI };

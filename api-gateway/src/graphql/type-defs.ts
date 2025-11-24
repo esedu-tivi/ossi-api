@@ -515,6 +515,12 @@ const newLocal = `#graphql
         workplace: Workplace!
     }
 
+    type EditWorkplaceResponse {
+        success: Boolean!
+        status: Int!
+        editedWorkplace: Workplace!
+    }
+
     # --- End of Responses
 
 
@@ -646,6 +652,7 @@ const newLocal = `#graphql
         unassignTags(userId: ID!, tagIds: [ID!]!): UnassignTagsResponse @authenticatedAsTeacher
         updateTagAssigns(userId: ID!, assignedTagIds: [ID!]!, unassignedTagIds: [ID!]!): UpdateTagAssignsResponse @authenticatedAsTeacher
         createWorkplace(name: String!): CreateWorkplaceResponse! @authenticatedAsTeacher
+        editWorkplace(id: ID!, name: String!): EditWorkplaceResponse! @authenticatedAsTeacher
     }
 
     # --- End of Query & Mutation ---
