@@ -58,7 +58,7 @@ const newLocal = `#graphql
 
     type Qualification {
         id: Int!
-        name: String!
+        name: String
         #QualificationUnits: [QualificationUnit!]!
     }
 
