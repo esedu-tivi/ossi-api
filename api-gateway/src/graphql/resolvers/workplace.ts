@@ -9,8 +9,11 @@ const createWorkplace = async (parent, args, context, info) => {
 }
 
 const editWorkplace = async (parent, args, context, info) => {
-  console.log(args)
   return await context.dataSources.studentManagementAPI.editWorkplace(args)
+}
+
+const deleteWorkplace = async (parent, args, context, info) => {
+  return await context.dataSources.studentManagementAPI.deleteWorkplace(args)
 }
 
 export const Workplace = {
@@ -19,7 +22,7 @@ export const Workplace = {
   },
   Mutation: {
     createWorkplace,
-    editWorkplace
+    editWorkplace,
+    deleteWorkplace,
   }
-
 }

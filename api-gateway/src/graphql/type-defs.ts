@@ -521,6 +521,11 @@ const newLocal = `#graphql
         editedWorkplace: Workplace!
     }
 
+    type DeleteWorkplaceResponse {
+        success: Boolean!
+        status: Int!
+    }
+
     # --- End of Responses
 
 
@@ -653,6 +658,7 @@ const newLocal = `#graphql
         updateTagAssigns(userId: ID!, assignedTagIds: [ID!]!, unassignedTagIds: [ID!]!): UpdateTagAssignsResponse @authenticatedAsTeacher
         createWorkplace(name: String!): CreateWorkplaceResponse! @authenticatedAsTeacher
         editWorkplace(id: ID!, name: String!): EditWorkplaceResponse! @authenticatedAsTeacher
+        deleteWorkplace(id: ID!): DeleteWorkplaceResponse! @authenticatedAsTeacher
     }
 
     # --- End of Query & Mutation ---

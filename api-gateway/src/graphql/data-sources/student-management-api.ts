@@ -294,6 +294,12 @@ class StudentManagementAPI extends RESTDataSource {
             this.baseURL + `/workplace/${args.id}`, { body: args }
         )
     }
+
+    async deleteWorkplace(args) {
+        return this.delete(
+            this.baseURL + `/workplace/${args.id}`
+        )
+    }
 }
 
 export { StudentManagementAPI };
