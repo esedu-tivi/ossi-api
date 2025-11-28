@@ -300,6 +300,18 @@ class StudentManagementAPI extends RESTDataSource {
             this.baseURL + `/workplace/${args.id}`
         )
     }
+
+    async getAllStudentInternships(args) {
+        return this.get(
+            this.baseURL + `/internship/${args.studentId}`
+        )
+    }
+
+    async createInternship(args) {
+        return this.post(
+            this.baseURL + `/internship/`, { body: args }
+        )
+    }
 }
 
 export { StudentManagementAPI };

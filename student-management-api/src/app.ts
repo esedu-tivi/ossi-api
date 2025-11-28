@@ -9,6 +9,7 @@ import { errorHandler } from './utils/middleware.js';
 import { TeacherRouter } from './handlers/teacher-router.js';
 import { TitlesRouter } from './handlers/titles-router.js';
 import { WorkplaceRouter } from './handlers/workplace-router.js';
+import { InternshipRouter } from './handlers/internship-router.js';
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use("/qualification/units", UnitsRouter);
 app.use("/qualification/titles", TitlesRouter);
 app.use("/qualification", QualificationRouter);
 app.use("/workplace", WorkplaceRouter)
+app.use("/internship", InternshipRouter)
 
 app.use(errorHandler);
 

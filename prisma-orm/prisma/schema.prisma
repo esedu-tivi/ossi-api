@@ -163,6 +163,7 @@ model QualificationUnit {
   mandatoryQualificationUnitsForTitle   MandatoryQualificationUnitsForTitle[]
   qualificationCompetenceRequirements   QualificationCompetenceRequirements[]
   qualificationUnitParts                QualificationUnitPart[]
+  internships                           Internship[]
 
   @@map("qualification_units")
 }
@@ -258,18 +259,20 @@ model Workplace {
 }
 
 model Internship {
-  id                  Int            @id @default(autoincrement())
+  id                  Int                @id @default(autoincrement())
   startDate           DateTime?
   endDate             DateTime?
   info                String?
-  workplace           Workplace?     @relation(fields: [workplaceId], references: [id])
+  workplace           Workplace?         @relation(fields: [workplaceId], references: [id])
   workplaceId         Int?
-  teacher             Teacher?       @relation(fields: [teacherUserId], references: [userId])
+  teacher             Teacher?           @relation(fields: [teacherUserId], references: [userId])
   teacherUserId       Int?
-  student             Student?       @relation(fields: [studentUserId], references: [userId])
+  student             Student?           @relation(fields: [studentUserId], references: [userId])
   studentUserId       Int?
-  jobSupervisor       JobSupervisor? @relation(fields: [jobSupervisorUserId], references: [userId])
+  jobSupervisor       JobSupervisor?     @relation(fields: [jobSupervisorUserId], references: [userId])
   jobSupervisorUserId Int?
+  qualificationUnit   QualificationUnit? @relation(fields: [qualificationUnitId], references: [id])
+  qualificationUnitId Int?
 }
 
 enum enumAssignedProjectsForStudentsProjectStatus {

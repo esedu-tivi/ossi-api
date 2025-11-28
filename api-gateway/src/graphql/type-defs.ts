@@ -223,6 +223,13 @@ const newLocal = `#graphql
         name: String!
     }
 
+    type Internship {
+        id: ID!
+        startDate: DateTime
+        endDate: DateTime
+        info: String
+    }
+
     #--- End of Types ---
 
 
@@ -526,6 +533,18 @@ const newLocal = `#graphql
         status: Int!
     }
 
+    type InternshipsResponse {
+        success: Boolean!
+        status: Int!
+        internships: [Internship]!
+    }
+
+    type CreateInternshipResponse {
+        success: Boolean!
+        status: Int!
+        internship: Internship!
+    }
+
     # --- End of Responses
 
 
@@ -587,6 +606,17 @@ const newLocal = `#graphql
         description: String
     }
 
+    input InternshipInput {
+        startDate: DateTime
+        endDate: DateTime
+        info: String
+        jobSupervisorId: ID
+        studentId: ID!
+        teacherId: ID
+        workplaceId: ID!
+        qualificationUnitId: ID
+    }
+
     # --- End of Inputs ---
 
 
@@ -614,6 +644,7 @@ const newLocal = `#graphql
         messages(conversationId: ID!): [Message!]!
         searchUsers(query: String!): [User!]!
         workplaces: WorkplacesResponse! @authenticated
+        internships(studentId: ID!): InternshipsResponse! @authenticatedAsTeacher
     }
 
     type Mutation {
@@ -659,6 +690,8 @@ const newLocal = `#graphql
         createWorkplace(name: String!): CreateWorkplaceResponse! @authenticatedAsTeacher
         editWorkplace(id: ID!, name: String!): EditWorkplaceResponse! @authenticatedAsTeacher
         deleteWorkplace(id: ID!): DeleteWorkplaceResponse! @authenticatedAsTeacher
+
+        createInternship(internship: InternshipInput): CreateInternshipResponse! @authenticatedAsTeacher
     }
 
     # --- End of Query & Mutation ---
