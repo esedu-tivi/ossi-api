@@ -258,18 +258,18 @@ model Workplace {
 }
 
 model Internship {
-  id                  Int           @id @default(autoincrement())
-  startDate           DateTime
-  endDate             DateTime
-  info                String
-  workplace           Workplace     @relation(fields: [workplaceId], references: [id])
-  workplaceId         Int
-  teacher             Teacher       @relation(fields: [teacherUserId], references: [userId])
-  teacherUserId       Int
-  student             Student       @relation(fields: [studentUserId], references: [userId])
-  studentUserId       Int
-  jobSupervisor       JobSupervisor @relation(fields: [jobSupervisorUserId], references: [userId])
-  jobSupervisorUserId Int
+  id                  Int            @id @default(autoincrement())
+  startDate           DateTime?
+  endDate             DateTime?
+  info                String?
+  workplace           Workplace?     @relation(fields: [workplaceId], references: [id])
+  workplaceId         Int?
+  teacher             Teacher?       @relation(fields: [teacherUserId], references: [userId])
+  teacherUserId       Int?
+  student             Student?       @relation(fields: [studentUserId], references: [userId])
+  studentUserId       Int?
+  jobSupervisor       JobSupervisor? @relation(fields: [jobSupervisorUserId], references: [userId])
+  jobSupervisorUserId Int?
 }
 
 enum enumAssignedProjectsForStudentsProjectStatus {
