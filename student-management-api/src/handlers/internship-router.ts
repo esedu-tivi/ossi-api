@@ -10,8 +10,13 @@ type InternshipWithoutId = Omit<Internship, "id">
 router.get("/:id", parseId, async (req: RequestWithId, res, next,) => {
   try {
     const internships = await prisma.internship.findMany({
-      where: { studentUserId: req.id }
+      where: { studentUserId: req.id },
+      include: {
+        workplace: true
+      }
     })
+
+    console.log(internships)
 
     res.json({
       status: 200,

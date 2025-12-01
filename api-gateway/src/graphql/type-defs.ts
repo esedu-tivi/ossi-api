@@ -228,6 +228,7 @@ const newLocal = `#graphql
         startDate: DateTime
         endDate: DateTime
         info: String
+        workplace: Workplace
     }
 
     type JobSupervisor implements User {
