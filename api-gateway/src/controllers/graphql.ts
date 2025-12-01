@@ -29,6 +29,7 @@ import { dateTimeScalar } from "../graphql/scalars/datetime.js";
 import typeDefs from "../graphql/type-defs.js";
 import { ProjectStatusChangeNotification } from "../graphql/resolvers/project-status-change-notification.js";
 import { Workplace } from "../graphql/resolvers/workplace.js";
+import { Internship } from "../graphql/resolvers/intership.js";
 
 const graphqlRouter = express.Router();
 
@@ -42,12 +43,14 @@ const resolvers = {
     Query: {
         ...Query,
         ...MessagingResolvers.Query,
-        ...Workplace.Query
+        ...Workplace.Query,
+        ...Internship.Query,
     },
     Mutation: {
         ...Mutation,
         ...MessagingResolvers.Mutation,
-        ...Workplace.Mutation
+        ...Workplace.Mutation,
+        ...Internship.Mutation,
     },
     Student,
     QualificationTitle,
