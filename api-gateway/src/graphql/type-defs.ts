@@ -230,6 +230,15 @@ const newLocal = `#graphql
         info: String
     }
 
+    type JobSupervisor implements User {
+        id: ID!
+        firstName: String!
+        lastName: String!
+        email: String!
+        archived: Boolean!
+        workplace: Workplace
+    }
+
     #--- End of Types ---
 
 
@@ -545,6 +554,22 @@ const newLocal = `#graphql
         internship: Internship!
     }
 
+    type AssignJobSupervisorResponse {
+        success: Boolean!
+        status: Int!
+    }
+
+    type UnassignJobSupervisorResponse {
+        success: Boolean!
+        status: Int!
+    }
+
+    type JobSupervisorsResponse {
+        success: Boolean!
+        status: Int!
+        jobSupervisors: [JobSupervisor]!
+    }
+
     # --- End of Responses
 
 
@@ -645,6 +670,7 @@ const newLocal = `#graphql
         searchUsers(query: String!): [User!]!
         workplaces: WorkplacesResponse! @authenticated
         internships(studentId: ID!): InternshipsResponse! @authenticatedAsTeacher
+        jobSupervisors: JobSupervisorsResponse! @authenticatedAsTeacher
     }
 
     type Mutation {
@@ -690,6 +716,8 @@ const newLocal = `#graphql
         createWorkplace(name: String!): CreateWorkplaceResponse! @authenticatedAsTeacher
         editWorkplace(id: ID!, name: String!): EditWorkplaceResponse! @authenticatedAsTeacher
         deleteWorkplace(id: ID!): DeleteWorkplaceResponse! @authenticatedAsTeacher
+        assignJobSupervisor(workplaceId: ID!, jobSupervisorId: ID!): AssignJobSupervisorResponse! @authenticatedAsTeacher
+        unassignJobSupervisor(workplaceId: ID!, jobSupervisorId: ID!): UnassignJobSupervisorResponse! @authenticatedAsTeacher
 
         createInternship(internship: InternshipInput): CreateInternshipResponse! @authenticatedAsTeacher
     }

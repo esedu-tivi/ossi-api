@@ -301,6 +301,24 @@ class StudentManagementAPI extends RESTDataSource {
         )
     }
 
+    async assignJobSupervisor(args) {
+        return this.post(
+            this.baseURL + `/workplace/${args.workplaceId}/assignJobSupervisor`, { body: args }
+        )
+    }
+
+    async unassignJobSupervisor(args) {
+        return this.delete(
+            this.baseURL + `/workplace/${args.workplaceId}/unassignJobSupervisor`, { body: args }
+        )
+    }
+
+    async getAllJobSupervisors() {
+        return this.get(
+            this.baseURL + "/workplace/jobSupervisors"
+        )
+    }
+
     async getAllStudentInternships(args) {
         return this.get(
             this.baseURL + `/internship/${args.studentId}`

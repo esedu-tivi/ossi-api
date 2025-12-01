@@ -3,8 +3,15 @@ import prisma from "prisma-orm";
 import { HttpError } from "../classes/HttpError.js";
 import { parseId } from "../utils/middleware.js";
 import type { RequestWithId } from "../types.js";
+import { checkIds, NeededType } from "../utils/checkIds.js";
 
 const router = express();
+
+interface RequestWithIdAndJobSupervisorId extends RequestWithId {
+  body: {
+    jobSupervisorId: string
+  }
+}
 
 router.get("/", async (req, res, next) => {
   try {
@@ -77,6 +84,90 @@ router.delete("/:id", parseId, async (req: RequestWithId, res, next) => {
     res.json({
       status: 204,
       success: true,
+    })
+  }
+  catch (error) {
+    next(error)
+  }
+})
+
+router.post("/:id/assignJobSupervisor", parseId, async (req: RequestWithIdAndJobSupervisorId, res, next) => {
+  try {
+    const { jobSupervisorId } = req.body
+    checkIds({ jobSupervisorId }, NeededType.NUMBER)
+    await prisma.workplace.update({
+      where: {
+        id: req.id
+      },
+      data: {
+        jobSupervisor: {
+          connect: {
+            userId: Number(jobSupervisorId)
+          }
+        }
+      }
+    })
+
+    res.json({
+      status: 201,
+      success: true
+    })
+  }
+  catch (error) {
+    next(error)
+  }
+})
+
+router.delete("/:id/unassignJobSupervisor", parseId, async (req: RequestWithIdAndJobSupervisorId, res, next) => {
+  try {
+    const { jobSupervisorId } = req.body
+    checkIds({ jobSupervisorId }, NeededType.NUMBER)
+    await prisma.workplace.update({
+      where: {
+        id: req.id
+      },
+      data: {
+        jobSupervisor: {
+          disconnect: {
+            userId: Number(jobSupervisorId)
+          }
+        }
+      }
+    })
+    res.json({
+      status: 204,
+      success: true
+    })
+  }
+  catch (error) {
+    next(error)
+  }
+
+})
+
+router.get("/jobSupervisors", async (req, res, next) => {
+  try {
+    const jobSupervisors = await prisma.jobSupervisor.findMany({
+      select: {
+        users: true,
+        workplace: true
+      }
+    })
+
+    const parsedJobSupervisors = jobSupervisors.map(jobSupervisor => ({
+      id: jobSupervisor.users.id,
+      firstName: jobSupervisor.users.firstName,
+      lastName: jobSupervisor.users.lastName,
+      email: jobSupervisor.users.email,
+      archived: jobSupervisor.users.archived,
+      workplace: jobSupervisor.workplace
+    }))
+
+
+    res.json({
+      status: 200,
+      success: true,
+      jobSupervisors: parsedJobSupervisors
     })
   }
   catch (error) {
