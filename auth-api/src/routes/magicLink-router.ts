@@ -17,12 +17,14 @@ router.post("/request", async (req: Request, res: Response) => {
 
     const { token, tokenHash, expiresAt } = generateMagicLinkToken();
 
-    const record = await prisma.magicLinkToken.create({
-        data: {
+    const record = await prisma.magicLinkToken.upsert({
+        where: { email },
+        update: { tokenHash, expiresAt, createdAt: new Date(Date.now()) },
+        create: {
             email,
             tokenHash,
             expiresAt,
-        },
+        }
     });
 
     const loginUrl = `${process.env.APP_URL}/auth/magic-link/verify?id=${record.id}&token=${token}`;

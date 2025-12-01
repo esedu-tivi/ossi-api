@@ -277,7 +277,7 @@ model Internship {
 
 model MagicLinkToken {
   id        String   @id @default(cuid())
-  email     String
+  email     String   @unique
   tokenHash String
   expiresAt DateTime
   used      Boolean  @default(false)

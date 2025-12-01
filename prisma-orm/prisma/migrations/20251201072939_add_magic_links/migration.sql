@@ -9,3 +9,6 @@ CREATE TABLE "MagicLinkToken" (
 
     CONSTRAINT "MagicLinkToken_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MagicLinkToken_email_key" ON "MagicLinkToken"("email");
