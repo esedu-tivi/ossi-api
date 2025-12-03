@@ -240,6 +240,13 @@ const newLocal = `#graphql
         workplace: Workplace
     }
 
+    type JobSupervisorWithoutWorkplace {
+        id: ID!
+        firstName: String!
+        lastName: String!
+        email: String!
+    }
+
     #--- End of Types ---
 
 
@@ -571,6 +578,12 @@ const newLocal = `#graphql
         jobSupervisors: [JobSupervisor]!
     }
 
+    type JobSupervisorsWithWorkplaceResponse {
+        success: Boolean!
+        status: Int!
+        jobSupervisors: [JobSupervisorWithoutWorkplace]!
+    }
+
     # --- End of Responses
 
 
@@ -672,6 +685,7 @@ const newLocal = `#graphql
         workplaces: WorkplacesResponse! @authenticated
         internships(studentId: ID!): InternshipsResponse! @authenticatedAsTeacher
         jobSupervisors: JobSupervisorsResponse! @authenticatedAsTeacher
+        jobSupervisorsByWorkplace(workplaceId: ID!): JobSupervisorsWithWorkplaceResponse! @authenticatedAsTeacher
     }
 
     type Mutation {

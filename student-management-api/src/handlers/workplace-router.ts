@@ -175,4 +175,32 @@ router.get("/jobSupervisors", async (req, res, next) => {
   }
 })
 
+router.get("/:id/jobSupervisors", parseId, async (req: RequestWithId, res, next) => {
+  try {
+    const jobSupervisors = await prisma.jobSupervisor.findMany({
+      where: { workplaceId: req.id },
+      select: { users: true }
+    })
+
+    const parsedJobSupervisors = jobSupervisors.map(jobSupervisor => ({
+      id: jobSupervisor.users.id,
+      firstName: jobSupervisor.users.firstName,
+      lastName: jobSupervisor.users.lastName,
+      email: jobSupervisor.users.email,
+    }))
+
+    res.json({
+      status: 200,
+      success: true,
+      jobSupervisors: parsedJobSupervisors
+    })
+  }
+  catch (error) {
+    next(error)
+  }
+
+
+
+})
+
 export const WorkplaceRouter = router
