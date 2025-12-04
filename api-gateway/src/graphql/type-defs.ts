@@ -562,6 +562,11 @@ const newLocal = `#graphql
         internship: Internship!
     }
 
+    type DeleteInternshipResponse {
+        success: Boolean!
+        status: Int!
+    }
+
     type AssignJobSupervisorResponse {
         success: Boolean!
         status: Int!
@@ -735,6 +740,7 @@ const newLocal = `#graphql
         unassignJobSupervisor(workplaceId: ID!, jobSupervisorId: ID!): UnassignJobSupervisorResponse! @authenticatedAsTeacher
 
         createInternship(internship: InternshipInput): CreateInternshipResponse! @authenticatedAsTeacher
+        deleteInternship(internshipId: ID!): DeleteInternshipResponse! @authenticatedAsTeacher
     }
 
     # --- End of Query & Mutation ---

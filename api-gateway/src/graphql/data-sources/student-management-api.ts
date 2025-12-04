@@ -336,6 +336,12 @@ class StudentManagementAPI extends RESTDataSource {
             this.baseURL + `/internship/`, { body: args }
         )
     }
+
+    async deleteInternship(args) {
+        return this.delete(
+            this.baseURL + `/internship/${args.internshipId}`
+        )
+    }
 }
 
 export { StudentManagementAPI };

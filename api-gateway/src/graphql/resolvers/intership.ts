@@ -8,11 +8,16 @@ const createInternship = async (parent, args, context, info) => {
   return await context.dataSources.studentManagementAPI.createInternship(args)
 }
 
+const deleteInternship = async (parentPort, args, context, info) => {
+  return await context.dataSources.studentManagementAPI.deleteInternship(args)
+}
+
 export const Internship = {
   Query: {
     internships
   },
   Mutation: {
-    createInternship
+    createInternship,
+    deleteInternship
   }
 }

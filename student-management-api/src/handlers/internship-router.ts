@@ -61,4 +61,18 @@ router.post("/", async (req, res, next) => {
   }
 })
 
+router.delete("/:id", parseId, async (req: RequestWithId, res, next) => {
+  try {
+    await prisma.internship.delete({ where: { id: req.id } })
+
+    res.json({
+      status: 204,
+      success: true
+    })
+  }
+  catch (error) {
+    next(error)
+  }
+})
+
 export const InternshipRouter = router
