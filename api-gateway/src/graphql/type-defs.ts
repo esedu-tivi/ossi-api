@@ -301,6 +301,12 @@ const newLocal = `#graphql
         message: String
         students: [Student!]
     }
+
+    type StudentResponse {
+        success: Boolean!
+        status: Int!
+        student: Student
+    }
     
     type TitlesResponse {
         success: Boolean!
@@ -678,6 +684,7 @@ const newLocal = `#graphql
         me: MeResponse! @authenticated
         amISetUp: AmISetUpResponse! @authenticated
         students: StudentsResponse! @authenticatedAsTeacher
+        student(id: ID!): StudentResponse! @authenticatedAsTeacher
         titles: TitlesResponse! @authenticated
         units: UnitsResponse! @authenticated
         parts: PartsResponse! @authenticated

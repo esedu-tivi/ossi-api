@@ -25,6 +25,10 @@ const students: Resolver<null, null> = async (parent, _, context) => {
     return await context.dataSources.studentManagementAPI.getStudents();
 }
 
+const student: Resolver<null, { id: number }> = async (parent, args, context) => {
+    return await context.dataSources.studentManagementAPI.getStudent(args.id);
+}
+
 const titles: Resolver<null, null> = async (parent, _, context) => {
     return await context.dataSources.studentManagementAPI.getTitles();
 }
@@ -41,10 +45,6 @@ const projects: Resolver<null, null> = async (_, __, context) => {
     return await context.dataSources.studentManagementAPI.getProjects();
 }
 
-
-
-
-
 const part: Resolver<null, { id: number }> = async (_, args, context) => {
     return await context.dataSources.studentManagementAPI.getPart(args.id);
 };
@@ -56,9 +56,6 @@ const project: Resolver<null, { id: number }> = async (_, args, context) => {
 const projectTags: Resolver<null, null> = async (_, args, context) => {
     return await context.dataSources.studentManagementAPI.getProjectTags();
 }
-
-
-
 
 const notifications: Resolver<null, null> = async (_, args, context) => {
     const response = await axios.get(
@@ -141,6 +138,7 @@ export const Query = {
     me,
     amISetUp,
     students,
+    student,
     units,
     titles,
     parts,
