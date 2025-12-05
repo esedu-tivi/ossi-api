@@ -221,6 +221,7 @@ const newLocal = `#graphql
     type Workplace {
         id: ID!
         name: String!
+        jobSupervisors: [JobSupervisorWithoutWorkplace]!
     }
 
     type Internship {
@@ -589,6 +590,12 @@ const newLocal = `#graphql
         jobSupervisors: [JobSupervisorWithoutWorkplace]!
     }
 
+    type UpdateJobSupervisorAssignsResponse {
+        success: Boolean!
+        status: Int!
+        message: String!
+    }
+
     # --- End of Responses
 
 
@@ -738,6 +745,7 @@ const newLocal = `#graphql
         deleteWorkplace(id: ID!): DeleteWorkplaceResponse! @authenticatedAsTeacher
         assignJobSupervisor(workplaceId: ID!, jobSupervisorId: ID!): AssignJobSupervisorResponse! @authenticatedAsTeacher
         unassignJobSupervisor(workplaceId: ID!, jobSupervisorId: ID!): UnassignJobSupervisorResponse! @authenticatedAsTeacher
+        updateJobSupervisorAssigns(workplaceId: ID!, assignIds: [ID!]!, unassignIds: [ID!]!): UpdateJobSupervisorAssignsResponse! @authenticatedAsTeacher
 
         createInternship(internship: InternshipInput): CreateInternshipResponse! @authenticatedAsTeacher
         deleteInternship(internshipId: ID!): DeleteInternshipResponse! @authenticatedAsTeacher

@@ -15,12 +15,31 @@ interface RequestWithIdAndJobSupervisorId extends RequestWithId {
 
 router.get("/", async (req, res, next) => {
   try {
-    const workplaces = await prisma.workplace.findMany({ orderBy: { id: 'asc' } })
+    const workplaces = await prisma.workplace.findMany({
+      orderBy: { id: 'asc' },
+      include: {
+        jobSupervisor: {
+          include: {
+            users: true
+          }
+        }
+      }
+    })
+
+    const parsedWorkplaces = workplaces.map(workplace => ({
+      ...workplace,
+      jobSupervisors: workplace.jobSupervisor.map(supervisor => ({
+        id: supervisor.users.id,
+        firstName: supervisor.users.firstName,
+        lastName: supervisor.users.lastName,
+        email: supervisor.users.email,
+      }))
+    }))
 
     res.json({
       status: 200,
       success: true,
-      workplaces
+      workplaces: parsedWorkplaces
     })
   }
   catch (error) {
@@ -198,9 +217,33 @@ router.get("/:id/jobSupervisors", parseId, async (req: RequestWithId, res, next)
   catch (error) {
     next(error)
   }
+})
 
+router.patch("/:id/updateJobSupervisorAssigns", parseId, async (req: RequestWithId, res, next) => {
+  try {
+    const { assignIds, unassignIds } = req.body
 
+    checkIds(assignIds, NeededType.NUMBER)
+    checkIds(unassignIds, NeededType.NUMBER)
 
+    await prisma.workplace.update({
+      where: { id: req.id },
+      data: {
+        jobSupervisor: {
+          connect: assignIds.map((id: string) => ({ userId: Number(id) })),
+          disconnect: unassignIds.map((id: string) => ({ userId: Number(id) }))
+        }
+      }
+    })
+    res.json({
+      status: 204,
+      success: true,
+      message: "Successfully assigned and unassigned jobSupervisor(s)"
+    })
+  }
+  catch (error) {
+    next(error)
+  }
 })
 
 export const WorkplaceRouter = router

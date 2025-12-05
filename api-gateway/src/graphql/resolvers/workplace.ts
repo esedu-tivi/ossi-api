@@ -32,6 +32,10 @@ const jobSupervisorsByWorkplace: Resolver<null, null> = async (_, args, context)
   return await context.dataSources.studentManagementAPI.getJobSupervisorsByWorkplace(args)
 }
 
+const updateJobSupervisorAssigns = async (parent, args, context, info) => {
+  return await context.dataSources.studentManagementAPI.updateJobSupervisorAssigns(args)
+}
+
 export const Workplace = {
   Query: {
     workplaces,
@@ -44,5 +48,6 @@ export const Workplace = {
     deleteWorkplace,
     assignJobSupervisor,
     unassignJobSupervisor,
+    updateJobSupervisorAssigns,
   }
 }
