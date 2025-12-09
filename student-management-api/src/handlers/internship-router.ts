@@ -7,21 +7,56 @@ const router = express();
 
 type InternshipWithoutId = Omit<Internship, "id">
 
-router.get("/:id", parseId, async (req: RequestWithId, res, next,) => {
+router.get("/:id", parseId, async (req: RequestWithId, res, next) => {
   try {
     const internships = await prisma.internship.findMany({
       where: { studentUserId: req.id },
       include: {
-        workplace: true
+        workplace: true,
+        jobSupervisor: {
+          include: {
+            users: true
+          }
+        },
+        teacher: {
+          include: {
+            users: true
+          },
+        },
+        qualificationUnit: true
       }
     })
 
-    console.log(internships)
+    const parsedInternships = internships.map(internship => ({
+      id: internship.id,
+      info: internship.info,
+      startDate: internship.startDate,
+      endDate: internship.endDate,
+      workplace: internship.workplace ? {
+        id: internship.workplace.id || null,
+        name: internship.workplace.name || null,
+        jobSupervisor: internship.jobSupervisor ? {
+          id: internship.jobSupervisor.users.id || null,
+          firstName: internship.jobSupervisor.users.firstName || null,
+          lastName: internship.jobSupervisor.users.lastName || null,
+          email: internship.jobSupervisor.users.email || null,
+        } : null,
+      } : null,
+      teacher: internship.teacher ? {
+        id: internship.teacher.users.id || null,
+        firstName: internship.teacher.users.firstName || null,
+        lastName: internship.teacher.users.lastName || null,
+      } : null,
+      qualificationUnit: internship.qualificationUnit ? {
+        id: internship.qualificationUnit.id || null,
+        name: internship.qualificationUnit.name || null,
+      } : null,
+    }))
 
     res.json({
       status: 200,
       success: true,
-      internships
+      internships: parsedInternships
     })
   }
   catch (error) {

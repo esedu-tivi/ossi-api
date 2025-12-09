@@ -81,6 +81,11 @@ const newLocal = `#graphql
         parts: [QualificationUnitPart!]!
     }
 
+    type QualificationUnitForInternship {
+        id: Int
+        name: String
+    }
+
     type QualificationUnitPart {
         id: Int!
         name: String!
@@ -171,6 +176,12 @@ const newLocal = `#graphql
         teachingQualificationTitle: QualificationTitle
     }
 
+    type TeacherForInternship {
+        id: ID!
+        firstName: String!
+        lastName: String!
+    }
+
     type ProjectReturnNotification {
         id: ID!
         project: QualificationProject!
@@ -224,12 +235,20 @@ const newLocal = `#graphql
         jobSupervisors: [JobSupervisorWithoutWorkplace]!
     }
 
+    type WorkplaceForInternship {
+        id: ID!
+        name: String!
+        jobSupervisor: JobSupervisorWithoutWorkplace
+    }
+
     type Internship {
         id: ID!
         startDate: DateTime
         endDate: DateTime
         info: String
-        workplace: Workplace
+        teacher: TeacherForInternship
+        workplace: WorkplaceForInternship
+        qualificationUnit: QualificationUnitForInternship
     }
 
     type JobSupervisor implements User {
