@@ -176,7 +176,11 @@ router.get("/:id/assigned_projects", parseId, async (req: RequestWithId, res) =>
 
     console.log("log from assigned_projects post ", { ...assignedProjects })
 
-    res.json(assignedProjects)
+    res.json({
+        status: 200,
+        success: true,
+        assignedProjects
+    })
 })
 
 router.get("/:id/single_assigned_project/:projectId", parseId, async (req: RequestWithId & { params: { projectId: any } }, res, next) => {

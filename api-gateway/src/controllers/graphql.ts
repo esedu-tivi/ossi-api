@@ -45,6 +45,7 @@ const resolvers = {
         ...MessagingResolvers.Query,
         ...Workplace.Query,
         ...Internship.Query,
+        ...Student.Query,
     },
     Mutation: {
         ...Mutation,
@@ -52,7 +53,6 @@ const resolvers = {
         ...Workplace.Mutation,
         ...Internship.Mutation,
     },
-    Student,
     QualificationTitle,
     QualificationUnitPart,
     QualificationProject,

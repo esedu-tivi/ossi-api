@@ -621,6 +621,12 @@ const newLocal = `#graphql
         message: String!
     }
 
+    type AssignedProjectsResponse {
+        success: Boolean!
+        status: Int!
+        assignedProjects: [AssignedProject]!
+    }
+
     # --- End of Responses
 
 
@@ -711,7 +717,7 @@ const newLocal = `#graphql
         projects: ProjectsResponse! @authenticated
         project(id: ID!): ProjectResponse! @authenticated
         projectTags: ProjectTagsResponse! @authenticated
-        # assignedProjects: AssignedProjects @authenticated
+        assignedProjects(studentId: ID!): AssignedProjectsResponse @authenticatedAsTeacher
         # assignedProject(projectId:ID):AssignedProject @ authenticated
         notifications: NotificationsResponse! @authenticated
         notification(id: ID!): NotificationResponse! @authenticated

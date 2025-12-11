@@ -12,9 +12,10 @@ const assignedQualificationUnits: Resolver<{ id: number }, null> = async (parent
     return await context.dataSources.studentManagementAPI.getStudentAssignedQualificationUnits(parent.id);
 }
 
-const assignedProjects: Resolver<{ id: number }, null> = async (parent, args, context) => {
-    return await context.dataSources.studentManagementAPI.getStudentAssignedProjects(parent.id);
+const assignedProjects: Resolver<null, { studentId: number }> = async (parent, args, context) => {
+    return await context.dataSources.studentManagementAPI.getStudentAssignedProjects(args.studentId)
 };
+
 const assignedProjectSingle: Resolver<{ id: number }, { projectId: number }> = async (parent, args, context) => {
     console.log("log ", parent, args)
     if (!args || args.projectId === undefined || args.projectId === null) {
@@ -24,9 +25,11 @@ const assignedProjectSingle: Resolver<{ id: number }, { projectId: number }> = a
 };
 
 export const Student = {
-    studyingQualification,
-    studyingQualificationTitle,
-    assignedQualificationUnits,
-    assignedProjects,
-    assignedProjectSingle,
+    Query: {
+        //studyingQualification,
+        //studyingQualificationTitle,
+        //assignedQualificationUnits,
+        assignedProjects,
+        //assignedProjectSingle,
+    }
 }
