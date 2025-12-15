@@ -1,47 +1,73 @@
 ---
+x-build: &build
+  context: .
+  target: dev
+
+x-volume_driver: &prisma-volume
+  type: bind
+  source: prisma-orm
+  target: /usr/app/prisma-orm
+  read_only: true
+
 name: ossi-api
 
 services:
-  api:
-    build:
-      target: dev
+  api-gateway:
+    build: *build
     ports:
       - 9230:9229
     volumes:
-      - ./api-gateway/src/:/app/src:ro
+      - ./api-gateway/src/:/usr/app/api-gateway/src:ro
 
   auth-api:
-    build:
-      target: dev
+    build: *build
     ports:
       - 9231:9229
     volumes:
-      - ./auth-api/src/:/app/src:ro
-      - ./prisma-orm/:/prisma-orm
+      - ./auth-api/src/:/usr/app/auth-api/src:ro
+      # - *prisma-volume
+    depends_on:
+      db-migrations:
+        condition: service_completed_successfully
 
   messaging-server:
-    build:
-      target: dev
+    build: *build
     ports:
       - 9232:9229
     volumes:
-      - ./messaging-server/src/:/app/src:ro
-      - ./prisma-orm/:/prisma-orm
+      - ./messaging-server/src/:/usr/app/messaging-server/src:ro
+      # - *prisma-volume
+    depends_on:
+      db-migrations:
+        condition: service_completed_successfully
 
   notification-server:
-    build:
-      target: dev
+    build: *build
     ports:
       - 9233:9229
     volumes:
-      - ./notification-server/src/:/app/src:ro
+      - ./notification-server/src/:/usr/app/notification-server/src:ro
 
   student-management-api:
-    build:
-      target: dev
+    build: *build
     ports:
       - 9234:9229
     volumes:
-      - ./student-management-api/src/:/app/src:ro
-      - ./student-management-api/test/:/app/test:ro
-      - ./prisma-orm/:/prisma-orm
+      - ./student-management-api/src/:/usr/app/student-management-api/src:ro
+      - ./student-management-api/test/:/usr/app/student-management-api/test:ro
+      # - *prisma-volume
+    depends_on:
+      db-migrations:
+        condition: service_completed_successfully
+
+  db-migrations:
+    extends:
+      file: common-services.yml
+      service: prisma
+    build: *build
+    volumes:
+      - prisma-orm:/usr/app/prisma-orm:rw
+
+volumes:
+  prisma-orm:
+    external: false

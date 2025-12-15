@@ -1,6 +1,6 @@
 {
   "name": "prisma-orm",
-  "private": "true",
+  "private": true,
   "version": "1.0.0",
   "type": "module",
   "main": "dist/index.js",
@@ -10,10 +10,10 @@
   ],
   "scripts": {
     "generate": "npx prisma generate --schema=./prisma/schema.prisma",
-    "build": "npm run generate && npx tsc --build",
+    "build": "npm run generate && tsc",
     "migrate:dev": "npx prisma migrate dev && npm run build",
     "migrate:prod": "npx prisma migrate deploy",
-    "seed": "tsx prisma/seed.ts",
+    "seed": "npx tsx prisma/seed.ts",
     "start": "npx prisma generate && npm run migrate:prod",
     "start:test": "NODE_ENV=test npm start",
     "studio": "npx prisma studio --port 5555 --browser none"

@@ -1,10 +1,10 @@
 {
   "name": "student-management-api",
-  "private": "true",
+  "private": true,
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "compile": "tsc",
+    "build": "tsc",
     "dev": "tsx watch --inspect=0.0.0.0:9229 src/index.ts",
     "start": "node ./dist/src/index.js",
     "test": "NODE_ENV=test node --import tsx --test --test-concurrency=1 test/*.test.ts",

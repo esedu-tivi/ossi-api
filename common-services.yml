@@ -1,0 +1,19 @@
+---
+x-build: &build
+  context: .
+  target: final
+
+x-env_file: &env_file
+  - .env
+
+services:
+  prisma:
+    build:
+      <<: *build
+      dockerfile: ./docker/prisma.Dockerfile
+      args:
+        SERVICE_NAME: prisma-orm
+    env_file: *env_file
+    depends_on:
+      db:
+        condition: service_healthy
