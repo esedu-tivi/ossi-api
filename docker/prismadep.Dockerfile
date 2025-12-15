@@ -6,13 +6,9 @@ WORKDIR /usr/app
 
 COPY ./package.json ./
 COPY ./${SERVICE_NAME}/package.json ./${SERVICE_NAME}/
-RUN npm install --omit=dev \
-    && npm cache clean --force
-
-# --- Prisma ORM build stage (must exist for later COPY) ---
-# FROM base AS prisma-orm
-# WORKDIR /usr/app
-# Add ORM build steps here if needed
+RUN --mount=type=cache,target=/app/node_modules \
+    --mount=type=cache,target=/root/.npm \
+    npm install --omit=dev
 
 # --- Prisma stage ---
 FROM base AS prisma
@@ -25,7 +21,9 @@ FROM prisma AS dev
 ENV NODE_ENV=development
 ARG SERVICE_NAME
 ENV ws=${SERVICE_NAME}
-RUN npm install --workspace=${ws}
+RUN --mount=type=cache,target=/app/node_modules \
+    --mount=type=cache,target=/root/.npm \
+    npm install --workspace=${ws}
 CMD ["npm", "--workspace", "${ws}", "run", "dev"]
 
 # --- Build stage ---
@@ -44,6 +42,7 @@ ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 USER node
 WORKDIR /usr/app
 
+RUN npm cache clean --force
 COPY --from=prisma-orm --chown=node:node /usr/app/node_modules ./node_modules
 COPY --from=build --chown=node:node /usr/app/prisma-orm/dist ./prisma-orm/dist
 COPY --from=build --chown=node:node /usr/app/prisma-orm/package.json ./prisma-orm/
