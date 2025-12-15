@@ -35,7 +35,7 @@ npm start
 dev
 
 ```
-npm run start:dev
+npm run dev
 ```
 
 stop running containers
