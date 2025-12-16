@@ -181,10 +181,18 @@ class StudentManagementAPI extends RESTDataSource {
     }
 
     async getStudentAssignedProjects(studentId) {
+        const response = await this.get(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/${studentId}/assigned_projects`
+        );
+        return response.assignedProjects
+    }
+
+    async getStudentAssignedProjectsForTeacher(studentId) {
         return this.get(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/${studentId}/assigned_projects`
         );
     }
+
     async getStudentSingleAssignedProject(studentId, projectId) {
         const res = await this.get(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/${studentId}/single_assigned_project/${projectId}`

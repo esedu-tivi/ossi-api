@@ -735,7 +735,8 @@ const newLocal = `#graphql
         projects: ProjectsResponse! @authenticated
         project(id: ID!): ProjectResponse! @authenticated
         projectTags: ProjectTagsResponse! @authenticated
-        assignedProjects(studentId: ID!): AssignedProjectsResponse @authenticatedAsTeacher
+        assignedProjects(id: ID!): AssignedProjectsResponse @authenticated
+        assignedStudentProjects(studentId: ID!): AssignedProjectsResponse @authenticatedAsTeacher
         # assignedProject(projectId:ID):AssignedProject @ authenticated
         notifications: NotificationsResponse! @authenticated
         notification(id: ID!): NotificationResponse! @authenticated

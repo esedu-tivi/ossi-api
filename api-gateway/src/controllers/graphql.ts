@@ -21,7 +21,7 @@ import { ProjectReturnNotification } from "../graphql/resolvers/project-return-n
 import { ProjectUpdateNotification } from "../graphql/resolvers/project-update-notification.js";
 import { QualificationProject } from "../graphql/resolvers/project.js";
 import { Query } from "../graphql/resolvers/query.js";
-import { Student } from "../graphql/resolvers/student.js";
+import { Student, StudentResolver } from "../graphql/resolvers/student.js";
 import { QualificationTitle } from "../graphql/resolvers/title.js";
 import { QualificationUnit } from "../graphql/resolvers/unit.js";
 import { User } from "../graphql/resolvers/user.js";
@@ -45,7 +45,7 @@ const resolvers = {
         ...MessagingResolvers.Query,
         ...Workplace.Query,
         ...Internship.Query,
-        ...Student.Query,
+        ...StudentResolver.Query
     },
     Mutation: {
         ...Mutation,
@@ -57,6 +57,7 @@ const resolvers = {
     QualificationUnitPart,
     QualificationProject,
     QualificationUnit,
+    Student,
 };
 
 let schema = makeExecutableSchema({
