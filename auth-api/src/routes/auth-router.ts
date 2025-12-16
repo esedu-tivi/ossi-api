@@ -25,7 +25,7 @@ async function getPemCertificate(idToken) {
 const router = express.Router();
 
 // intended for basic ossi login, job supervisor scopes should be created in a seperate endpoint?
-router.post("/login", async (req, res) => {
+router.post("/", async (req, res) => {
     try {
         const userData = await prisma.$transaction(async (transaction) => {
 
