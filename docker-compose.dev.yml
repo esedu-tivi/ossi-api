@@ -25,7 +25,6 @@ services:
       - 9231:9229
     volumes:
       - ./auth-api/src/:/usr/app/auth-api/src:ro
-      # - *prisma-volume
     depends_on:
       db-migrations:
         condition: service_completed_successfully
@@ -36,7 +35,6 @@ services:
       - 9232:9229
     volumes:
       - ./messaging-server/src/:/usr/app/messaging-server/src:ro
-      # - *prisma-volume
     depends_on:
       db-migrations:
         condition: service_completed_successfully
@@ -55,7 +53,6 @@ services:
     volumes:
       - ./student-management-api/src/:/usr/app/student-management-api/src:ro
       - ./student-management-api/test/:/usr/app/student-management-api/test:ro
-      # - *prisma-volume
     depends_on:
       db-migrations:
         condition: service_completed_successfully
@@ -65,9 +62,12 @@ services:
       file: common-services.yml
       service: prisma
     build: *build
-    volumes:
-      - prisma-orm:/usr/app/prisma-orm:rw
 
-volumes:
-  prisma-orm:
-    external: false
+  prisma-studio:
+    extends:
+      service: db-migrations
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    ports:
+      - 5555:5555
+    command: ["npm", "--workspace", "prisma-orm", "run", "studio"]
