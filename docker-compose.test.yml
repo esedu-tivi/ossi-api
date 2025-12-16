@@ -2,19 +2,19 @@
 services:
   student-management-api:
     build:
-      context: ./student-management-api
       target: dev
+      context: .
+      dockerfile: ./docker/prismadep.Dockerfile
       additional_contexts:
-        prisma-orm: ./prisma-orm
-    command: npm run test
+        - prisma-orm=service:db-migrations
     depends_on:
       db-migrations:
         condition: service_completed_successfully
     env_file: ".env"
     volumes:
-      - ./student-management-api/src/:/app/src:ro
-      - ./student-management-api/test/:/app/test:ro
-      - ./prisma-orm/:/prisma-orm
+      - ./student-management-api/src/:/usr/app/student-management-api/src:ro
+      - ./student-management-api/test/:/usr/app/student-management-api/test:ro
+    command: ["npm", "--workspace", "student-management-api", "run", "test"]
 
   db-test:
     image: docker.io/postgres:18-alpine
@@ -32,14 +32,15 @@ services:
       start_period: 1s
 
   db-migrations:
-    build:
-      context: ./prisma-orm
+    extends:
+      file: common-services.yml
+      service: prisma
+    environment:
+      - DATABASE_URL=${DATABASE_URL_TEST}
     depends_on:
       db-test:
         condition: service_healthy
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres@db-test:5432/postgres?schema=public
-    command: npm run start:test
+    command: ["npm", "--workspace", "prisma-orm", "run", "start:test"]
 
 volumes:
   db-test-data:

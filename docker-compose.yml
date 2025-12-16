@@ -103,10 +103,11 @@ services:
     extends:
       file: common-services.yml
       service: prisma
-    command: ["npm", "--workspace", "prisma-orm", "run", "start"]
+    env_file: *env_file
     depends_on:
       db:
         condition: service_healthy
+    command: ["npm", "--workspace", "prisma-orm", "run", "start"]
 
   mongo:
     image: docker.io/mongo
