@@ -275,6 +275,15 @@ model Internship {
   qualificationUnitId Int?
 }
 
+model MagicLinkToken {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  tokenHash String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
 enum enumAssignedProjectsForStudentsProjectStatus {
   WORKING
   RETURNED

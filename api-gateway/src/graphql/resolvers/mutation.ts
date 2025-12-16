@@ -54,6 +54,24 @@ const deleteWorktimeEntry = async (parent, args, context, info) => {
     return await context.dataSources.studentManagementAPI.deleteWorktimeEntry(args)
 }
 
+const requestMagicLink = async (parent, args, context, info) => {
+    const response = await axios.post(
+        process.env.INTERNAL_AUTH_API_URL + "/auth/magic-link/request", args
+    );
+    return response.data;
+}
+
+const verifyMagicLink = async (_: unknown, args: { id: string, token: string }) => {
+    try {
+        const response = await axios.post(
+            process.env.INTERNAL_AUTH_API_URL + "/auth/magic-link/verify", args
+        );
+        return response.data;
+    } catch (error: any) {
+        const message = error.response?.data?.error || "Unknown error";
+        throw new Error(message);
+    }
+};
 
 const markNotificationAsRead = async (parent, args, context, info) => {
     const response = await axios.post(process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/notifications/${args.id}/mark_as_read`, {}, {
@@ -110,6 +128,8 @@ const updateTagAssigns = async (parent, args, context, info) => {
 
 export const Mutation = {
     login,
+    requestMagicLink,
+    verifyMagicLink,
     setUpStudent,
     createProject,
     createPart,

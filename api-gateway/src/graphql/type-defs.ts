@@ -401,6 +401,18 @@ const newLocal = `#graphql
         token: String
     }
 
+
+
+    type MagicLinkRequestResponse {
+        ok: Boolean!
+    }
+
+    type MagicLinkVerifyResponse {
+        ok: Boolean!
+        jwt: String
+        message: String
+    }
+
     type SetUpStudentResponse {
         status: Int!
         success: Boolean!
@@ -739,12 +751,16 @@ const newLocal = `#graphql
     }
 
     type Mutation {
+
         login(idToken: String!): LoginResponse!
 
         # this mutation can only be done once by a student, while a student's profile has not been set up
         # assigns TVP for the student automatically, if FullCompletion is chosen
         # after performing this mutation a new token should be generated
         setUpStudent(studentId: ID!, studentSetupInput: StudentSetupInput!): SetUpStudentResponse! @authenticatedAsStudent
+
+        requestMagicLink(email: String!): MagicLinkRequestResponse!
+        verifyMagicLink(id: ID!, token: String!): MagicLinkVerifyResponse!
 
         createProject(project: CreateProjectInput!): CreateProjectResponse! @authenticatedAsTeacher
         updateProject(id: ID!, project: UpdateProjectInput!): UpdateProjectResponse! @authenticatedAsTeacher
