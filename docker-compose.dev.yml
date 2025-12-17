@@ -3,12 +3,6 @@ x-build: &build
   context: .
   target: dev
 
-x-volume_driver: &prisma-volume
-  type: bind
-  source: prisma-orm
-  target: /usr/app/prisma-orm
-  read_only: true
-
 name: ossi-api
 
 services:
@@ -25,9 +19,6 @@ services:
       - 9231:9229
     volumes:
       - ./auth-api/src/:/usr/app/auth-api/src:ro
-    depends_on:
-      db-migrations:
-        condition: service_completed_successfully
 
   messaging-server:
     build: *build
@@ -35,9 +26,6 @@ services:
       - 9232:9229
     volumes:
       - ./messaging-server/src/:/usr/app/messaging-server/src:ro
-    depends_on:
-      db-migrations:
-        condition: service_completed_successfully
 
   notification-server:
     build: *build
@@ -53,9 +41,6 @@ services:
     volumes:
       - ./student-management-api/src/:/usr/app/student-management-api/src:ro
       - ./student-management-api/test/:/usr/app/student-management-api/test:ro
-    depends_on:
-      db-migrations:
-        condition: service_completed_successfully
 
   db-migrations:
     extends:
