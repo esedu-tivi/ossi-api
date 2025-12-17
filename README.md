@@ -13,18 +13,19 @@ Note: If using Node.js, version 22.11.0 (latest LTS version currently) is recomm
 
 ## 1. Installation
 
-### 1.1 dependencies
+### 1.1 Dependencies
 
 ```
 npm install
 ```
 
-> [!IMPORTANT]
-> Current implementation requires that **prisma-orm/** contains **dist/** built via `npm run build`
->
-> `npm install` script should handle this on unix-likes
+### 1.2 Generate prisma
 
-### 1.2 Run
+```
+npm --workspace=prisma-orm run build
+```
+
+### 1.3 Run
 
 production
 
@@ -52,9 +53,6 @@ npm test
 
 > todo: make express in student-management-api stop after tests
 
-> [!NOTE]
-> The API is exposed through port 3000.
-
 ## 2. Migrations
 
 ### 2.1 Prisma
@@ -65,27 +63,10 @@ If you want sample data in the database, run seeds:
 npm run seed
 ```
 
-... todo ...
+## 3. Routes
 
-### 2.2 Sequelize
+Apollo Server: `localhost:3000/graphql`
 
-> [!CAUTION]
-> Sequelize is no longer used
+Prisma Studio: `localhost:5555`
 
-Migrations are run automatically when running `docker compose up`. To migrate down, run:
-
-```
-docker compose run --rm db-migrations node migrator down
-```
-
-To run other [commands](https://github.com/sequelize/umzug?tab=readme-ov-file#cli-usage), run:
-
-```
-docker compose run --rm db-migrations node migrator <command>
-```
-
-If you want sample data in the database, run seeds:
-
-```
-docker compose run --rm db-migrations node seeder up
-```
+pgAdmin: `localhost:5433`
