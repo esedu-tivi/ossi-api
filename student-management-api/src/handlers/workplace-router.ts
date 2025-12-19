@@ -213,7 +213,7 @@ router.post("/jobSupervisor", async (req, res, next) => {
       firstName,
       lastName,
       email,
-      phoneNumber: phoneNumber || null,
+      phoneNumber: phoneNumber || "",
       oid: uuidv7(), //Needed only for fulfill database requirements
       scope: enumUsersScope.JOB_SUPERVISOR
     }
