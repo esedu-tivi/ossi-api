@@ -1,9 +1,11 @@
 import express from "express";
-import prisma from "prisma-orm";
+import prisma, { enumUsersScope } from "prisma-orm";
 import { HttpError } from "../classes/HttpError.js";
 import { parseId } from "../utils/middleware.js";
 import type { RequestWithId } from "../types.js";
 import { checkIds, NeededType } from "../utils/checkIds.js";
+import { checkRequiredFields } from "../utils/checkRequiredFields.js";
+import { v7 as uuidv7 } from 'uuid'
 
 const router = express();
 
@@ -192,6 +194,55 @@ router.get("/jobSupervisors", async (req, res, next) => {
   catch (error) {
     next(error)
   }
+})
+
+router.post("/jobSupervisor", async (req, res, next) => {
+  try {
+    const { firstName, lastName, email, phoneNumber } = req.body.jobSupervisor
+
+    const missingFields = checkRequiredFields({ firstName, lastName, email }, ["firstName", "lastName", "email"])
+    if (missingFields.length) {
+      return res.json({
+        status: 400,
+        success: false,
+        message: ``
+      })
+    }
+
+    const jobSupervisor = {
+      firstName,
+      lastName,
+      email,
+      phoneNumber: phoneNumber || null,
+      oid: uuidv7(), //Needed only for fulfill database requirements
+      scope: enumUsersScope.JOB_SUPERVISOR
+    }
+
+    const createdJobSupervisor = await prisma.user.create({
+      data: {
+        ...jobSupervisor,
+        jobSupervisors: {
+          create: {}
+        }
+      }
+    })
+
+    res.json({
+      status: 201,
+      success: true,
+      createdJobSupervisor: {
+        id: createdJobSupervisor.id,
+        firstName: createdJobSupervisor.firstName,
+        lastName: createdJobSupervisor.lastName,
+        email: createdJobSupervisor.email,
+        phoneNumber: createdJobSupervisor.phoneNumber || null
+      }
+    })
+  }
+  catch (error) {
+    next(error)
+  }
+
 })
 
 router.get("/:id/jobSupervisors", parseId, async (req: RequestWithId, res, next) => {

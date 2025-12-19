@@ -303,7 +303,7 @@ enum enumStudentsQualificationCompletion {
 enum enumUsersScope {
   STUDENT
   TEACHER
-  JOBSUPERVISOR @map("JOB_SUPERVISOR")
+  JOB_SUPERVISOR
   ADMIN
 
   @@map("enum_users_scope")

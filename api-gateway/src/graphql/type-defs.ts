@@ -265,6 +265,7 @@ const newLocal = `#graphql
         firstName: String!
         lastName: String!
         email: String!
+        phoneNumber: String
     }
 
     #--- End of Types ---
@@ -645,6 +646,12 @@ const newLocal = `#graphql
         assignedProjects: [AssignedProject]!
     }
 
+    type CreateJobSupervisorResponse {
+        success: Boolean!
+        status: Int!
+        createdJobSupervisor: JobSupervisorWithoutWorkplace
+    }
+
     # --- End of Responses
 
 
@@ -715,6 +722,13 @@ const newLocal = `#graphql
         teacherId: ID
         workplaceId: ID!
         qualificationUnitId: ID
+    }
+
+    input JobSupervisorInput {
+        firstName: String!
+        lastName: String!
+        email: String!
+        phoneNumber: String
     }
 
     # --- End of Inputs ---
@@ -801,6 +815,7 @@ const newLocal = `#graphql
         assignJobSupervisor(workplaceId: ID!, jobSupervisorId: ID!): AssignJobSupervisorResponse! @authenticatedAsTeacher
         unassignJobSupervisor(workplaceId: ID!, jobSupervisorId: ID!): UnassignJobSupervisorResponse! @authenticatedAsTeacher
         updateJobSupervisorAssigns(workplaceId: ID!, assignIds: [ID!]!, unassignIds: [ID!]!): UpdateJobSupervisorAssignsResponse! @authenticatedAsTeacher
+        createJobSupervisor(jobSupervisor: JobSupervisorInput!): CreateJobSupervisorResponse! @authenticatedAsTeacher
 
         createInternship(internship: InternshipInput): CreateInternshipResponse! @authenticatedAsTeacher
         deleteInternship(internshipId: ID!): DeleteInternshipResponse! @authenticatedAsTeacher

@@ -295,6 +295,12 @@ class StudentManagementAPI extends RESTDataSource {
         )
     }
 
+    async createJobSupervisor(args) {
+        return this.post(
+            this.baseURL + "/workplace/jobSupervisor", { body: args }
+        )
+    }
+
     async editWorkplace(args) {
         return this.put(
             this.baseURL + `/workplace/${args.id}`, { body: args }

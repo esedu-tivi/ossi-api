@@ -36,6 +36,10 @@ const updateJobSupervisorAssigns = async (parent, args, context, info) => {
   return await context.dataSources.studentManagementAPI.updateJobSupervisorAssigns(args)
 }
 
+const createJobSupervisor = async (parent, args, context, info) => {
+  return await context.dataSources.studentManagementAPI.createJobSupervisor(args)
+}
+
 export const Workplace = {
   Query: {
     workplaces,
@@ -49,5 +53,6 @@ export const Workplace = {
     assignJobSupervisor,
     unassignJobSupervisor,
     updateJobSupervisorAssigns,
+    createJobSupervisor,
   }
 }
