@@ -40,6 +40,10 @@ const createJobSupervisor = async (parent, args, context, info) => {
   return await context.dataSources.studentManagementAPI.createJobSupervisor(args)
 }
 
+const deleteJobSupervisor = async (parent, args, context, info) => {
+  return await context.dataSources.studentManagementAPI.deleteJobSupervisor(args)
+}
+
 export const Workplace = {
   Query: {
     workplaces,
@@ -54,5 +58,6 @@ export const Workplace = {
     unassignJobSupervisor,
     updateJobSupervisorAssigns,
     createJobSupervisor,
+    deleteJobSupervisor,
   }
 }

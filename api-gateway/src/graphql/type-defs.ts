@@ -652,6 +652,11 @@ const newLocal = `#graphql
         createdJobSupervisor: JobSupervisorWithoutWorkplace
     }
 
+    type deleteJobSupervisorResponse {
+        success: Boolean!
+        status: Int!
+    }
+
     # --- End of Responses
 
 
@@ -816,6 +821,7 @@ const newLocal = `#graphql
         unassignJobSupervisor(workplaceId: ID!, jobSupervisorId: ID!): UnassignJobSupervisorResponse! @authenticatedAsTeacher
         updateJobSupervisorAssigns(workplaceId: ID!, assignIds: [ID!]!, unassignIds: [ID!]!): UpdateJobSupervisorAssignsResponse! @authenticatedAsTeacher
         createJobSupervisor(jobSupervisor: JobSupervisorInput!): CreateJobSupervisorResponse! @authenticatedAsTeacher
+        deleteJobSupervisor(id: ID!): deleteJobSupervisorResponse! @authenticatedAsTeacher
 
         createInternship(internship: InternshipInput): CreateInternshipResponse! @authenticatedAsTeacher
         deleteInternship(internshipId: ID!): DeleteInternshipResponse! @authenticatedAsTeacher

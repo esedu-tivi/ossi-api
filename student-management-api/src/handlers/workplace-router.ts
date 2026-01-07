@@ -245,6 +245,25 @@ router.post("/jobSupervisor", async (req, res, next) => {
 
 })
 
+router.delete("/jobSupervisor/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params
+
+    await prisma.jobSupervisor.delete({
+      where: {
+        userId: Number(id)
+      }
+    })
+    res.json({
+      status: 204,
+      success: true
+    })
+  }
+  catch (error) {
+    next(error)
+  }
+})
+
 router.get("/:id/jobSupervisors", parseId, async (req: RequestWithId, res, next) => {
   try {
     const jobSupervisors = await prisma.jobSupervisor.findMany({
