@@ -2,8 +2,6 @@ import express from "express";
 import { checkRequiredFields } from "../utils/checkRequiredFields.js";
 import { v7 as uuidv7 } from 'uuid'
 import prisma, { enumUsersScope } from "prisma-orm";
-import type { RequestWithId } from "../types.js";
-import { parseId } from "../utils/middleware.js";
 
 const router = express()
 
@@ -82,18 +80,18 @@ router.post("/", async (req, res, next) => {
   catch (error) {
     next(error)
   }
-
 })
 
 router.delete("/:id", async (req, res, next) => {
   try {
     const { id } = req.params
 
-    await prisma.jobSupervisor.delete({
+    await prisma.user.delete({
       where: {
-        userId: Number(id)
+        id: Number(id)
       }
     })
+
     res.json({
       status: 204,
       success: true
