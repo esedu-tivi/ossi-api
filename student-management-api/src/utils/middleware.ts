@@ -11,6 +11,13 @@ const errorHandler: ErrorRequestHandler = async (error, req, res, next) => {
                 message: `[${error.code}] Not found`
             })
         }
+        if (error.code === "P2002") {
+            return res.json({
+                status: 400,
+                success: false,
+                message: `[${error.code} ${error.message}]`
+            })
+        }
     }
     if (error instanceof HttpError) {
         return res.json({
