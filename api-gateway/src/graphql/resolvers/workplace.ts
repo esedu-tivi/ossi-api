@@ -4,6 +4,10 @@ const workplaces: Resolver<null, null> = async (_, __, context) => {
   return await context.dataSources.studentManagementAPI.getAllWorkplaces();
 }
 
+const workplace: Resolver<null, { id: string }> = async (_, args, context) => {
+  return await context.dataSources.studentManagementAPI.getSingleWorkplace(args.id);
+}
+
 const createWorkplace = async (parent, args, context, info) => {
   return await context.dataSources.studentManagementAPI.createWorkplace(args)
 }
@@ -47,6 +51,7 @@ const deleteJobSupervisor = async (parent, args, context, info) => {
 export const Workplace = {
   Query: {
     workplaces,
+    workplace,
     jobSupervisors,
     jobSupervisorsByWorkplace,
   },

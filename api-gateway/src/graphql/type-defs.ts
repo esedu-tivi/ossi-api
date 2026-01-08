@@ -166,6 +166,12 @@ const newLocal = `#graphql
         assignedProjectSingle(projectId:ID!): AssignedProjectSingleResponse!
     }
 
+    type StudentForInternship {
+        id: ID!
+        firstName: String!
+        lastName: String!
+    }
+
     type Teacher implements User {
         id: ID!
         firstName: String!
@@ -208,7 +214,7 @@ const newLocal = `#graphql
         time: DateTime!
     }
 
-        type Subscription {
+    type Subscription {
         messageReceived(conversationId: ID!): Message!
         conversationUpdated(userId: ID!): Conversation!
     }
@@ -233,6 +239,22 @@ const newLocal = `#graphql
         id: ID!
         name: String!
         jobSupervisors: [JobSupervisorWithoutWorkplace]!
+    }
+
+    type InternshipForWorkplace {
+        id: ID!
+        startDate: DateTime!
+        endDate: DateTime!
+        info: String
+        student: StudentForInternship! 
+        jobSupervisor: JobSupervisorWithoutWorkplace!
+        teacher: TeacherForInternship!
+    }
+
+    type WorkplaceWithInternships {
+        id: ID!
+        name: String!
+        internships: [InternshipForWorkplace!]
     }
 
     type WorkplaceForInternship {
@@ -572,6 +594,12 @@ const newLocal = `#graphql
         workplaces: [Workplace]!
     }
 
+    type WorkplaceResponse {
+        success: Boolean!
+        status: Int!
+        workplace: WorkplaceWithInternships!
+    }
+
     type CreateWorkplaceResponse {
         success: Boolean!
         status: Int!
@@ -765,6 +793,7 @@ const newLocal = `#graphql
         messages(conversationId: ID!): [Message!]!
         searchUsers(query: String!): [User!]!
         workplaces: WorkplacesResponse! @authenticated
+        workplace(id: ID!): WorkplaceResponse! @authenticatedAsTeacher
         internships(studentId: ID!): InternshipsResponse! @authenticatedAsTeacher
         jobSupervisors: JobSupervisorsResponse! @authenticatedAsTeacher
         jobSupervisorsByWorkplace(workplaceId: ID!): JobSupervisorsWithWorkplaceResponse! @authenticatedAsTeacher

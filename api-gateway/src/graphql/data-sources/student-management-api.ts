@@ -289,6 +289,12 @@ class StudentManagementAPI extends RESTDataSource {
         );
     }
 
+    async getSingleWorkplace(id) {
+        return this.get(
+            this.baseURL + `/workplace/${id}`
+        )
+    }
+
     async createWorkplace(args) {
         return this.post(
             this.baseURL + "/workplace", { body: args }
@@ -297,7 +303,7 @@ class StudentManagementAPI extends RESTDataSource {
 
     async createJobSupervisor(args) {
         return this.post(
-            this.baseURL + "/workplace/jobSupervisor", { body: args }
+            this.baseURL + "/jobSupervisor", { body: args }
         )
     }
 
@@ -327,7 +333,7 @@ class StudentManagementAPI extends RESTDataSource {
 
     async getAllJobSupervisors() {
         return this.get(
-            this.baseURL + "/workplace/jobSupervisors"
+            this.baseURL + "/jobSupervisor"
         )
     }
 
@@ -345,7 +351,7 @@ class StudentManagementAPI extends RESTDataSource {
 
     async deleteJobSupervisor(args) {
         return this.delete(
-            this.baseURL + `/workplace/jobSupervisor/${args.id}`
+            this.baseURL + `/jobSupervisor/${args.id}`
         )
     }
 

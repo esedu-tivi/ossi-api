@@ -1,11 +1,9 @@
 import express from "express";
-import prisma, { enumUsersScope } from "prisma-orm";
+import prisma from "prisma-orm";
 import { HttpError } from "../classes/HttpError.js";
 import { parseId } from "../utils/middleware.js";
 import type { RequestWithId } from "../types.js";
 import { checkIds, NeededType } from "../utils/checkIds.js";
-import { checkRequiredFields } from "../utils/checkRequiredFields.js";
-import { v7 as uuidv7 } from 'uuid'
 
 const router = express();
 
@@ -42,6 +40,75 @@ router.get("/", async (req, res, next) => {
       status: 200,
       success: true,
       workplaces: parsedWorkplaces
+    })
+  }
+  catch (error) {
+    next(error)
+  }
+})
+
+router.get("/:id", parseId, async (req: RequestWithId, res, next) => {
+  try {
+    const { id } = req
+    const workplace = await prisma.workplace.findUnique({
+      where: {
+        id: id
+      },
+      include: {
+        internShips: {
+          include: {
+            student: {
+              include: {
+                users: true
+              }
+            },
+            jobSupervisor: {
+              include: {
+                users: true
+              }
+            },
+            teacher: {
+              include: {
+                users: true,
+              }
+            }
+          }
+        }
+      }
+    })
+
+    const parsedWorkplace = {
+      id: workplace.id,
+      name: workplace.name,
+      internships: workplace.internShips.map(internship => ({
+        id: internship.id,
+        startDate: internship.startDate,
+        endDate: internship.endDate,
+        info: internship.info,
+        teacher: {
+          id: internship.teacher.users.id,
+          firstName: internship.teacher.users.firstName,
+          lastName: internship.teacher.users.lastName,
+        },
+        student: {
+          id: internship.student.users.id,
+          firstName: internship.student.users.firstName,
+          lastName: internship.student.users.lastName,
+        },
+        jobSupervisor: {
+          id: internship.jobSupervisor.users.id,
+          firstName: internship.jobSupervisor.users.firstName,
+          lastName: internship.jobSupervisor.users.lastName,
+          email: internship.jobSupervisor.users.email,
+          phoneNumber: internship.jobSupervisor.users.phoneNumber,
+        }
+      }))
+    }
+
+    res.json({
+      status: 200,
+      success: true,
+      workplace: parsedWorkplace
     })
   }
   catch (error) {
@@ -164,104 +231,6 @@ router.delete("/:id/unassignJobSupervisor", parseId, async (req: RequestWithIdAn
     next(error)
   }
 
-})
-
-router.get("/jobSupervisors", async (req, res, next) => {
-  try {
-    const jobSupervisors = await prisma.jobSupervisor.findMany({
-      select: {
-        users: true,
-        workplace: true
-      }
-    })
-
-    const parsedJobSupervisors = jobSupervisors.map(jobSupervisor => ({
-      id: jobSupervisor.users.id,
-      firstName: jobSupervisor.users.firstName,
-      lastName: jobSupervisor.users.lastName,
-      email: jobSupervisor.users.email,
-      archived: jobSupervisor.users.archived,
-      workplace: jobSupervisor.workplace
-    }))
-
-
-    res.json({
-      status: 200,
-      success: true,
-      jobSupervisors: parsedJobSupervisors
-    })
-  }
-  catch (error) {
-    next(error)
-  }
-})
-
-router.post("/jobSupervisor", async (req, res, next) => {
-  try {
-    const { firstName, lastName, email, phoneNumber } = req.body.jobSupervisor
-
-    const missingFields = checkRequiredFields({ firstName, lastName, email }, ["firstName", "lastName", "email"])
-    if (missingFields.length) {
-      return res.json({
-        status: 400,
-        success: false,
-        message: ``
-      })
-    }
-
-    const jobSupervisor = {
-      firstName,
-      lastName,
-      email,
-      phoneNumber: phoneNumber || "",
-      oid: uuidv7(), //Needed only for fulfill database requirements
-      scope: enumUsersScope.JOB_SUPERVISOR
-    }
-
-    const createdJobSupervisor = await prisma.user.create({
-      data: {
-        ...jobSupervisor,
-        jobSupervisors: {
-          create: {}
-        }
-      }
-    })
-
-    res.json({
-      status: 201,
-      success: true,
-      createdJobSupervisor: {
-        id: createdJobSupervisor.id,
-        firstName: createdJobSupervisor.firstName,
-        lastName: createdJobSupervisor.lastName,
-        email: createdJobSupervisor.email,
-        phoneNumber: createdJobSupervisor.phoneNumber || null
-      }
-    })
-  }
-  catch (error) {
-    next(error)
-  }
-
-})
-
-router.delete("/jobSupervisor/:id", async (req, res, next) => {
-  try {
-    const { id } = req.params
-
-    await prisma.jobSupervisor.delete({
-      where: {
-        userId: Number(id)
-      }
-    })
-    res.json({
-      status: 204,
-      success: true
-    })
-  }
-  catch (error) {
-    next(error)
-  }
 })
 
 router.get("/:id/jobSupervisors", parseId, async (req: RequestWithId, res, next) => {
