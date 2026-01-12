@@ -278,6 +278,7 @@ const newLocal = `#graphql
         firstName: String!
         lastName: String!
         email: String!
+        phoneNumber: String
         archived: Boolean!
         workplace: Workplace
     }
@@ -685,6 +686,11 @@ const newLocal = `#graphql
         status: Int!
     }
 
+    type EditJobSupervisorResponse {
+        success: Boolean!
+        status: Int!
+    }
+
     # --- End of Responses
 
 
@@ -843,14 +849,17 @@ const newLocal = `#graphql
         assignTags(userId: ID!, tagIds: [ID!]!): AssignTagsResponse @authenticatedAsTeacher
         unassignTags(userId: ID!, tagIds: [ID!]!): UnassignTagsResponse @authenticatedAsTeacher
         updateTagAssigns(userId: ID!, assignedTagIds: [ID!]!, unassignedTagIds: [ID!]!): UpdateTagAssignsResponse @authenticatedAsTeacher
+
         createWorkplace(name: String!): CreateWorkplaceResponse! @authenticatedAsTeacher
         editWorkplace(id: ID!, name: String!): EditWorkplaceResponse! @authenticatedAsTeacher
         deleteWorkplace(id: ID!): DeleteWorkplaceResponse! @authenticatedAsTeacher
+
         assignJobSupervisor(workplaceId: ID!, jobSupervisorId: ID!): AssignJobSupervisorResponse! @authenticatedAsTeacher
         unassignJobSupervisor(workplaceId: ID!, jobSupervisorId: ID!): UnassignJobSupervisorResponse! @authenticatedAsTeacher
         updateJobSupervisorAssigns(workplaceId: ID!, assignIds: [ID!]!, unassignIds: [ID!]!): UpdateJobSupervisorAssignsResponse! @authenticatedAsTeacher
         createJobSupervisor(jobSupervisor: JobSupervisorInput!): CreateJobSupervisorResponse! @authenticatedAsTeacher
         deleteJobSupervisor(id: ID!): deleteJobSupervisorResponse! @authenticatedAsTeacher
+        editJobSupervisor(id: ID!, jobSupervisor: JobSupervisorInput!): EditJobSupervisorResponse @authenticatedAsTeacher
 
         createInternship(internship: InternshipInput): CreateInternshipResponse! @authenticatedAsTeacher
         deleteInternship(internshipId: ID!): DeleteInternshipResponse! @authenticatedAsTeacher

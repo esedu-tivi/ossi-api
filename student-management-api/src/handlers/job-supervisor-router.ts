@@ -2,6 +2,9 @@ import express from "express";
 import { checkRequiredFields } from "../utils/checkRequiredFields.js";
 import { v7 as uuidv7 } from 'uuid'
 import prisma, { enumUsersScope } from "prisma-orm";
+import type { RequestWithId } from "../types.js";
+import { parseId } from "../utils/middleware.js";
+import { HttpError } from "../classes/HttpError.js";
 
 const router = express()
 
@@ -19,6 +22,7 @@ router.get("/", async (req, res, next) => {
       firstName: jobSupervisor.users.firstName,
       lastName: jobSupervisor.users.lastName,
       email: jobSupervisor.users.email,
+      phoneNumber: jobSupervisor.users.phoneNumber,
       archived: jobSupervisor.users.archived,
       workplace: jobSupervisor.workplace
     }))
@@ -102,6 +106,31 @@ router.delete("/:id", async (req, res, next) => {
   }
 })
 
+router.put("/:id", parseId, async (req: RequestWithId, res, next) => {
+  const { jobSupervisor } = req.body
 
+  const missingFields = checkRequiredFields(jobSupervisor, ["firstName", "lastName", "email"])
+
+  if (missingFields.length) {
+    throw new HttpError(400, `missing required fields: ${missingFields}`)
+  }
+
+  await prisma.user.update({
+    where: {
+      id: req.id
+    },
+    data: {
+      firstName: jobSupervisor.firstName,
+      lastName: jobSupervisor.lastName,
+      email: jobSupervisor.email,
+      phoneNumber: jobSupervisor.phoneNumber || ""
+    }
+  })
+
+  res.json({
+    status: 200,
+    success: true,
+  })
+})
 
 export const JobSupervisorRouter = router

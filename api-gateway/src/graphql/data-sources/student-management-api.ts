@@ -355,6 +355,12 @@ class StudentManagementAPI extends RESTDataSource {
         )
     }
 
+    async editJobSupervisor(args) {
+        return this.put(
+            this.baseURL + `/jobSupervisor/${args.id}`, { body: args }
+        )
+    }
+
     async getAllStudentInternships(args) {
         return this.get(
             this.baseURL + `/internship/${args.studentId}`
