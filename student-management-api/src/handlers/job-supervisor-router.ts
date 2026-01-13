@@ -38,6 +38,41 @@ router.get("/", async (req, res, next) => {
   }
 })
 
+router.get("/:id", parseId, async (req: RequestWithId, res, next) => {
+  try {
+    const jobSupervisor = await prisma.jobSupervisor.findFirst({
+      where: {
+        userId: Number(req.id)
+      },
+      include: {
+        workplace: true,
+        users: true
+      }
+    })
+
+    const parsedJobSupervisor = {
+      id: jobSupervisor.users.id,
+      firstName: jobSupervisor.users.firstName,
+      lastName: jobSupervisor.users.lastName,
+      email: jobSupervisor.users.email,
+      phoneNumber: jobSupervisor.users.phoneNumber,
+      archived: jobSupervisor.users.archived,
+      workplace: jobSupervisor.workplace ? {
+        id: jobSupervisor.workplace.id,
+        name: jobSupervisor.workplace.name
+      } : null
+    }
+
+    res.json({
+      status: 200,
+      success: true,
+      jobSupervisor: parsedJobSupervisor
+    })
+  } catch (error) {
+    next(error)
+  }
+})
+
 router.post("/", async (req, res, next) => {
   try {
     const { firstName, lastName, email, phoneNumber } = req.body.jobSupervisor

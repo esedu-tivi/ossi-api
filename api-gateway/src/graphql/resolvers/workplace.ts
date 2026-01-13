@@ -32,6 +32,10 @@ const jobSupervisors: Resolver<null, null> = async (_, __, context) => {
   return await context.dataSources.studentManagementAPI.getAllJobSupervisors()
 }
 
+const jobSupervisor: Resolver<null, { jobSupervisorId: string }> = async (_, args, context) => {
+  return await context.dataSources.studentManagementAPI.getJobSupervisor(args.jobSupervisorId)
+}
+
 const jobSupervisorsByWorkplace: Resolver<null, null> = async (_, args, context) => {
   return await context.dataSources.studentManagementAPI.getJobSupervisorsByWorkplace(args)
 }
@@ -58,6 +62,7 @@ export const Workplace = {
     workplace,
     jobSupervisors,
     jobSupervisorsByWorkplace,
+    jobSupervisor,
   },
   Mutation: {
     createWorkplace,

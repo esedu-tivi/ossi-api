@@ -238,6 +238,11 @@ const newLocal = `#graphql
     type Workplace {
         id: ID!
         name: String!
+    }
+
+    type WorkplaceWithJobSupervisor {
+        id: ID!
+        name: String!
         jobSupervisors: [JobSupervisorWithoutWorkplace]!
     }
 
@@ -592,7 +597,7 @@ const newLocal = `#graphql
     type WorkplacesResponse {
         success: Boolean!
         status: Int!
-        workplaces: [Workplace]!
+        workplaces: [WorkplaceWithJobSupervisor]!
     }
 
     type WorkplaceResponse {
@@ -604,13 +609,13 @@ const newLocal = `#graphql
     type CreateWorkplaceResponse {
         success: Boolean!
         status: Int!
-        workplace: Workplace!
+        workplace: WorkplaceWithJobSupervisor!
     }
 
     type EditWorkplaceResponse {
         success: Boolean!
         status: Int!
-        editedWorkplace: Workplace!
+        editedWorkplace: WorkplaceWithJobSupervisor!
     }
 
     type DeleteWorkplaceResponse {
@@ -655,6 +660,12 @@ const newLocal = `#graphql
         success: Boolean!
         status: Int!
         jobSupervisors: [JobSupervisor]!
+    }
+
+    type JobSupervisorResponse {
+        success: Boolean!
+        status: Int!
+        jobSupervisor: JobSupervisor!
     }
 
     type JobSupervisorsWithWorkplaceResponse {
@@ -803,6 +814,7 @@ const newLocal = `#graphql
         internships(studentId: ID!): InternshipsResponse! @authenticatedAsTeacher
         jobSupervisors: JobSupervisorsResponse! @authenticatedAsTeacher
         jobSupervisorsByWorkplace(workplaceId: ID!): JobSupervisorsWithWorkplaceResponse! @authenticatedAsTeacher
+        jobSupervisor(jobSupervisorId: ID!): JobSupervisorResponse! @authenticatedAsTeacher
     }
 
     type Mutation {
