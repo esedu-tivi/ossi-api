@@ -170,6 +170,7 @@ const newLocal = `#graphql
         id: ID!
         firstName: String!
         lastName: String!
+        email: String!
     }
 
     type Teacher implements User {
@@ -186,6 +187,7 @@ const newLocal = `#graphql
         id: ID!
         firstName: String!
         lastName: String!
+        email: String!
     }
 
     type ProjectReturnNotification {
@@ -278,6 +280,22 @@ const newLocal = `#graphql
         qualificationUnit: QualificationUnitForInternship
     }
 
+    type InternshipForJobSupervisor {
+        id: ID!
+        startDate: DateTime!
+        endDate: DateTime!
+        info: String
+        teacher: TeacherForInternship!
+        student: StudentForInternship!
+        qualificationUnit: QualificationUnitForInternship
+    }
+
+    type WorkplaceForJobSupervisor {
+        id: ID!
+        name: String!
+        internships: [InternshipForWorkplace!]
+    }
+
     type JobSupervisor implements User {
         id: ID!
         firstName: String!
@@ -286,6 +304,7 @@ const newLocal = `#graphql
         phoneNumber: String
         archived: Boolean!
         workplace: Workplace
+        internships: [InternshipForJobSupervisor!]
     }
 
     type JobSupervisorWithoutWorkplace {

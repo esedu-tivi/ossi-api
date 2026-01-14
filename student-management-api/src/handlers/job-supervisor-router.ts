@@ -46,7 +46,22 @@ router.get("/:id", parseId, async (req: RequestWithId, res, next) => {
       },
       include: {
         workplace: true,
-        users: true
+        users: true,
+        internships: {
+          include: {
+            qualificationUnit: true,
+            student: {
+              include: {
+                users: true
+              }
+            },
+            teacher: {
+              include: {
+                users: true
+              }
+            },
+          }
+        }
       }
     })
 
@@ -60,7 +75,29 @@ router.get("/:id", parseId, async (req: RequestWithId, res, next) => {
       workplace: jobSupervisor.workplace ? {
         id: jobSupervisor.workplace.id,
         name: jobSupervisor.workplace.name
-      } : null
+      } : null,
+      internships: jobSupervisor.internships.map(internship => ({
+        id: internship.id,
+        startDate: internship.startDate,
+        endDate: internship.endDate,
+        info: internship.info,
+        qualificationUnit: internship.qualificationUnit ? {
+          id: internship.qualificationUnit.id,
+          name: internship.qualificationUnit.name,
+        } : null,
+        teacher: {
+          id: internship.teacher.users.id,
+          firstName: internship.teacher.users.firstName,
+          lastName: internship.teacher.users.lastName,
+          email: internship.teacher.users.email,
+        },
+        student: {
+          id: internship.student.users.id,
+          firstName: internship.student.users.firstName,
+          lastName: internship.student.users.lastName,
+          email: internship.student.users.email,
+        }
+      }))
     }
 
     res.json({
