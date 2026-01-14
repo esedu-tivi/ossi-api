@@ -55,6 +55,11 @@ router.get("/:id", parseId, async (req: RequestWithId, res, next) => {
         id: id
       },
       include: {
+        jobSupervisor: {
+          include: {
+            users: true
+          }
+        },
         internShips: {
           include: {
             student: {
@@ -80,6 +85,13 @@ router.get("/:id", parseId, async (req: RequestWithId, res, next) => {
     const parsedWorkplace = {
       id: workplace.id,
       name: workplace.name,
+      jobSupervisors: workplace.jobSupervisor.map(jobSupervisor => ({
+        id: jobSupervisor.users.id,
+        firstName: jobSupervisor.users.firstName,
+        lastName: jobSupervisor.users.lastName,
+        email: jobSupervisor.users.email,
+        phoneNumber: jobSupervisor.users.phoneNumber
+      })),
       internships: workplace.internShips.map(internship => ({
         id: internship.id,
         startDate: internship.startDate,

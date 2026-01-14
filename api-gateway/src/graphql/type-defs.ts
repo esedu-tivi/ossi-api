@@ -261,6 +261,7 @@ const newLocal = `#graphql
     type WorkplaceWithInternships {
         id: ID!
         name: String!
+        jobSupervisors: [JobSupervisorWithoutWorkplace!]
         internships: [InternshipForWorkplace!]
     }
 
@@ -828,7 +829,7 @@ const newLocal = `#graphql
         conversation(id: ID!): Conversation
         messages(conversationId: ID!): [Message!]!
         searchUsers(query: String!): [User!]!
-        workplaces: WorkplacesResponse! @authenticated
+        workplaces: WorkplacesResponse! @authenticatedAsTeacher
         workplace(id: ID!): WorkplaceResponse! @authenticatedAsTeacher
         internships(studentId: ID!): InternshipsResponse! @authenticatedAsTeacher
         jobSupervisors: JobSupervisorsResponse! @authenticatedAsTeacher
