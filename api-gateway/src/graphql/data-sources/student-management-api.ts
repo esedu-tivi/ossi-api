@@ -241,6 +241,12 @@ class StudentManagementAPI extends RESTDataSource {
         )
     }
 
+    async getAssignedTeachingProjects(teacherId) {
+        return this.get(
+            this.baseURL + `/teachers/${teacherId}/assignedTeachingProjects`
+        )
+    }
+
     async updateTeachingProjectAssigns(args) {
         return this.patch(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/teachers/${args.userId}/updateTeachingProjectAssigns`, { body: args }

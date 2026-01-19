@@ -722,6 +722,12 @@ const newLocal = `#graphql
         status: Int!
     }
 
+    type AssignedTeachingProjectsResponse {
+        success: Boolean!
+        status: Int!
+        assignedProjects: [QualificationProject]!
+    }
+
     # --- End of Responses
 
 
@@ -835,6 +841,7 @@ const newLocal = `#graphql
         jobSupervisors: JobSupervisorsResponse! @authenticatedAsTeacher
         jobSupervisorsByWorkplace(workplaceId: ID!): JobSupervisorsWithWorkplaceResponse! @authenticatedAsTeacher
         jobSupervisor(jobSupervisorId: ID!): JobSupervisorResponse! @authenticatedAsTeacher
+        assignedTeachingProjects(teacherId: ID!): AssignedTeachingProjectsResponse! @authenticatedAsTeacher
     }
 
     type Mutation {

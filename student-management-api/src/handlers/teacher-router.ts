@@ -22,6 +22,47 @@ router.get("/:id/", parseId, async (req: RequestWithId, res) => {
     });
 });
 
+router.get("/:id/assignedTeachingProjects", parseId, async (req: RequestWithId, res, next) => {
+    try {
+        const projects = await prisma.teacher.findFirst({
+            where: { userId: req.id },
+            select: {
+                teachingQualificationProject: {
+                    include: {
+                        parts: {
+                            include: {
+                                qualificationUnitParts: true
+                            }
+                        },
+                        competenceRequirements: true,
+                        tags: {
+                            include: {
+                                qualificationProjectTags: true
+                            }
+                        }
+                    }
+                }
+            }
+        })
+
+        const parsedProjects = projects.teachingQualificationProject.map(project => ({
+            ...project,
+            parts: project.parts.map(part => ({ ...part.qualificationUnitParts })),
+            tags: project.tags.map(tag => ({ ...tag.qualificationProjectTags })),
+            competenceRequirements: project.competenceRequirements
+        }))
+
+        res.json({
+            status: 200,
+            success: true,
+            assignedProjects: parsedProjects
+        })
+    }
+    catch (error) {
+        next(error)
+    }
+})
+
 router.post("/:id/assignTeachingProject", parseId, async (req: RequestWithIdAndProjectId, res: Response, next: NextFunction) => {
     try {
         const { projectId } = req.body
