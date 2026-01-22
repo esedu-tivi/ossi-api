@@ -142,6 +142,10 @@ const assignedStudentGroups: Resolver<null, { teacherId: number }> = async (_, a
     return await context.dataSources.studentManagementAPI.getAssignedStudentGroups(args.teacherId);
 }
 
+const assignedTags: Resolver<null, { teacherId: number }> = async (_, args, context) => {
+    return await context.dataSources.studentManagementAPI.getAssignedTags(args.teacherId);
+}
+
 export const Query = {
     me,
     amISetUp,
@@ -159,5 +163,6 @@ export const Query = {
     unreadNotificationCount,
     conversations,
     assignedTeachingProjects,
-    assignedStudentGroups
+    assignedStudentGroups,
+    assignedTags
 }

@@ -131,6 +131,12 @@ class StudentManagementAPI extends RESTDataSource {
         );
     }
 
+    async getAssignedTags(teacherId) {
+        return this.get(
+            this.baseURL + `/teachers/${teacherId}/assignedTags`
+        )
+    }
+
     async createProjectTag(tag) {
         return this.post(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/qualification/projects/tags",

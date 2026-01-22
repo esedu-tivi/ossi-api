@@ -256,6 +256,26 @@ router.patch("/:id/updateStudentGroupAssigns", parseId, async (req: Omit<Request
     }
 })
 
+router.get("/:id/assignedTags", parseId, async (req: RequestWithId, res, next) => {
+    try {
+        const assignedTags = await prisma.teacher.findFirst({
+            where: { userId: req.id },
+            select: {
+                projectTagFilter: true
+            }
+        })
+
+        res.json({
+            status: 200,
+            success: true,
+            tags: assignedTags.projectTagFilter
+        })
+    }
+    catch (error) {
+        next(error)
+    }
+})
+
 router.post("/:id/assignTags", parseId, async (req: Omit<RequestWithId, 'body'> & { body: { tagIds: string[] } }, res: Response, next: NextFunction) => {
     try {
         const { tagIds } = req.body
