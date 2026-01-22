@@ -253,6 +253,12 @@ class StudentManagementAPI extends RESTDataSource {
         )
     }
 
+    async getAssignedStudentGroups(teacherId) {
+        return this.get(
+            this.baseURL + `/teachers/${teacherId}/assignedStudentGroups`
+        )
+    }
+
     async assignStudentGroups(args) {
         return this.post(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/teachers/${args.userId}/assignStudentGroups`, { body: args }

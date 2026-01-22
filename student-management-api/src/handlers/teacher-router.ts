@@ -146,6 +146,36 @@ router.patch("/:id/updateTeachingProjectAssigns", parseId, async (req: Omit<Requ
     }
 })
 
+router.get("/:id/assignedStudentGroups", parseId, async (req: RequestWithId, res, next) => {
+    try {
+        const assignedStudentGroups = await prisma.teacher.findFirst({
+            where: { userId: req.id },
+            select: {
+                studentGroups: {
+                    select: {
+                        id: true,
+                        groupName: true
+                    }
+                }
+            }
+        })
+
+        const parsedStudentGroups = assignedStudentGroups.studentGroups.map(group => ({
+            id: group.id,
+            groupId: group.groupName
+        }))
+
+        res.json({
+            status: 200,
+            success: true,
+            studentGroups: parsedStudentGroups
+        })
+    }
+    catch (error) {
+        next(error)
+    }
+})
+
 router.post("/:id/assignStudentGroups", parseId, async (req: Omit<RequestWithId, 'body'> & { body: { groupIds: string[] } }, res: Response, next: NextFunction) => {
     try {
         const { groupIds } = req.body

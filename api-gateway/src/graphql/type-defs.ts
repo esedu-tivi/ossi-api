@@ -316,6 +316,11 @@ const newLocal = `#graphql
         phoneNumber: String
     }
 
+    type StudentGroup {
+        id: ID!
+        groupId: String!
+    }
+
     #--- End of Types ---
 
 
@@ -576,6 +581,12 @@ const newLocal = `#graphql
         success: Boolean!
         status: Int!
         message: String
+    }
+
+    type AssignedStudentGroupsResponse {
+        success: Boolean!
+        status: Int!
+        studentGroups: [StudentGroup]!
     }
 
     type AssignStudentGroupsResponse {
@@ -842,6 +853,7 @@ const newLocal = `#graphql
         jobSupervisorsByWorkplace(workplaceId: ID!): JobSupervisorsWithWorkplaceResponse! @authenticatedAsTeacher
         jobSupervisor(jobSupervisorId: ID!): JobSupervisorResponse! @authenticatedAsTeacher
         assignedTeachingProjects(teacherId: ID!): AssignedTeachingProjectsResponse! @authenticatedAsTeacher
+        assignedStudentGroups(teacherId: ID!): AssignedStudentGroupsResponse! @authenticatedAsTeacher
     }
 
     type Mutation {
