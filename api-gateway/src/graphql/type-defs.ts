@@ -882,6 +882,7 @@ const newLocal = `#graphql
         changeProjectStatus(id: ID!, status: ProjectStatus!, studentId: ID!, teacherComment: String): ChangeProjectStatusResponse! @authenticatedAsTeacher
         updatePartOrder(unitId: ID!, partOrder: [ID!]!): GenericResponse! @authenticatedAsTeacher
         createProjectTag(name: String!): CreateProjectTagResponse! @authenticatedAsTeacher
+        createProjectTags(names: [String!]!): ProjectTagsResponse! @authenticatedAsTeacher
         assignProjectToStudent(studentId: ID! , projectId:ID! ): GenericResponse!  @authenticated
         updateStudentProject(studentId: ID! , projectId:ID!, update: UpdateStudentProjectInput!) : GenericResponse @authenticated
         unassignProjectFromStudent(studentId:ID! , projectId:ID!) : GenericResponse   @authenticated

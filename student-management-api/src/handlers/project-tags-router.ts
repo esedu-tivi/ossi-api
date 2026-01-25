@@ -47,4 +47,34 @@ router.post("/", async (req, res, next) => {
     }
 })
 
+router.post("/many", async (req, res, next) => {
+    try {
+        const { tagNames } = req.body
+
+        if (!tagNames || !Array.isArray(tagNames)) {
+            throw new HttpError(400, `tagNames missing or it's not array.`)
+        }
+
+        const filteredTagNames = tagNames.filter(tag => tag !== '').map(tag => ({ name: tag }))
+
+        const createdTags = await prisma.qualificationProjectTag.createManyAndReturn({
+            data: filteredTagNames,
+            skipDuplicates: true,
+            select: {
+                id: true,
+                name: true
+            }
+        })
+
+        res.json({
+            status: 200,
+            success: true,
+            projectTags: createdTags
+        });
+
+    } catch (error) {
+        next(error)
+    }
+})
+
 export const ProjectTagsRouter = router;
