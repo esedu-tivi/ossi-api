@@ -6,7 +6,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model AssignedProjectsForStudent {
@@ -48,6 +47,9 @@ model JobSupervisor {
   userId                             Int                                 @id @map("user_id")
   users                              User                                @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   supervisedStudentsByJobSupervisors SupervisedStudentsByJobSupervisor[] @ignore
+  internships                        Internship[]
+  workplace                          Workplace?                          @relation(fields: [workplaceId], references: [id])
+  workplaceId                        Int?
 
   @@map("job_supervisors")
 }
@@ -161,6 +163,7 @@ model QualificationUnit {
   mandatoryQualificationUnitsForTitle   MandatoryQualificationUnitsForTitle[]
   qualificationCompetenceRequirements   QualificationCompetenceRequirements[]
   qualificationUnitParts                QualificationUnitPart[]
+  internships                           Internship[]
 
   @@map("qualification_units")
 }
@@ -196,6 +199,7 @@ model Student {
   users                                 User                                  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   supervisedStudentsByJobSupervisors    SupervisedStudentsByJobSupervisor[]
   studentGroupId                        Int?
+  internships                           Internship[]
 
   @@map("students")
 }
@@ -225,6 +229,7 @@ model Teacher {
   teachingQualificationProject QualificationProject[]
   projectTagFilter             QualificationProjectTag[]
   studentGroups                StudentGroup[]
+  studentInternships           Internship[]
 
   @@map("teachers")
 }
@@ -233,7 +238,7 @@ model User {
   id             Int            @id @default(autoincrement())
   firstName      String         @map("first_name") @db.VarChar(128)
   lastName       String         @map("last_name") @db.VarChar(128)
-  email          String         @db.VarChar(128)
+  email          String         @unique @db.VarChar(128)
   phoneNumber    String         @map("phone_number") @db.VarChar(128)
   scope          enumUsersScope
   archived       Boolean?       @default(false)
@@ -244,6 +249,39 @@ model User {
   teachers       Teacher?
 
   @@map("users")
+}
+
+model Workplace {
+  id            Int             @id @default(autoincrement())
+  name          String
+  internShips   Internship[]
+  jobSupervisor JobSupervisor[]
+}
+
+model Internship {
+  id                  Int                @id @default(autoincrement())
+  startDate           DateTime?
+  endDate             DateTime?
+  info                String?
+  workplace           Workplace?         @relation(fields: [workplaceId], references: [id])
+  workplaceId         Int?
+  teacher             Teacher?           @relation(fields: [teacherUserId], references: [userId])
+  teacherUserId       Int?
+  student             Student?           @relation(fields: [studentUserId], references: [userId])
+  studentUserId       Int?
+  jobSupervisor       JobSupervisor?     @relation(fields: [jobSupervisorUserId], references: [userId])
+  jobSupervisorUserId Int?
+  qualificationUnit   QualificationUnit? @relation(fields: [qualificationUnitId], references: [id])
+  qualificationUnitId Int?
+}
+
+model MagicLinkToken {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  tokenHash String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
 }
 
 enum enumAssignedProjectsForStudentsProjectStatus {
@@ -265,7 +303,7 @@ enum enumStudentsQualificationCompletion {
 enum enumUsersScope {
   STUDENT
   TEACHER
-  JOBSUPERVISOR @map("JOB_SUPERVISOR")
+  JOB_SUPERVISOR
   ADMIN
 
   @@map("enum_users_scope")

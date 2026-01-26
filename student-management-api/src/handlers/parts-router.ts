@@ -166,7 +166,7 @@ router.put("/:id", parseId, async (req: RequestWithId, res, next) => {
             if (updatedPartFieldsData.projectsInOrder) {
                 await transaction.qualificationProjectsPartsRelation.createMany({
                     data: updatedPartFieldsData.projectsInOrder.reduce((acc, projectId, index) => [...acc, ({
-                        qualificationProjectId: projectId,
+                        qualificationProjectId: Number(projectId),
                         qualificationUnitPartId: req.id,
                         partOrderIndex: index
                     })], [])

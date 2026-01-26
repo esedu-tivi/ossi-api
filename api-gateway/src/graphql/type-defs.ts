@@ -51,14 +51,14 @@ const newLocal = `#graphql
     }
 
     type QualificationTitle {
-        id: Int!
+        id: Int
         name: String
         mandatoryUnits: [QualificationUnit!]!
     }
 
     type Qualification {
         id: Int!
-        name: String!
+        name: String
         #QualificationUnits: [QualificationUnit!]!
     }
 
@@ -79,6 +79,11 @@ const newLocal = `#graphql
         name: String!
         competenceRequirementGroups: [VocationalCompetenceRequirementGroup!]!
         parts: [QualificationUnitPart!]!
+    }
+
+    type QualificationUnitForInternship {
+        id: Int
+        name: String
     }
 
     type QualificationUnitPart {
@@ -161,6 +166,13 @@ const newLocal = `#graphql
         assignedProjectSingle(projectId:ID!): AssignedProjectSingleResponse!
     }
 
+    type StudentForInternship {
+        id: ID!
+        firstName: String!
+        lastName: String!
+        email: String!
+    }
+
     type Teacher implements User {
         id: ID!
         firstName: String!
@@ -169,6 +181,13 @@ const newLocal = `#graphql
         archived: Boolean!
         teachingQualification: Qualification
         teachingQualificationTitle: QualificationTitle
+    }
+
+    type TeacherForInternship {
+        id: ID!
+        firstName: String!
+        lastName: String!
+        email: String!
     }
 
     type ProjectReturnNotification {
@@ -197,7 +216,7 @@ const newLocal = `#graphql
         time: DateTime!
     }
 
-        type Subscription {
+    type Subscription {
         messageReceived(conversationId: ID!): Message!
         conversationUpdated(userId: ID!): Conversation!
     }
@@ -216,6 +235,90 @@ const newLocal = `#graphql
         participants: [User!]!
         lastMessage: Message
         createdAt: String!
+    }
+
+    type Workplace {
+        id: ID!
+        name: String!
+    }
+
+    type WorkplaceWithJobSupervisor {
+        id: ID!
+        name: String!
+        jobSupervisors: [JobSupervisorWithoutWorkplace]!
+    }
+
+    type InternshipForWorkplace {
+        id: ID!
+        startDate: DateTime!
+        endDate: DateTime!
+        info: String
+        student: StudentForInternship! 
+        jobSupervisor: JobSupervisorWithoutWorkplace!
+        teacher: TeacherForInternship!
+    }
+
+    type WorkplaceWithInternships {
+        id: ID!
+        name: String!
+        jobSupervisors: [JobSupervisorWithoutWorkplace!]
+        internships: [InternshipForWorkplace!]
+    }
+
+    type WorkplaceForInternship {
+        id: ID!
+        name: String!
+        jobSupervisor: JobSupervisorWithoutWorkplace
+    }
+
+    type Internship {
+        id: ID!
+        startDate: DateTime
+        endDate: DateTime
+        info: String
+        teacher: TeacherForInternship
+        workplace: WorkplaceForInternship
+        qualificationUnit: QualificationUnitForInternship
+    }
+
+    type InternshipForJobSupervisor {
+        id: ID!
+        startDate: DateTime!
+        endDate: DateTime!
+        info: String
+        teacher: TeacherForInternship!
+        student: StudentForInternship!
+        qualificationUnit: QualificationUnitForInternship
+    }
+
+    type WorkplaceForJobSupervisor {
+        id: ID!
+        name: String!
+        internships: [InternshipForWorkplace!]
+    }
+
+    type JobSupervisor implements User {
+        id: ID!
+        firstName: String!
+        lastName: String!
+        email: String!
+        phoneNumber: String
+        archived: Boolean!
+        workplace: Workplace
+        internships: [InternshipForJobSupervisor!]
+    }
+
+    type JobSupervisorWithoutWorkplace {
+        id: ID!
+        firstName: String!
+        lastName: String!
+        email: String!
+        phoneNumber: String
+    }
+
+    type StudentGroup {
+        id: ID!
+        groupId: String!
     }
 
     #--- End of Types ---
@@ -270,6 +373,12 @@ const newLocal = `#graphql
         status: Int!
         message: String
         students: [Student!]
+    }
+
+    type StudentResponse {
+        success: Boolean!
+        status: Int!
+        student: Student
     }
     
     type TitlesResponse {
@@ -344,6 +453,18 @@ const newLocal = `#graphql
         success: Boolean!
         message: String
         token: String
+    }
+
+
+
+    type MagicLinkRequestResponse {
+        ok: Boolean!
+    }
+
+    type MagicLinkVerifyResponse {
+        ok: Boolean!
+        jwt: String
+        message: String
     }
 
     type SetUpStudentResponse {
@@ -462,6 +583,12 @@ const newLocal = `#graphql
         message: String
     }
 
+    type AssignedStudentGroupsResponse {
+        success: Boolean!
+        status: Int!
+        studentGroups: [StudentGroup]!
+    }
+
     type AssignStudentGroupsResponse {
         success: Boolean!
         status: Int!
@@ -480,6 +607,12 @@ const newLocal = `#graphql
         message: String
     }
 
+    type AssignedTagsResponse {
+        success: Boolean!
+        status: Int!
+        tags: [QualificationProjectTag]!
+    }
+
     type AssignTagsResponse {
         success: Boolean!
         status: Int!
@@ -496,6 +629,120 @@ const newLocal = `#graphql
         success: Boolean!
         status: Int!
         message: String
+    }
+
+    type WorkplacesResponse {
+        success: Boolean!
+        status: Int!
+        workplaces: [WorkplaceWithJobSupervisor]!
+    }
+
+    type WorkplaceResponse {
+        success: Boolean!
+        status: Int!
+        workplace: WorkplaceWithInternships!
+    }
+
+    type CreateWorkplaceResponse {
+        success: Boolean!
+        status: Int!
+        workplace: WorkplaceWithJobSupervisor!
+    }
+
+    type EditWorkplaceResponse {
+        success: Boolean!
+        status: Int!
+        editedWorkplace: WorkplaceWithJobSupervisor!
+    }
+
+    type DeleteWorkplaceResponse {
+        success: Boolean!
+        status: Int!
+    }
+
+    type InternshipsResponse {
+        success: Boolean!
+        status: Int!
+        internships: [Internship]!
+    }
+
+    type CreateInternshipResponse {
+        success: Boolean!
+        status: Int!
+        internship: Internship!
+    }
+
+    type DeleteInternshipResponse {
+        success: Boolean!
+        status: Int!
+    }
+
+    type EditInternshipResponse {
+        success: Boolean!
+        status: Int!
+        editedInternship: Internship!
+    }
+
+    type AssignJobSupervisorResponse {
+        success: Boolean!
+        status: Int!
+    }
+
+    type UnassignJobSupervisorResponse {
+        success: Boolean!
+        status: Int!
+    }
+
+    type JobSupervisorsResponse {
+        success: Boolean!
+        status: Int!
+        jobSupervisors: [JobSupervisor]!
+    }
+
+    type JobSupervisorResponse {
+        success: Boolean!
+        status: Int!
+        jobSupervisor: JobSupervisor!
+    }
+
+    type JobSupervisorsWithWorkplaceResponse {
+        success: Boolean!
+        status: Int!
+        jobSupervisors: [JobSupervisorWithoutWorkplace]!
+    }
+
+    type UpdateJobSupervisorAssignsResponse {
+        success: Boolean!
+        status: Int!
+        message: String!
+    }
+
+    type AssignedProjectsResponse {
+        success: Boolean!
+        status: Int!
+        assignedProjects: [AssignedProject]!
+    }
+
+    type CreateJobSupervisorResponse {
+        success: Boolean!
+        status: Int!
+        createdJobSupervisor: JobSupervisorWithoutWorkplace
+    }
+
+    type deleteJobSupervisorResponse {
+        success: Boolean!
+        status: Int!
+    }
+
+    type EditJobSupervisorResponse {
+        success: Boolean!
+        status: Int!
+    }
+
+    type AssignedTeachingProjectsResponse {
+        success: Boolean!
+        status: Int!
+        assignedProjects: [QualificationProject]!
     }
 
     # --- End of Responses
@@ -559,6 +806,24 @@ const newLocal = `#graphql
         description: String
     }
 
+    input InternshipInput {
+        startDate: DateTime
+        endDate: DateTime
+        info: String
+        jobSupervisorId: ID
+        studentId: ID!
+        teacherId: ID
+        workplaceId: ID!
+        qualificationUnitId: ID
+    }
+
+    input JobSupervisorInput {
+        firstName: String!
+        lastName: String!
+        email: String!
+        phoneNumber: String
+    }
+
     # --- End of Inputs ---
 
 
@@ -569,6 +834,7 @@ const newLocal = `#graphql
         me: MeResponse! @authenticated
         amISetUp: AmISetUpResponse! @authenticated
         students: StudentsResponse! @authenticatedAsTeacher
+        student(id: ID!): StudentResponse! @authenticatedAsTeacher
         titles: TitlesResponse! @authenticated
         units: UnitsResponse! @authenticated
         parts: PartsResponse! @authenticated
@@ -576,7 +842,9 @@ const newLocal = `#graphql
         projects: ProjectsResponse! @authenticated
         project(id: ID!): ProjectResponse! @authenticated
         projectTags: ProjectTagsResponse! @authenticated
-        # assignedProjects: AssignedProjects @authenticated
+        assignedTags(teacherId: ID!): AssignedTagsResponse! @authenticatedAsTeacher
+        assignedProjects(id: ID!): AssignedProjectsResponse @authenticated
+        assignedStudentProjects(studentId: ID!): AssignedProjectsResponse @authenticatedAsTeacher
         # assignedProject(projectId:ID):AssignedProject @ authenticated
         notifications: NotificationsResponse! @authenticated
         notification(id: ID!): NotificationResponse! @authenticated
@@ -585,15 +853,27 @@ const newLocal = `#graphql
         conversation(id: ID!): Conversation
         messages(conversationId: ID!): [Message!]!
         searchUsers(query: String!): [User!]!
+        workplaces: WorkplacesResponse! @authenticatedAsTeacher
+        workplace(id: ID!): WorkplaceResponse! @authenticatedAsTeacher
+        internships(studentId: ID!): InternshipsResponse! @authenticatedAsTeacher
+        jobSupervisors: JobSupervisorsResponse! @authenticatedAsTeacher
+        jobSupervisorsByWorkplace(workplaceId: ID!): JobSupervisorsWithWorkplaceResponse! @authenticatedAsTeacher
+        jobSupervisor(jobSupervisorId: ID!): JobSupervisorResponse! @authenticatedAsTeacher
+        assignedTeachingProjects(teacherId: ID!): AssignedTeachingProjectsResponse! @authenticatedAsTeacher
+        assignedStudentGroups(teacherId: ID!): AssignedStudentGroupsResponse! @authenticatedAsTeacher
     }
 
     type Mutation {
+
         login(idToken: String!): LoginResponse!
 
         # this mutation can only be done once by a student, while a student's profile has not been set up
         # assigns TVP for the student automatically, if FullCompletion is chosen
         # after performing this mutation a new token should be generated
         setUpStudent(studentId: ID!, studentSetupInput: StudentSetupInput!): SetUpStudentResponse! @authenticatedAsStudent
+
+        requestMagicLink(email: String!): MagicLinkRequestResponse!
+        verifyMagicLink(id: ID!, token: String!): MagicLinkVerifyResponse!
 
         createProject(project: CreateProjectInput!): CreateProjectResponse! @authenticatedAsTeacher
         updateProject(id: ID!, project: UpdateProjectInput!): UpdateProjectResponse! @authenticatedAsTeacher
@@ -602,6 +882,7 @@ const newLocal = `#graphql
         changeProjectStatus(id: ID!, status: ProjectStatus!, studentId: ID!, teacherComment: String): ChangeProjectStatusResponse! @authenticatedAsTeacher
         updatePartOrder(unitId: ID!, partOrder: [ID!]!): GenericResponse! @authenticatedAsTeacher
         createProjectTag(name: String!): CreateProjectTagResponse! @authenticatedAsTeacher
+        createProjectTags(names: [String!]!): ProjectTagsResponse! @authenticatedAsTeacher
         assignProjectToStudent(studentId: ID! , projectId:ID! ): GenericResponse!  @authenticated
         updateStudentProject(studentId: ID! , projectId:ID!, update: UpdateStudentProjectInput!) : GenericResponse @authenticated
         unassignProjectFromStudent(studentId:ID! , projectId:ID!) : GenericResponse   @authenticated
@@ -627,6 +908,21 @@ const newLocal = `#graphql
         assignTags(userId: ID!, tagIds: [ID!]!): AssignTagsResponse @authenticatedAsTeacher
         unassignTags(userId: ID!, tagIds: [ID!]!): UnassignTagsResponse @authenticatedAsTeacher
         updateTagAssigns(userId: ID!, assignedTagIds: [ID!]!, unassignedTagIds: [ID!]!): UpdateTagAssignsResponse @authenticatedAsTeacher
+
+        createWorkplace(name: String!): CreateWorkplaceResponse! @authenticatedAsTeacher
+        editWorkplace(id: ID!, name: String!): EditWorkplaceResponse! @authenticatedAsTeacher
+        deleteWorkplace(id: ID!): DeleteWorkplaceResponse! @authenticatedAsTeacher
+
+        assignJobSupervisor(workplaceId: ID!, jobSupervisorId: ID!): AssignJobSupervisorResponse! @authenticatedAsTeacher
+        unassignJobSupervisor(workplaceId: ID!, jobSupervisorId: ID!): UnassignJobSupervisorResponse! @authenticatedAsTeacher
+        updateJobSupervisorAssigns(workplaceId: ID!, assignIds: [ID!]!, unassignIds: [ID!]!): UpdateJobSupervisorAssignsResponse! @authenticatedAsTeacher
+        createJobSupervisor(jobSupervisor: JobSupervisorInput!): CreateJobSupervisorResponse! @authenticatedAsTeacher
+        deleteJobSupervisor(id: ID!): deleteJobSupervisorResponse! @authenticatedAsTeacher
+        editJobSupervisor(id: ID!, jobSupervisor: JobSupervisorInput!): EditJobSupervisorResponse @authenticatedAsTeacher
+
+        createInternship(internship: InternshipInput): CreateInternshipResponse! @authenticatedAsTeacher
+        deleteInternship(internshipId: ID!): DeleteInternshipResponse! @authenticatedAsTeacher
+        editInternship(internshipId: ID!, internship: InternshipInput!): EditInternshipResponse! @authenticatedAsTeacher
     }
 
     # --- End of Query & Mutation ---

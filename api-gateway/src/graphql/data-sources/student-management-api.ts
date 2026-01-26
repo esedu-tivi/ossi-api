@@ -131,10 +131,23 @@ class StudentManagementAPI extends RESTDataSource {
         );
     }
 
+    async getAssignedTags(teacherId) {
+        return this.get(
+            this.baseURL + `/teachers/${teacherId}/assignedTags`
+        )
+    }
+
     async createProjectTag(tag) {
         return this.post(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + "/qualification/projects/tags",
             { body: tag }
+        );
+    }
+
+    async createProjectTags(tags) {
+        return this.post(
+            this.baseURL + "/qualification/projects/tags/many",
+            { body: tags }
         );
     }
 
@@ -181,12 +194,18 @@ class StudentManagementAPI extends RESTDataSource {
     }
 
     async getStudentAssignedProjects(studentId) {
-        const res = await this.get(
+        const response = await this.get(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/${studentId}/assigned_projects`
         );
-
-        return res
+        return response.assignedProjects
     }
+
+    async getStudentAssignedProjectsForTeacher(studentId) {
+        return this.get(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/${studentId}/assigned_projects`
+        );
+    }
+
     async getStudentSingleAssignedProject(studentId, projectId) {
         const res = await this.get(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/students/${studentId}/single_assigned_project/${projectId}`
@@ -235,9 +254,21 @@ class StudentManagementAPI extends RESTDataSource {
         )
     }
 
+    async getAssignedTeachingProjects(teacherId) {
+        return this.get(
+            this.baseURL + `/teachers/${teacherId}/assignedTeachingProjects`
+        )
+    }
+
     async updateTeachingProjectAssigns(args) {
         return this.patch(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/teachers/${args.userId}/updateTeachingProjectAssigns`, { body: args }
+        )
+    }
+
+    async getAssignedStudentGroups(teacherId) {
+        return this.get(
+            this.baseURL + `/teachers/${teacherId}/assignedStudentGroups`
         )
     }
 
@@ -274,6 +305,114 @@ class StudentManagementAPI extends RESTDataSource {
     async updateTagAssigns(args) {
         return this.patch(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/teachers/${args.userId}/updateTagAssigns`, { body: args }
+        )
+    }
+
+    async getAllWorkplaces() {
+        return this.get(
+            this.baseURL + "/workplace"
+        );
+    }
+
+    async getSingleWorkplace(id) {
+        return this.get(
+            this.baseURL + `/workplace/${id}`
+        )
+    }
+
+    async createWorkplace(args) {
+        return this.post(
+            this.baseURL + "/workplace", { body: args }
+        )
+    }
+
+    async createJobSupervisor(args) {
+        return this.post(
+            this.baseURL + "/jobSupervisor", { body: args }
+        )
+    }
+
+    async editWorkplace(args) {
+        return this.put(
+            this.baseURL + `/workplace/${args.id}`, { body: args }
+        )
+    }
+
+    async deleteWorkplace(args) {
+        return this.delete(
+            this.baseURL + `/workplace/${args.id}`
+        )
+    }
+
+    async assignJobSupervisor(args) {
+        return this.post(
+            this.baseURL + `/workplace/${args.workplaceId}/assignJobSupervisor`, { body: args }
+        )
+    }
+
+    async unassignJobSupervisor(args) {
+        return this.delete(
+            this.baseURL + `/workplace/${args.workplaceId}/unassignJobSupervisor`, { body: args }
+        )
+    }
+
+    async getAllJobSupervisors() {
+        return this.get(
+            this.baseURL + "/jobSupervisor"
+        )
+    }
+
+    async getJobSupervisorsByWorkplace(args) {
+        return this.get(
+            this.baseURL + `/workplace/${args.workplaceId}/jobSupervisors`
+        )
+    }
+
+    async updateJobSupervisorAssigns(args) {
+        return this.patch(
+            this.baseURL + `/workplace/${args.workplaceId}/updateJobSupervisorAssigns`, { body: args }
+        )
+    }
+
+    async deleteJobSupervisor(args) {
+        return this.delete(
+            this.baseURL + `/jobSupervisor/${args.id}`
+        )
+    }
+
+    async editJobSupervisor(args) {
+        return this.put(
+            this.baseURL + `/jobSupervisor/${args.id}`, { body: args }
+        )
+    }
+
+    async getJobSupervisor(jobSupervisorId: string) {
+        return this.get(
+            this.baseURL + `/jobSupervisor/${jobSupervisorId}`
+        )
+    }
+
+    async getAllStudentInternships(args) {
+        return this.get(
+            this.baseURL + `/internship/${args.studentId}`
+        )
+    }
+
+    async createInternship(args) {
+        return this.post(
+            this.baseURL + `/internship/`, { body: args }
+        )
+    }
+
+    async deleteInternship(args) {
+        return this.delete(
+            this.baseURL + `/internship/${args.internshipId}`
+        )
+    }
+
+    async editInternship(args) {
+        return this.put(
+            this.baseURL + `/internship/${args.internshipId}`, { body: { internship: args.internship } }
         )
     }
 }

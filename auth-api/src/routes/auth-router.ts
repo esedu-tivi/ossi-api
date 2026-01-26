@@ -1,8 +1,8 @@
 import axios from "axios";
-import express, { json } from "express";
+import express from "express";
 import jwt, { type JwtPayload } from "jsonwebtoken";
 import prisma, { enumUsersScope, type StudentGroup } from "prisma-orm"
-import { HttpError } from "./classes/HttpError.js";
+import { HttpError } from "../classes/HttpError.js";
 
 interface IdTokenPayload extends JwtPayload {
     oid: string,
@@ -24,10 +24,8 @@ async function getPemCertificate(idToken) {
 
 const router = express.Router();
 
-router.use(json());
-
 // intended for basic ossi login, job supervisor scopes should be created in a seperate endpoint?
-router.post("/login", async (req, res) => {
+router.post("/", async (req, res) => {
     try {
         const userData = await prisma.$transaction(async (transaction) => {
 

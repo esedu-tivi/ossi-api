@@ -5,9 +5,9 @@ export enum NeededType {
   NUMBER = "number"
 }
 
-export const checkIds = (ids: Record<string, string | number> | string[], type: NeededType) => {
+export const checkIds = (ids: Record<string, string | number | string[]> | string[], type: NeededType) => {
   // If ids is an array
-  if (Array.isArray(ids)) {
+  if (Array.isArray(ids) && ids.length) {
     if (!ids.every((id) => typeof id === type || (type === NeededType.NUMBER && typeof id === "string" && !Number.isNaN(Number(id))))) {
       throw new HttpError(400, `some field is not of expected '${type}' type`);
     }

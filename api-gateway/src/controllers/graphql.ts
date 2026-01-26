@@ -21,13 +21,15 @@ import { ProjectReturnNotification } from "../graphql/resolvers/project-return-n
 import { ProjectUpdateNotification } from "../graphql/resolvers/project-update-notification.js";
 import { QualificationProject } from "../graphql/resolvers/project.js";
 import { Query } from "../graphql/resolvers/query.js";
-import { Student } from "../graphql/resolvers/student.js";
+import { Student, StudentResolver } from "../graphql/resolvers/student.js";
 import { QualificationTitle } from "../graphql/resolvers/title.js";
 import { QualificationUnit } from "../graphql/resolvers/unit.js";
 import { User } from "../graphql/resolvers/user.js";
 import { dateTimeScalar } from "../graphql/scalars/datetime.js";
 import typeDefs from "../graphql/type-defs.js";
 import { ProjectStatusChangeNotification } from "../graphql/resolvers/project-status-change-notification.js";
+import { Workplace } from "../graphql/resolvers/workplace.js";
+import { Internship } from "../graphql/resolvers/intership.js";
 
 const graphqlRouter = express.Router();
 
@@ -41,16 +43,21 @@ const resolvers = {
     Query: {
         ...Query,
         ...MessagingResolvers.Query,
+        ...Workplace.Query,
+        ...Internship.Query,
+        ...StudentResolver.Query
     },
     Mutation: {
         ...Mutation,
         ...MessagingResolvers.Mutation,
+        ...Workplace.Mutation,
+        ...Internship.Mutation,
     },
-    Student,
     QualificationTitle,
     QualificationUnitPart,
     QualificationProject,
     QualificationUnit,
+    Student,
 };
 
 let schema = makeExecutableSchema({

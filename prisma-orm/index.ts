@@ -31,6 +31,6 @@ export * from "./generated/prisma/client.js"
 export type { PrismaClient } from "./generated/prisma/client.js"
 export * from "./generated/prisma/enums.js"
 
-export * from "@prisma/client/runtime/library"
+//export * from "@prisma/client/runtime/library"
 
 export default prisma

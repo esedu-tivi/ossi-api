@@ -1,14 +1,22 @@
 ---
+x-env_file: &env_file
+  - .env
+
+x-build: &build
+  context: .
+
 name: ossi-api
 
 services:
-  api:
+  api-gateway:
     build:
-      context: ./api-gateway
-      target: final
+      <<: *build
+      dockerfile: ./docker/Dockerfile
+      args:
+        SERVICE_NAME: api-gateway
     ports:
       - "3000:3000"
-    env_file: ".env"
+    env_file: *env_file
     depends_on:
       - messaging-server
       - student-management-api
@@ -17,20 +25,25 @@ services:
 
   auth-api:
     build:
-      context: ./auth-api
+      <<: *build
+      dockerfile: ./docker/prismadep.Dockerfile
+      args:
+        SERVICE_NAME: auth-api
       additional_contexts:
-        prisma-orm: service:db-migrations
-    env_file: ".env"
+        - prisma-orm=service:db-migrations
+    env_file: *env_file
     depends_on:
-      - db
+      - db-migrations
 
   student-management-api:
     build:
-      context: ./student-management-api
-      target: final
+      <<: *build
+      dockerfile: ./docker/prismadep.Dockerfile
+      args:
+        SERVICE_NAME: student-management-api
       additional_contexts:
-        prisma-orm: service:db-migrations
-    env_file: ".env"
+        - prisma-orm=service:db-migrations
+    env_file: *env_file
     depends_on:
       db-migrations:
         condition: service_completed_successfully
@@ -41,9 +54,11 @@ services:
     ports:
       - "3001:3000"
     build:
-      context: ./notification-server
-      target: final
-    env_file: ".env"
+      <<: *build
+      dockerfile: ./docker/Dockerfile
+      args:
+        SERVICE_NAME: notification-server
+    env_file: *env_file
     depends_on:
       redis:
         condition: service_healthy
@@ -52,15 +67,17 @@ services:
 
   messaging-server:
     build:
-      context: ./messaging-server
-      target: final
+      <<: *build
+      dockerfile: ./docker/prismadep.Dockerfile
+      args:
+        SERVICE_NAME: messaging-server
       additional_contexts:
-        prisma-orm: service:db-migrations
+        - prisma-orm=service:db-migrations
     ports:
       - "3002:3000"
     environment:
       - PORT=3000
-    env_file: ".env"
+    env_file: *env_file
     depends_on:
       redis:
         condition: service_healthy
@@ -83,13 +100,14 @@ services:
       start_period: 1s
 
   db-migrations:
-    build:
-      context: ./prisma-orm
-    env_file: ".env"
+    extends:
+      file: common-services.yml
+      service: prisma
+    env_file: *env_file
     depends_on:
       db:
         condition: service_healthy
-    command: npm start
+    command: ["npm", "--workspace", "prisma-orm", "run", "start"]
 
   mongo:
     image: docker.io/mongo

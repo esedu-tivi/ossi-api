@@ -22,6 +22,47 @@ router.get("/:id/", parseId, async (req: RequestWithId, res) => {
     });
 });
 
+router.get("/:id/assignedTeachingProjects", parseId, async (req: RequestWithId, res, next) => {
+    try {
+        const projects = await prisma.teacher.findFirst({
+            where: { userId: req.id },
+            select: {
+                teachingQualificationProject: {
+                    include: {
+                        parts: {
+                            include: {
+                                qualificationUnitParts: true
+                            }
+                        },
+                        competenceRequirements: true,
+                        tags: {
+                            include: {
+                                qualificationProjectTags: true
+                            }
+                        }
+                    }
+                }
+            }
+        })
+
+        const parsedProjects = projects.teachingQualificationProject.map(project => ({
+            ...project,
+            parts: project.parts.map(part => ({ ...part.qualificationUnitParts })),
+            tags: project.tags.map(tag => ({ ...tag.qualificationProjectTags })),
+            competenceRequirements: project.competenceRequirements
+        }))
+
+        res.json({
+            status: 200,
+            success: true,
+            assignedProjects: parsedProjects
+        })
+    }
+    catch (error) {
+        next(error)
+    }
+})
+
 router.post("/:id/assignTeachingProject", parseId, async (req: RequestWithIdAndProjectId, res: Response, next: NextFunction) => {
     try {
         const { projectId } = req.body
@@ -105,6 +146,36 @@ router.patch("/:id/updateTeachingProjectAssigns", parseId, async (req: Omit<Requ
     }
 })
 
+router.get("/:id/assignedStudentGroups", parseId, async (req: RequestWithId, res, next) => {
+    try {
+        const assignedStudentGroups = await prisma.teacher.findFirst({
+            where: { userId: req.id },
+            select: {
+                studentGroups: {
+                    select: {
+                        id: true,
+                        groupName: true
+                    }
+                }
+            }
+        })
+
+        const parsedStudentGroups = assignedStudentGroups.studentGroups.map(group => ({
+            id: group.id,
+            groupId: group.groupName
+        }))
+
+        res.json({
+            status: 200,
+            success: true,
+            studentGroups: parsedStudentGroups
+        })
+    }
+    catch (error) {
+        next(error)
+    }
+})
+
 router.post("/:id/assignStudentGroups", parseId, async (req: Omit<RequestWithId, 'body'> & { body: { groupIds: string[] } }, res: Response, next: NextFunction) => {
     try {
         const { groupIds } = req.body
@@ -181,6 +252,26 @@ router.patch("/:id/updateStudentGroupAssigns", parseId, async (req: Omit<Request
 
     } catch (error) {
         console.error(error)
+        next(error)
+    }
+})
+
+router.get("/:id/assignedTags", parseId, async (req: RequestWithId, res, next) => {
+    try {
+        const assignedTags = await prisma.teacher.findFirst({
+            where: { userId: req.id },
+            select: {
+                projectTagFilter: true
+            }
+        })
+
+        res.json({
+            status: 200,
+            success: true,
+            tags: assignedTags.projectTagFilter
+        })
+    }
+    catch (error) {
         next(error)
     }
 })

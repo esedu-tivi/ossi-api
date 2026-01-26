@@ -1,0 +1,12 @@
+---
+x-build: &build
+  context: .
+  target: final
+
+services:
+  prisma:
+    build:
+      <<: *build
+      dockerfile: ./docker/prisma.Dockerfile
+      args:
+        SERVICE_NAME: prisma-orm
