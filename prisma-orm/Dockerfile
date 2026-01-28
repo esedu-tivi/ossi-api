@@ -1,10 +1,9 @@
+
 FROM node:22-alpine AS build
 WORKDIR /usr/app
 COPY package.json ./
 COPY tsconfig.json ./
 COPY prisma ./prisma
-COPY src ./src
-COPY generated ./generated
 COPY prisma.config.ts ./
 RUN npm install
 RUN npm run build
