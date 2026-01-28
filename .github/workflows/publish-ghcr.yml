@@ -22,32 +22,32 @@ jobs:
         include:
           - id: api-gateway
             context: ./api-gateway
-            dockerfile: ./api-gateway/Dockerfile
+            dockerfile: ./docker/Dockerfile
             image: ossi2-api-gateway
 
           - id: auth-api
             context: ./auth-api
-            dockerfile: ./auth-api/Dockerfile
+            dockerfile: ./docker/prismadep.Dockerfile
             image: ossi2-auth-api
 
           - id: messaging-server
             context: ./messaging-server
-            dockerfile: ./messaging-server/Dockerfile
+            dockerfile: ./docker/prismadep.Dockerfile
             image: ossi2-messaging-server
 
           - id: notification-server
             context: ./notification-server
-            dockerfile: ./notification-server/Dockerfile
+            dockerfile: ./docker/Dockerfile
             image: ossi2-notification-server
 
           - id: prisma-orm
             context: ./prisma-orm
-            dockerfile: ./prisma-orm/Dockerfile
+            dockerfile: ./docker/Dockerfile
             image: ossi2-prisma-orm
 
           - id: student-management-api
             context: ./student-management-api
-            dockerfile: ./student-management-api/Dockerfile
+            dockerfile: ./docker/prismadep.Dockerfile
             image: ossi2-student-management-api
 
     steps:
