@@ -22,8 +22,6 @@ CMD ["npm", "--workspace", "${ws}", "run", "dev" ]
 # Compile typescript sources
 FROM dev AS build
 ARG SERVICE_NAME
-# Kopioidaan myös prisma-ormin tiedostot, jos rakennetaan prisma-orm
-COPY ./prisma-orm /usr/app/prisma-orm
 COPY ./${SERVICE_NAME} /usr/app/${SERVICE_NAME}
 RUN npm --workspace ${SERVICE_NAME} run build
 
