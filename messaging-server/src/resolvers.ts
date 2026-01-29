@@ -93,7 +93,7 @@ export const resolvers = {
           }
         })
 
-        return searchResult.map((row) => ({
+        return searchResult.map((row: any) => ({
           id: row.email, // Using email as ID for consistency with the existing system
           ...row
         }));
