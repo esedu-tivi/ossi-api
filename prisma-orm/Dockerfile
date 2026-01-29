@@ -1,19 +1,30 @@
-
 FROM node:22-alpine AS build
 WORKDIR /usr/app
-COPY package.json ./
-COPY tsconfig.json ./
-COPY prisma ./prisma
-COPY prisma.config.ts ./
-RUN npm install
-RUN npm run build
 
-FROM node:22-alpine AS prod
+# Root workspace metadata + lock
+COPY package.json package-lock.json ./
+COPY prisma-orm/package.json ./prisma-orm/package.json
+
+# Asenna workspacen deps (sis. dev), jotta prisma CLI löytyy
+RUN npm ci -w prisma-orm
+
+# Kopioi lähdekoodi
+COPY prisma-orm ./prisma-orm
+
+# Build tekee: prisma generate + tsc (teidän scripts.build)
+RUN npm run build -w prisma-orm
+
+# Runtime: migraatiot/generate vaatii prisma CLIn → EI omit=dev
+FROM node:22-alpine
 WORKDIR /usr/app
-COPY package.json ./
-RUN npm install --omit=dev
-COPY --from=build /usr/app/dist ./dist
-COPY --from=build /usr/app/prisma ./prisma
-COPY --from=build /usr/app/generated ./generated
-COPY --from=build /usr/app/prisma.config.ts ./
-CMD ["npm", "start"]
+ENV NODE_ENV=production
+
+COPY package.json package-lock.json ./
+COPY prisma-orm/package.json ./prisma-orm/package.json
+RUN npm ci -w prisma-orm
+
+# Tarvitaan sekä dist että prisma-kansio (schema + migrations + seed)
+COPY --from=build /usr/app/prisma-orm/dist ./prisma-orm/dist
+COPY --from=build /usr/app/prisma-orm/prisma ./prisma-orm/prisma
+
+# Ei CMD:tä pakolla – compose antaa komennon (migrate/seed/studio)

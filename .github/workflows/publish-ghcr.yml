@@ -26,27 +26,27 @@ jobs:
             image: ossi2-api-gateway
 
           - id: auth-api
-            context: ./auth-api
+            context: .
             dockerfile: ./auth-api/Dockerfile
             image: ossi2-auth-api
 
           - id: messaging-server
-            context: ./messaging-server
+            context: .
             dockerfile: ./messaging-server/Dockerfile
             image: ossi2-messaging-server
 
           - id: notification-server
-            context: ./notification-server
+            context: .
             dockerfile: ./notification-server/Dockerfile
             image: ossi2-notification-server
 
           - id: prisma-orm
-            context: ./prisma-orm
+            context: .
             dockerfile: ./prisma-orm/Dockerfile
             image: ossi2-prisma-orm
 
           - id: student-management-api
-            context: ./student-management-api
+            context: .
             dockerfile: ./student-management-api/Dockerfile
             image: ossi2-student-management-api
 
