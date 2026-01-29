@@ -356,4 +356,54 @@ router.patch("/:id/updateTagAssigns", parseId, async (req: Omit<RequestWithId, '
     }
 })
 
+router.get("/:id/teachingQualificationUnits", parseId, async (req: RequestWithId, res, next) => {
+    try {
+        const foundTeachingQualificationUnits = await prisma.teacher.findFirst({
+            where: {
+                userId: req.id
+            },
+            select: {
+                teachingQualificationUnit: true
+            }
+        })
+
+        res.json({
+            status: 200,
+            success: true,
+            qualificationUnits: foundTeachingQualificationUnits.teachingQualificationUnit
+        })
+    }
+    catch (error) {
+        next(error)
+    }
+})
+
+router.patch("/:id/updateTeachingQualificationUnits", parseId, async (req: Omit<RequestWithId, 'body'> & { body: { assignQualificationUnitIds: string[], unassignQualificationUnitIds: string[] } }, res: Response, next: NextFunction) => {
+    try {
+        const { assignQualificationUnitIds, unassignQualificationUnitIds } = req.body
+        checkIds(assignQualificationUnitIds, NeededType.NUMBER)
+        checkIds(unassignQualificationUnitIds, NeededType.NUMBER)
+
+        await prisma.teacher.update({
+            where: { userId: req.id },
+            data: {
+                teachingQualificationUnit: {
+                    connect: assignQualificationUnitIds.map((id: string) => ({ id: Number(id) })),
+                    disconnect: unassignQualificationUnitIds.map((id: string) => ({ id: Number(id) }))
+                }
+            }
+        })
+
+        res.json({
+            status: 204,
+            success: true,
+            message: "Successfully assigned and unassigned qualificationUnit(s)"
+        })
+
+    }
+    catch (error) {
+        next(error)
+    }
+})
+
 export const TeacherRouter = router;

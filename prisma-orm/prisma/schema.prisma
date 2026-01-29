@@ -164,6 +164,7 @@ model QualificationUnit {
   qualificationCompetenceRequirements   QualificationCompetenceRequirements[]
   qualificationUnitParts                QualificationUnitPart[]
   internships                           Internship[]
+  teachingTeacher                       Teacher[]
 
   @@map("qualification_units")
 }
@@ -227,6 +228,7 @@ model Teacher {
   teachingQualificationId      Int?
   users                        User                      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   teachingQualificationProject QualificationProject[]
+  teachingQualificationUnit    QualificationUnit[]
   projectTagFilter             QualificationProjectTag[]
   studentGroups                StudentGroup[]
   studentInternships           Internship[]

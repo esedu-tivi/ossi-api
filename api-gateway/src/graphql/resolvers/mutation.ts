@@ -131,6 +131,10 @@ const updateTagAssigns = async (parent, args, context, info) => {
     return await context.dataSources.studentManagementAPI.updateTagAssigns(args)
 }
 
+const updateTeachingQualificationUnitAssigns = async (parent, args, context, info) => {
+    return await context.dataSources.studentManagementAPI.updateTeachingQualificationUnits(args);
+}
+
 export const Mutation = {
     login,
     requestMagicLink,
@@ -160,4 +164,5 @@ export const Mutation = {
     assignTags,
     unassignTags,
     updateTagAssigns,
+    updateTeachingQualificationUnitAssigns,
 }

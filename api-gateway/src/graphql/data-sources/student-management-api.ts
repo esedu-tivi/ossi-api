@@ -415,6 +415,20 @@ class StudentManagementAPI extends RESTDataSource {
             this.baseURL + `/internship/${args.internshipId}`, { body: { internship: args.internship } }
         )
     }
+
+    async getTeachingQualificationUnits(teacherId) {
+        return this.get(
+            this.baseURL + `/teachers/${teacherId}/teachingQualificationUnits`
+        )
+    }
+
+    async updateTeachingQualificationUnits(args) {
+        return this.patch(
+            this.baseURL +
+            `/teachers/${args.teacherId}/updateTeachingQualificationUnits`,
+            { body: { assignQualificationUnitIds: args.assignQualificationUnitIds, unassignQualificationUnitIds: args.unassignQualificationUnitIds } }
+        )
+    }
 }
 
 export { StudentManagementAPI };
