@@ -26,5 +26,6 @@ RUN npm ci -w prisma-orm
 # Tarvitaan sekä dist että prisma-kansio (schema + migrations + seed)
 COPY --from=build /usr/app/prisma-orm/dist ./prisma-orm/dist
 COPY --from=build /usr/app/prisma-orm/prisma ./prisma-orm/prisma
+COPY --from=build /usr/app/prisma-orm/prisma.config.ts ./prisma-orm/prisma.config.ts
 
 # Ei CMD:tä pakolla – compose antaa komennon (migrate/seed/studio)
