@@ -11,51 +11,42 @@ In order to run and develop the backend you must have installed:
 
 Note: If using Node.js, version 22.11.0 (latest LTS version currently) is recommended.
 
-## 1. Installation
+### Running the Application
 
-### 1.1 Dependencies
+#### Production
 
-```
-npm install
-```
-
-### 1.2 Generate prisma
-
-```
-npm --workspace=prisma-orm run build
-```
-
-### 1.3 Run
-
-production
-
-```
+```bash
 npm start
 ```
 
-dev
+#### Development
 
+```bash
+npm install
+npm --workspace=prisma-orm run build
 ```
+
+```bash
 npm run dev
 ```
 
-stop running containers
+#### Stop Running Containers
 
-```
+```bash
 npm stop
 ```
 
-tests
+#### Run Tests
 
-```
+```bash
 npm test
 ```
 
-> todo: make express in student-management-api stop after tests
+> TODO: Make Express in student-management-api stop after tests
 
-## 2. Migrations
+## Migrations
 
-### 2.1 Prisma
+### Prisma
 
 If you want sample data in the database, run seeds:
 
@@ -63,7 +54,7 @@ If you want sample data in the database, run seeds:
 npm run seed
 ```
 
-## 3. Routes
+## Routes
 
 Apollo Server: `localhost:3000/graphql`
 
