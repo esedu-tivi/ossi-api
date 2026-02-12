@@ -1,3 +1,4 @@
+
 FROM node:22-alpine AS base
 RUN apk add --update dumb-init
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
@@ -18,12 +19,11 @@ ENV ws=${SERVICE_NAME}
 RUN npm install
 CMD ["npm", "--workspace", "${ws}", "run", "dev" ]
 
-
 # Compile typescript sources
 FROM dev AS build
 ARG SERVICE_NAME
 COPY ./${SERVICE_NAME} /usr/app/${SERVICE_NAME}
-RUN npm -ws run build
+RUN npm --workspace ${SERVICE_NAME} run build
 
 # Production
 FROM base AS final
