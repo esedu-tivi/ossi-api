@@ -130,3 +130,5 @@ Repository contains:
 Because production SSH is only reachable inside VPN, deployment is intentionally run manually on the server after images are published to GHCR.
 
 Server-side deployment steps are documented in [docs/BACKEND_DOCUMENTATION.md](./docs/BACKEND_DOCUMENTATION.md).
+
+Release checklist: [docs/RELEASE_CHECKLIST.md](./docs/RELEASE_CHECKLIST.md).
