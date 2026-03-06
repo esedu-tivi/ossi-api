@@ -1,0 +1,106 @@
+name: ossi-api-prod
+
+services:
+  api-gateway:
+    image: ghcr.io/${GHCR_OWNER}/ossi2-api-gateway:${IMAGE_TAG:-staging}
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      - messaging-server
+      - student-management-api
+      - notification-server
+      - auth-api
+
+  auth-api:
+    image: ghcr.io/${GHCR_OWNER}/ossi2-auth-api:${IMAGE_TAG:-staging}
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      db-migrations:
+        condition: service_completed_successfully
+
+  student-management-api:
+    image: ghcr.io/${GHCR_OWNER}/ossi2-student-management-api:${IMAGE_TAG:-staging}
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      db-migrations:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+  notification-server:
+    image: ghcr.io/${GHCR_OWNER}/ossi2-notification-server:${IMAGE_TAG:-staging}
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+
+  messaging-server:
+    image: ghcr.io/${GHCR_OWNER}/ossi2-messaging-server:${IMAGE_TAG:-staging}
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - PORT=3000
+    depends_on:
+      redis:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+
+  db:
+    image: docker.io/postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      retries: 20
+      start_period: 3s
+
+  db-migrations:
+    image: ghcr.io/${GHCR_OWNER}/ossi2-prisma-orm:${IMAGE_TAG:-staging}
+    restart: "no"
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["npm", "--workspace", "prisma-orm", "run", "start"]
+
+  mongo:
+    image: docker.io/mongo
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      retries: 20
+      start_period: 3s
+
+  redis:
+    image: docker.io/redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 20
+      start_period: 3s
+
+volumes:
+  db-data:
+  mongo-data:

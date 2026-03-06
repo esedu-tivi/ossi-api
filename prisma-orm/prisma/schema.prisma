@@ -6,6 +6,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  // url siirretty prisma.config.ts-tiedostoon (Prisma 7)
 }
 
 model AssignedProjectsForStudent {
@@ -164,6 +165,7 @@ model QualificationUnit {
   qualificationCompetenceRequirements   QualificationCompetenceRequirements[]
   qualificationUnitParts                QualificationUnitPart[]
   internships                           Internship[]
+  teachingTeacher                       Teacher[]
 
   @@map("qualification_units")
 }
@@ -227,6 +229,7 @@ model Teacher {
   teachingQualificationId      Int?
   users                        User                      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   teachingQualificationProject QualificationProject[]
+  teachingQualificationUnit    QualificationUnit[]
   projectTagFilter             QualificationProjectTag[]
   studentGroups                StudentGroup[]
   studentInternships           Internship[]

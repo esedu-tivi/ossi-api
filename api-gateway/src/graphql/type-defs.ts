@@ -321,6 +321,13 @@ const newLocal = `#graphql
         groupId: String!
     }
 
+    type QualificationUnitForTeacher {
+        id: ID!,
+        qualificationId: ID!
+        name: String!
+        scope: Int!
+    }
+
     #--- End of Types ---
 
 
@@ -745,6 +752,18 @@ const newLocal = `#graphql
         assignedProjects: [QualificationProject]!
     }
 
+    type TeachingQualificationUnitsResponse {
+        success: Boolean!
+        status: Int!
+        qualificationUnits: [QualificationUnitForTeacher]!
+    }
+
+    type UpdateTeachingQualificationUnitsResponse {
+        success: Boolean!
+        status: Int!
+        message: String!
+    }
+
     # --- End of Responses
 
 
@@ -861,6 +880,7 @@ const newLocal = `#graphql
         jobSupervisor(jobSupervisorId: ID!): JobSupervisorResponse! @authenticatedAsTeacher
         assignedTeachingProjects(teacherId: ID!): AssignedTeachingProjectsResponse! @authenticatedAsTeacher
         assignedStudentGroups(teacherId: ID!): AssignedStudentGroupsResponse! @authenticatedAsTeacher
+        teachingQualificationUnits(teacherId: ID!): TeachingQualificationUnitsResponse! @authenticatedAsTeacher
     }
 
     type Mutation {
@@ -923,6 +943,8 @@ const newLocal = `#graphql
         createInternship(internship: InternshipInput): CreateInternshipResponse! @authenticatedAsTeacher
         deleteInternship(internshipId: ID!): DeleteInternshipResponse! @authenticatedAsTeacher
         editInternship(internshipId: ID!, internship: InternshipInput!): EditInternshipResponse! @authenticatedAsTeacher
+
+        updateTeachingQualificationUnitAssigns(teacherId: ID!, assignQualificationUnitIds: [ID!]!, unassignQualificationUnitIds: [ID!]! ): UpdateTeachingQualificationUnitsResponse! @authenticatedAsTeacher
     }
 
     # --- End of Query & Mutation ---
