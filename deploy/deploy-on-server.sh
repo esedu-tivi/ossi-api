@@ -34,18 +34,23 @@ docker compose -f "$COMPOSE_FILE" up -d db redis mongo
 docker compose -f "$COMPOSE_FILE" run --rm db-migrations
 docker compose -f "$COMPOSE_FILE" up -d api-gateway auth-api student-management-api notification-server messaging-server
 
-if command -v sudo >/dev/null 2>&1; then
-  SUDO=sudo
-else
-  SUDO=""
-fi
+if [ "${APPLY_NGINX_CONF:-0}" = "1" ]; then
+  if command -v sudo >/dev/null 2>&1; then
+    SUDO=sudo
+  else
+    SUDO=""
+  fi
 
-$SUDO install -m 644 "$NGINX_CONF_SRC" "$NGINX_CONF_DST"
-$SUDO nginx -t
-if command -v systemctl >/dev/null 2>&1; then
-  $SUDO systemctl reload nginx
+  $SUDO install -m 644 "$NGINX_CONF_SRC" "$NGINX_CONF_DST"
+  $SUDO nginx -t
+  if command -v systemctl >/dev/null 2>&1; then
+    $SUDO systemctl reload nginx
+  else
+    $SUDO service nginx reload
+  fi
+  echo "Nginx config applied: $NGINX_CONF_DST"
 else
-  $SUDO service nginx reload
+  echo "Skipping Nginx changes (set APPLY_NGINX_CONF=1 to apply $NGINX_CONF_SRC)"
 fi
 
 echo "Deploy completed for tag: $IMAGE_TAG"

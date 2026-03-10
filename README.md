@@ -126,8 +126,10 @@ Repository contains:
   - `deploy/docker-compose.prod.yml`
   - `deploy/nginx/ossi2.esedu.fi.conf`
   - `deploy/deploy-on-server.sh`
+  - `deploy/run-from-parent.sh`
 
 Because production SSH is only reachable inside VPN, deployment is intentionally run manually on the server after images are published to GHCR.
+By default deploy updates containers only; Nginx changes are opt-in (`APPLY_NGINX_CONF=1`) to avoid affecting other domains on the same server.
 
 Server-side deployment steps are documented in [docs/BACKEND_DOCUMENTATION.md](./docs/BACKEND_DOCUMENTATION.md).
 

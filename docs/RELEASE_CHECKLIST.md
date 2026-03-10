@@ -30,6 +30,8 @@ Tämä checklist on OSSI backendin tuotantojulkaisulle (`ossi2.esedu.fi`) mallil
   - `export IMAGE_TAG="staging"`
 - [ ] Aja deploy:
   - `./deploy/deploy-on-server.sh`
+- [ ] Tarvittaessa päivitä vain `ossi2`-nginx-vhost (ei pakollinen jokaisessa deployssa):
+  - `export APPLY_NGINX_CONF=1 && ./deploy/deploy-on-server.sh`
 
 ## 3. Deployn jälkeiset tarkistukset
 
@@ -43,6 +45,7 @@ Tämä checklist on OSSI backendin tuotantojulkaisulle (`ossi2.esedu.fi`) mallil
   - `curl -I http://ossi2.esedu.fi/graphql`
 - [ ] Nginx-konfigi validi ja ladattu:
   - `sudo nginx -t`
+  - Huom: muut domainit (`vaks.esedu.fi`, `tiketti.esedu.fi`) säilyvät, koska deploy-scripti ei oletuksena koske Nginxiin.
 
 ## 4. Smoke test (toiminnallinen)
 

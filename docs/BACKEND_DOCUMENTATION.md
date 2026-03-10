@@ -202,6 +202,7 @@ Production model:
 - `GHCR_TOKEN`
 - `GHCR_OWNER` (GitHub org/user owning GHCR images)
 - `IMAGE_TAG` (optional, default `staging`)
+- `APPLY_NGINX_CONF` (optional, default `0`; set `1` only when you want to apply `ossi2.esedu.fi` nginx config)
 
 ### Manual deploy commands (run on server)
 
@@ -215,6 +216,32 @@ export IMAGE_TAG="staging"
 ./deploy/deploy-on-server.sh
 ```
 
+Alternative for parent-directory layout (`/srv/ossi2`):
+
+```bash
+cd /srv/ossi2
+sudo -u ossi2 -H sh -lc '
+  cd /srv/ossi2/ossi-api &&
+  set -a &&
+  . /srv/ossi2/.deploy.env &&
+  set +a &&
+  ./deploy/deploy-on-server.sh
+'
+```
+
+You can also use wrapper script `deploy/run-from-parent.sh` from parent directory:
+
+```bash
+sudo -u ossi2 -H sh -lc '/srv/ossi2/ossi-api/deploy/run-from-parent.sh'
+```
+
+Apply Nginx config only when needed:
+
+```bash
+export APPLY_NGINX_CONF=1
+./deploy/deploy-on-server.sh
+```
+
 ### What the deploy script does
 
 1. Validates required env vars and `.env`.
@@ -223,7 +250,7 @@ export IMAGE_TAG="staging"
 4. Starts infra services (`db`, `redis`, `mongo`).
 5. Runs Prisma migrations via `db-migrations`.
 6. Starts backend services.
-7. Installs Nginx config for `ossi2.esedu.fi` and reloads Nginx.
+7. Optionally installs/reloads Nginx config for `ossi2.esedu.fi` only when `APPLY_NGINX_CONF=1`.
 
 ## Notes
 
