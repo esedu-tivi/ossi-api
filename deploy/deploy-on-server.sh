@@ -15,6 +15,11 @@ if [ ! -f "$APP_DIR/.env" ]; then
   exit 1
 fi
 
+if ! grep -Eq '^DATABASE_URL=' "$APP_DIR/.env"; then
+  echo "Missing DATABASE_URL in $APP_DIR/.env"
+  exit 1
+fi
+
 if [ -z "${GHCR_USERNAME:-}" ] || [ -z "${GHCR_TOKEN:-}" ] || [ -z "${GHCR_OWNER:-}" ]; then
   echo "Missing GHCR_USERNAME, GHCR_TOKEN or GHCR_OWNER environment variable"
   exit 1
