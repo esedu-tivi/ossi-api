@@ -5,7 +5,7 @@ services:
     image: ghcr.io/${GHCR_OWNER}/ossi2-api-gateway:${IMAGE_TAG:-staging}
     restart: unless-stopped
     env_file:
-      - .env
+      - ../.env
     ports:
       - "127.0.0.1:3000:3000"
     depends_on:
@@ -18,7 +18,7 @@ services:
     image: ghcr.io/${GHCR_OWNER}/ossi2-auth-api:${IMAGE_TAG:-staging}
     restart: unless-stopped
     env_file:
-      - .env
+      - ../.env
     depends_on:
       db-migrations:
         condition: service_completed_successfully
@@ -27,7 +27,7 @@ services:
     image: ghcr.io/${GHCR_OWNER}/ossi2-student-management-api:${IMAGE_TAG:-staging}
     restart: unless-stopped
     env_file:
-      - .env
+      - ../.env
     depends_on:
       db-migrations:
         condition: service_completed_successfully
@@ -38,7 +38,7 @@ services:
     image: ghcr.io/${GHCR_OWNER}/ossi2-notification-server:${IMAGE_TAG:-staging}
     restart: unless-stopped
     env_file:
-      - .env
+      - ../.env
     depends_on:
       redis:
         condition: service_healthy
@@ -49,7 +49,7 @@ services:
     image: ghcr.io/${GHCR_OWNER}/ossi2-messaging-server:${IMAGE_TAG:-staging}
     restart: unless-stopped
     env_file:
-      - .env
+      - ../.env
     environment:
       - PORT=3000
     depends_on:
@@ -75,7 +75,7 @@ services:
     image: ghcr.io/${GHCR_OWNER}/ossi2-prisma-orm:${IMAGE_TAG:-staging}
     restart: "no"
     env_file:
-      - .env
+      - ../.env
     depends_on:
       db:
         condition: service_healthy
