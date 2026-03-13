@@ -134,3 +134,4 @@ By default deploy updates containers only; Nginx changes are opt-in (`APPLY_NGIN
 Server-side deployment steps are documented in [docs/BACKEND_DOCUMENTATION.md](./docs/BACKEND_DOCUMENTATION.md).
 
 Release checklist: [docs/RELEASE_CHECKLIST.md](./docs/RELEASE_CHECKLIST.md).
+Developer onboarding: [docs/DEVELOPER_ONBOARDING.md](./docs/DEVELOPER_ONBOARDING.md).
