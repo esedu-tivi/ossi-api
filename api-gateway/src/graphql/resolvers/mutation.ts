@@ -46,6 +46,10 @@ const createProjectTags = async (parent, args, context, info) => {
     return await context.dataSources.studentManagementAPI.createProjectTags({ tagNames: args.names });
 }
 
+const updateProjectTag = async (parent, args, context, info) => {
+    return await context.dataSources.studentManagementAPI.updateProjectTag(args.id, args.color);
+}
+
 const assignProjectToStudent = async (parent, args, context, info) => {
     return await context.dataSources.studentManagementAPI.assignProjectToStudent(args)
 }
@@ -165,4 +169,5 @@ export const Mutation = {
     unassignTags,
     updateTagAssigns,
     updateTeachingQualificationUnitAssigns,
+    updateProjectTag,
 }

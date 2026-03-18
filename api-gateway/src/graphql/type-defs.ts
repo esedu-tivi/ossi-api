@@ -98,6 +98,7 @@ const newLocal = `#graphql
     type QualificationProjectTag {
         id: Int!
         name: String!
+        color: String
     }
 
     type QualificationProject {
@@ -527,6 +528,13 @@ const newLocal = `#graphql
         tag: QualificationProjectTag
     }
 
+    type UpdateProjectTagResponse {
+        status: Int!
+        success: Boolean!
+        message: String
+        tag: QualificationProjectTag
+    }
+
     # update WIP
     type ProjectUpdateResponse {
         status: Int!
@@ -903,6 +911,7 @@ const newLocal = `#graphql
         updatePartOrder(unitId: ID!, partOrder: [ID!]!): GenericResponse! @authenticatedAsTeacher
         createProjectTag(name: String!): CreateProjectTagResponse! @authenticatedAsTeacher
         createProjectTags(names: [String!]!): ProjectTagsResponse! @authenticatedAsTeacher
+        updateProjectTag(id: ID!, color: String!): UpdateProjectTagResponse! @authenticatedAsTeacher
         assignProjectToStudent(studentId: ID! , projectId:ID! ): GenericResponse!  @authenticated
         updateStudentProject(studentId: ID! , projectId:ID!, update: UpdateStudentProjectInput!) : GenericResponse @authenticated
         unassignProjectFromStudent(studentId:ID! , projectId:ID!) : GenericResponse   @authenticated

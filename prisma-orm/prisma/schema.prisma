@@ -89,6 +89,7 @@ model QualificationCompetenceRequirements {
 model QualificationProjectTag {
   id                                 Int                                 @id @default(autoincrement())
   name                               String?                             @db.VarChar(128)
+  color                              String?                             @db.VarChar(32)
   qualificationProjectsTagsRelations QualificationProjectsTagsRelation[]
   teachers                           Teacher[]
 

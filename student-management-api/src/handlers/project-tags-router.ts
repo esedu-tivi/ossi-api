@@ -4,6 +4,27 @@ import { HttpError } from "../classes/HttpError.js";
 
 const router = express();
 
+router.patch("/:id", async (req, res, next) => {
+    try {
+        const { color } = req.body;
+        const { id } = req.params;
+        if (!color) {
+            throw new HttpError(400, "color missing");
+        }
+        const updated = await prisma.qualificationProjectTag.update({
+            where: { id: Number(id) },
+            data: { color }
+        });
+        res.json({
+            status: 200,
+            success: true,
+            tag: updated
+        });
+    } catch (e) {
+        next(e);
+    }
+});
+
 router.get("/", async (req, res, next) => {
     try {
         const tags = await prisma.qualificationProjectTag.findMany()

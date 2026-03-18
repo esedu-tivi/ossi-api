@@ -151,6 +151,13 @@ class StudentManagementAPI extends RESTDataSource {
         );
     }
 
+    async updateProjectTag(id, color) {
+        return this.patch(
+            process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/qualification/projects/tags/${id}`,
+            { body: { color } }
+        );
+    }
+
     async getPartProjects(id) {
         return this.get(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/qualification/parts/${id}/projects`
