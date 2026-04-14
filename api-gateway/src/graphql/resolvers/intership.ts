@@ -4,6 +4,14 @@ const internships: Resolver<null, { studentId: number }> = async (_, args, conte
   return await context.dataSources.studentManagementAPI.getAllStudentInternships(args);
 }
 
+const myInternships: Resolver<null, Record<string, never>> = async (_, _args, context) => {
+  const studentId = context.user?.id;
+  if (!studentId) {
+    return { status: 401, success: false, internships: [] };
+  }
+  return await context.dataSources.studentManagementAPI.getAllStudentInternships({ studentId });
+};
+
 const createInternship = async (parent, args, context, info) => {
   return await context.dataSources.studentManagementAPI.createInternship(args)
 }
@@ -18,7 +26,8 @@ const editInternship = async (parent, args, context, info) => {
 
 export const Internship = {
   Query: {
-    internships
+    internships,
+    myInternships
   },
   Mutation: {
     createInternship,

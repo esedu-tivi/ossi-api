@@ -3,10 +3,24 @@ import prisma, { type Internship } from "prisma-orm";
 import { parseId } from "../utils/middleware.js";
 import type { RequestWithId } from "../types.js";
 import { checkIds, NeededType } from "../utils/checkIds.js";
+import { HttpError } from "../classes/HttpError.js";
 
 const router = express();
 
 type InternshipWithoutId = Omit<Internship, "id">
+
+const parseDateOrThrow = (value: unknown, fieldName: string): Date | null => {
+  if (value === null || value === undefined || value === "") return null;
+  if (value instanceof Date) {
+    if (Number.isNaN(value.getTime())) throw new HttpError(400, `${fieldName} is not a valid date`);
+    return value;
+  }
+
+  if (typeof value !== "string") throw new HttpError(400, `${fieldName} must be a string`);
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) throw new HttpError(400, `${fieldName} is not a valid date`);
+  return d;
+}
 
 router.get("/:id", parseId, async (req: RequestWithId, res, next) => {
   try {
@@ -41,6 +55,7 @@ router.get("/:id", parseId, async (req: RequestWithId, res, next) => {
           firstName: internship.jobSupervisor.users.firstName || null,
           lastName: internship.jobSupervisor.users.lastName || null,
           email: internship.jobSupervisor.users.email || null,
+          phoneNumber: internship.jobSupervisor.users.phoneNumber || null,
         } : null,
       } : null,
       teacher: internship.teacher ? {
@@ -67,11 +82,19 @@ router.get("/:id", parseId, async (req: RequestWithId, res, next) => {
 
 router.post("/", async (req, res, next) => {
   try {
-    const { startDate, endDate, info, workplaceId, teacherId, studentId, jobSupervisorId, qualificationUnitId } = req.body.internship
+    const internship = req.body?.internship
+    if (!internship) throw new HttpError(400, "internship payload missing")
+
+    const { startDate, endDate, info, workplaceId, teacherId, studentId, jobSupervisorId, qualificationUnitId } = internship
+
+    checkIds({ studentId, workplaceId }, NeededType.NUMBER)
+    if (jobSupervisorId !== null && jobSupervisorId !== undefined && jobSupervisorId !== "") checkIds({ jobSupervisorId }, NeededType.NUMBER)
+    if (teacherId !== null && teacherId !== undefined && teacherId !== "") checkIds({ teacherId }, NeededType.NUMBER)
+    if (qualificationUnitId !== null && qualificationUnitId !== undefined && qualificationUnitId !== "") checkIds({ qualificationUnitId }, NeededType.NUMBER)
 
     const parsedInternship: InternshipWithoutId = {
-      startDate: new Date(startDate) || null,
-      endDate: new Date(endDate) || null,
+      startDate: parseDateOrThrow(startDate, "startDate"),
+      endDate: parseDateOrThrow(endDate, "endDate"),
       info: info || null,
       workplaceId: workplaceId ? Number(workplaceId) : null,
       teacherUserId: teacherId ? Number(teacherId) : null,
@@ -113,11 +136,19 @@ router.delete("/:id", parseId, async (req: RequestWithId, res, next) => {
 
 router.put("/:id", parseId, async (req: RequestWithId, res, next) => {
   try {
-    const { startDate, endDate, info, workplaceId, teacherId, studentId, jobSupervisorId, qualificationUnitId } = req.body.internship
+    const internship = req.body?.internship
+    if (!internship) throw new HttpError(400, "internship payload missing")
+
+    const { startDate, endDate, info, workplaceId, teacherId, studentId, jobSupervisorId, qualificationUnitId } = internship
+
+    checkIds({ studentId, workplaceId }, NeededType.NUMBER)
+    if (jobSupervisorId !== null && jobSupervisorId !== undefined && jobSupervisorId !== "") checkIds({ jobSupervisorId }, NeededType.NUMBER)
+    if (teacherId !== null && teacherId !== undefined && teacherId !== "") checkIds({ teacherId }, NeededType.NUMBER)
+    if (qualificationUnitId !== null && qualificationUnitId !== undefined && qualificationUnitId !== "") checkIds({ qualificationUnitId }, NeededType.NUMBER)
 
     const parsedInternship: InternshipWithoutId = {
-      startDate: new Date(startDate) || null,
-      endDate: new Date(endDate) || null,
+      startDate: parseDateOrThrow(startDate, "startDate"),
+      endDate: parseDateOrThrow(endDate, "endDate"),
       info: info || null,
       workplaceId: workplaceId ? Number(workplaceId) : null,
       teacherUserId: teacherId ? Number(teacherId) : null,

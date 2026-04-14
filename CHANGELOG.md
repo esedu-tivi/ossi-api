@@ -1,5 +1,17 @@
 # Backend Changelog
 
+## Unreleased
+
+### Added
+- Added `myInternships` GraphQL query in `api-gateway/src/graphql/type-defs.ts` and wired resolver in `api-gateway/src/graphql/resolvers/intership.ts` to fetch internships for the authenticated student.
+- Added stricter internship payload validation and date parsing in `student-management-api/src/handlers/internship-router.ts` (`parseDateOrThrow`, payload presence checks, and ID validation for required/optional numeric fields).
+- Added `phoneNumber` field mapping to internship and workplace job supervisor responses in `student-management-api/src/handlers/internship-router.ts` and `student-management-api/src/handlers/workplace-router.ts`.
+
+### Changed
+- Refactored GraphQL schema definition constant from `newLocal` to `typeDefs` and removed redundant aliasing before export in `api-gateway/src/graphql/type-defs.ts`.
+- Normalized GraphQL SDL formatting in `api-gateway/src/graphql/type-defs.ts` (argument spacing, field spacing, and trailing comma cleanup) to improve readability and consistency.
+- Renamed `deleteJobSupervisorResponse` to `DeleteJobSupervisorResponse` in `api-gateway/src/graphql/type-defs.ts` to follow PascalCase naming conventions.
+
 ## 20.01.2025
 
 ### Added

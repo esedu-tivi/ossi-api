@@ -257,6 +257,7 @@ router.get("/:id/jobSupervisors", parseId, async (req: RequestWithId, res, next)
       firstName: jobSupervisor.users.firstName,
       lastName: jobSupervisor.users.lastName,
       email: jobSupervisor.users.email,
+      phoneNumber: jobSupervisor.users.phoneNumber || null,
     }))
 
     res.json({

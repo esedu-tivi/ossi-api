@@ -1,4 +1,4 @@
-const newLocal = `#graphql
+const typeDefs = `#graphql
     scalar DateTime
 
     directive @authenticated on FIELD_DEFINITION
@@ -112,11 +112,11 @@ const newLocal = `#graphql
         tags: [QualificationProjectTag!]!
     }
 
-    type WorktimeEntry{
+    type WorktimeEntry {
         startDate: DateTime
         endDate: DateTime
         description: String
-        id:ID
+        id: ID
     }
 
     type AssignedProjects {
@@ -163,7 +163,7 @@ const newLocal = `#graphql
         studyingQualificationTitle: QualificationTitle
         assignedQualificationUnits: [QualificationUnit!]
         assignedProjects: [AssignedProjects!]
-        assignedProjectSingle(projectId:ID!): AssignedProjectSingleResponse!
+        assignedProjectSingle(projectId: ID!): AssignedProjectSingleResponse!
     }
 
     type StudentForInternship {
@@ -322,7 +322,7 @@ const newLocal = `#graphql
     }
 
     type QualificationUnitForTeacher {
-        id: ID!,
+        id: ID!
         qualificationId: ID!
         name: String!
         scope: Int!
@@ -511,7 +511,7 @@ const newLocal = `#graphql
     type ChangeProjectStatusResponse {
         status: Int!
         success: Boolean!
-        message: String,
+        message: String
     }
 
     type UpdatePartOrderResponse {
@@ -549,20 +549,20 @@ const newLocal = `#graphql
     type WorktimeEntryResponse {
         success: Boolean!
         status: Int!
-        message: String!,
+        message: String!
         entry: WorktimeEntry!
     }
 
     type AssignedProjectSingleResponse { 
         success: Boolean!
         status: Int!
-        message: String,
-        project(projectId:ID!): AssignedProject
+        message: String
+        project(projectId: ID!): AssignedProject
     }
 
     type UpdateAssignedProjectResponse {
         success: Boolean!
-        status:Int!
+        status: Int!
         project: AssignedProject
     }
 
@@ -736,7 +736,7 @@ const newLocal = `#graphql
         createdJobSupervisor: JobSupervisorWithoutWorkplace
     }
 
-    type deleteJobSupervisorResponse {
+    type DeleteJobSupervisorResponse {
         success: Boolean!
         status: Int!
     }
@@ -864,7 +864,7 @@ const newLocal = `#graphql
         assignedTags(teacherId: ID!): AssignedTagsResponse! @authenticatedAsTeacher
         assignedProjects(id: ID!): AssignedProjectsResponse @authenticated
         assignedStudentProjects(studentId: ID!): AssignedProjectsResponse @authenticatedAsTeacher
-        # assignedProject(projectId:ID):AssignedProject @ authenticated
+        # assignedProject(projectId: ID): AssignedProject @authenticated
         notifications: NotificationsResponse! @authenticated
         notification(id: ID!): NotificationResponse! @authenticated
         unreadNotificationCount: UnreadNotificationCountResponse! @authenticated 
@@ -875,6 +875,7 @@ const newLocal = `#graphql
         workplaces: WorkplacesResponse! @authenticatedAsTeacher
         workplace(id: ID!): WorkplaceResponse! @authenticatedAsTeacher
         internships(studentId: ID!): InternshipsResponse! @authenticatedAsTeacher
+        myInternships: InternshipsResponse! @authenticatedAsStudent
         jobSupervisors: JobSupervisorsResponse! @authenticatedAsTeacher
         jobSupervisorsByWorkplace(workplaceId: ID!): JobSupervisorsWithWorkplaceResponse! @authenticatedAsTeacher
         jobSupervisor(jobSupervisorId: ID!): JobSupervisorResponse! @authenticatedAsTeacher
@@ -903,11 +904,11 @@ const newLocal = `#graphql
         updatePartOrder(unitId: ID!, partOrder: [ID!]!): GenericResponse! @authenticatedAsTeacher
         createProjectTag(name: String!): CreateProjectTagResponse! @authenticatedAsTeacher
         createProjectTags(names: [String!]!): ProjectTagsResponse! @authenticatedAsTeacher
-        assignProjectToStudent(studentId: ID! , projectId:ID! ): GenericResponse!  @authenticated
-        updateStudentProject(studentId: ID! , projectId:ID!, update: UpdateStudentProjectInput!) : GenericResponse @authenticated
-        unassignProjectFromStudent(studentId:ID! , projectId:ID!) : GenericResponse   @authenticated
-        createWorktimeEntry(studentId:ID! , projectId:ID!, entry: StudentWorktimeInput): WorktimeEntryResponse @authenticated
-        deleteWorktimeEntry(id:ID!): WorktimeEntryResponse @authenticated
+        assignProjectToStudent(studentId: ID!, projectId: ID!): GenericResponse! @authenticated
+        updateStudentProject(studentId: ID!, projectId: ID!, update: UpdateStudentProjectInput!): GenericResponse @authenticated
+        unassignProjectFromStudent(studentId: ID!, projectId: ID!): GenericResponse @authenticated
+        createWorktimeEntry(studentId: ID!, projectId: ID!, entry: StudentWorktimeInput): WorktimeEntryResponse @authenticated
+        deleteWorktimeEntry(id: ID!): WorktimeEntryResponse @authenticated
         markNotificationAsRead(id: ID!): MarkNotificationAsReadResponse! @authenticated
         
         # remove once not needed
@@ -937,19 +938,17 @@ const newLocal = `#graphql
         unassignJobSupervisor(workplaceId: ID!, jobSupervisorId: ID!): UnassignJobSupervisorResponse! @authenticatedAsTeacher
         updateJobSupervisorAssigns(workplaceId: ID!, assignIds: [ID!]!, unassignIds: [ID!]!): UpdateJobSupervisorAssignsResponse! @authenticatedAsTeacher
         createJobSupervisor(jobSupervisor: JobSupervisorInput!): CreateJobSupervisorResponse! @authenticatedAsTeacher
-        deleteJobSupervisor(id: ID!): deleteJobSupervisorResponse! @authenticatedAsTeacher
+        deleteJobSupervisor(id: ID!): DeleteJobSupervisorResponse! @authenticatedAsTeacher
         editJobSupervisor(id: ID!, jobSupervisor: JobSupervisorInput!): EditJobSupervisorResponse @authenticatedAsTeacher
 
         createInternship(internship: InternshipInput): CreateInternshipResponse! @authenticatedAsTeacher
         deleteInternship(internshipId: ID!): DeleteInternshipResponse! @authenticatedAsTeacher
         editInternship(internshipId: ID!, internship: InternshipInput!): EditInternshipResponse! @authenticatedAsTeacher
 
-        updateTeachingQualificationUnitAssigns(teacherId: ID!, assignQualificationUnitIds: [ID!]!, unassignQualificationUnitIds: [ID!]! ): UpdateTeachingQualificationUnitsResponse! @authenticatedAsTeacher
+        updateTeachingQualificationUnitAssigns(teacherId: ID!, assignQualificationUnitIds: [ID!]!, unassignQualificationUnitIds: [ID!]!): UpdateTeachingQualificationUnitsResponse! @authenticatedAsTeacher
     }
 
     # --- End of Query & Mutation ---
 
 `
-const typeDefs = newLocal
-
 export default typeDefs
