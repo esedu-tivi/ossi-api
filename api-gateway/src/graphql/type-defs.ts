@@ -875,6 +875,7 @@ const newLocal = `#graphql
         workplaces: WorkplacesResponse! @authenticatedAsTeacher
         workplace(id: ID!): WorkplaceResponse! @authenticatedAsTeacher
         internships(studentId: ID!): InternshipsResponse! @authenticatedAsTeacher
+        myInternships: InternshipsResponse! @authenticatedAsStudent
         jobSupervisors: JobSupervisorsResponse! @authenticatedAsTeacher
         jobSupervisorsByWorkplace(workplaceId: ID!): JobSupervisorsWithWorkplaceResponse! @authenticatedAsTeacher
         jobSupervisor(jobSupervisorId: ID!): JobSupervisorResponse! @authenticatedAsTeacher

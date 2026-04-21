@@ -65,6 +65,10 @@ router.get("/:id", parseId, async (req: RequestWithId, res, next) => {
       }
     })
 
+    if (!jobSupervisor) {
+      throw new HttpError(404, "Työpaikkaohjaajaa ei löytynyt")
+    }
+
     const parsedJobSupervisor = {
       id: jobSupervisor.users.id,
       firstName: jobSupervisor.users.firstName,
@@ -128,7 +132,7 @@ router.post("/", async (req, res, next) => {
       lastName,
       email,
       phoneNumber: phoneNumber || "",
-      oid: uuidv7(), //Needed only for fulfill database requirements
+      oid: uuidv7(),
       scope: enumUsersScope.JOB_SUPERVISOR
     }
 
@@ -158,14 +162,27 @@ router.post("/", async (req, res, next) => {
   }
 })
 
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id", parseId, async (req: RequestWithId, res, next) => {
   try {
-    const { id } = req.params
+    const parsedId = req.id
 
-    await prisma.user.delete({
-      where: {
-        id: Number(id)
-      }
+    await prisma.$transaction(async (tx) => {
+      await tx.internship.updateMany({
+        where: { jobSupervisorUserId: parsedId },
+        data: { jobSupervisorUserId: null }
+      })
+
+      await tx.jobSupervisor.delete({
+        where: {
+          userId: parsedId
+        }
+      })
+
+      await tx.user.delete({
+        where: {
+          id: parsedId
+        }
+      })
     })
 
     res.json({
@@ -179,30 +196,34 @@ router.delete("/:id", async (req, res, next) => {
 })
 
 router.put("/:id", parseId, async (req: RequestWithId, res, next) => {
-  const { jobSupervisor } = req.body
+  try {
+    const { jobSupervisor } = req.body
 
-  const missingFields = checkRequiredFields(jobSupervisor, ["firstName", "lastName", "email"])
+    const missingFields = checkRequiredFields(jobSupervisor, ["firstName", "lastName", "email"])
 
-  if (missingFields.length) {
-    throw new HttpError(400, `missing required fields: ${missingFields}`)
-  }
-
-  await prisma.user.update({
-    where: {
-      id: req.id
-    },
-    data: {
-      firstName: jobSupervisor.firstName,
-      lastName: jobSupervisor.lastName,
-      email: jobSupervisor.email,
-      phoneNumber: jobSupervisor.phoneNumber || ""
+    if (missingFields.length) {
+      throw new HttpError(400, `missing required fields: ${missingFields}`)
     }
-  })
 
-  res.json({
-    status: 200,
-    success: true,
-  })
+    await prisma.user.update({
+      where: {
+        id: req.id
+      },
+      data: {
+        firstName: jobSupervisor.firstName,
+        lastName: jobSupervisor.lastName,
+        email: jobSupervisor.email,
+        phoneNumber: jobSupervisor.phoneNumber || ""
+      }
+    })
+
+    res.json({
+      status: 200,
+      success: true,
+    })
+  } catch (error) {
+    next(error)
+  }
 })
 
 export const JobSupervisorRouter = router
