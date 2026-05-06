@@ -24,12 +24,10 @@ async function getPemCertificate(idToken) {
 
 const router = express.Router();
 
-// intended for basic ossi login, job supervisor scopes should be created in a seperate endpoint?
 router.post("/", async (req, res) => {
     try {
         const userData = await prisma.$transaction(async (transaction) => {
 
-            // Prisma ORM do not have table lock functionality built-in, so need use raw query
             await transaction.$queryRaw`LOCK TABLE "users" IN ACCESS EXCLUSIVE MODE`
 
             let idToken: IdTokenPayload;
@@ -44,7 +42,6 @@ router.post("/", async (req, res) => {
             const isUserInDatabase = await transaction.user.findFirst({ where: { oid: idToken.oid } }) != null;
             const userScope = idToken.upn.endsWith("@esedulainen.fi") ? enumUsersScope.STUDENT : enumUsersScope.TEACHER;
 
-            // create user and teacher or student rows for nonexistant user
             if (!isUserInDatabase) {
                 const createdUser = await transaction.user.create({
                     data: {
@@ -101,7 +98,6 @@ router.post("/", async (req, res) => {
 
             const user = await transaction.user.findFirst({ where: { oid: idToken.oid } });
 
-            //Need use findUnique because we do not have findByPk() in the Prisma ORM
             const profile = userScope == enumUsersScope.STUDENT
                 ? await transaction.student.findUnique({ where: { userId: user.id } })
                 : await transaction.teacher.findUnique({ where: { userId: user.id } });
@@ -119,12 +115,10 @@ router.post("/", async (req, res) => {
             return userData
         });
 
-        //If Prisma ORM rollback transaction and we do not have userData
         if (!userData) {
             throw new HttpError(400)
         }
 
-        // In Prisma ORM we do not need manually commit transaction, so we can return response
         res.json({
             status: 200,
             success: true,

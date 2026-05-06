@@ -1,8 +1,8 @@
-import express from 'express';
-import graphqlRouter from './controllers/graphql.js';
+import { createApp } from "./app.js";
+import { publisher, redisClient, subscriber } from "./redis-client.js";
 
-const app = express();
+const app = createApp({
+    readinessCheck: async () => redisClient.isOpen && publisher.isOpen && subscriber.isOpen
+});
 
-app.use('/graphql', graphqlRouter);
-
-app.listen(3000)
+app.listen(3000);

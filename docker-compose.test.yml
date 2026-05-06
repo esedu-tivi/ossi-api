@@ -28,8 +28,8 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
       interval: 2s
-      retries: 5
-      start_period: 1s
+      retries: 30
+      start_period: 5s
 
   db-migrations:
     extends:
@@ -40,6 +40,7 @@ services:
     depends_on:
       db-test:
         condition: service_healthy
+    restart: on-failure:5
     command: ["npm", "--workspace", "prisma-orm", "run", "start:test"]
 
 volumes:

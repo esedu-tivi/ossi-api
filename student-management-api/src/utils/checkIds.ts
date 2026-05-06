@@ -6,14 +6,12 @@ export enum NeededType {
 }
 
 export const checkIds = (ids: Record<string, string | number | string[]> | string[], type: NeededType) => {
-  // If ids is an array
   if (Array.isArray(ids) && ids.length) {
     if (!ids.every((id) => typeof id === type || (type === NeededType.NUMBER && typeof id === "string" && !Number.isNaN(Number(id))))) {
       throw new HttpError(400, `some field is not of expected '${type}' type`);
     }
 
   } else if (typeof ids === "object" && ids !== null) {
-    // If ids is an object
     for (const key in ids) {
       const value = ids[key];
 

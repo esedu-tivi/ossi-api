@@ -37,6 +37,14 @@ Tämä checklist on OSSI backendin tuotantojulkaisulle (`ossi2.esedu.fi`) mallil
 
 - [ ] Kontit ovat käynnissä:
   - `docker compose -f deploy/docker-compose.prod.yml ps`
+- [ ] Health endpointit vastaavat:
+  - `curl -fsS http://localhost:3000/health`
+  - `curl -fsS http://localhost:3001/health`
+  - `curl -fsS http://localhost:3002/health`
+- [ ] Readiness endpointit vastaavat:
+  - `curl -fsS http://localhost:3000/ready`
+  - `curl -fsS http://localhost:3001/ready`
+  - `curl -fsS http://localhost:3002/ready`
 - [ ] API gatewayn lokissa ei ole kriittisiä virheitä:
   - `docker compose -f deploy/docker-compose.prod.yml logs --tail=100 api-gateway`
 - [ ] Opiskelijahallinnan lokissa ei ole migraatio/runtime-virheitä:

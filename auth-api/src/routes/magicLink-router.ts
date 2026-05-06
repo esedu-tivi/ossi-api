@@ -46,19 +46,16 @@ router.post("/verify", async (req: Request, res: Response) => {
     if (tokenRecord.used) return res.status(400).json({ error: "Link already used" });
     if (new Date(tokenRecord.expiresAt) < new Date()) return res.status(400).json({ error: "Link expired" });
 
-    // hash and compare
     const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
     if (tokenHash !== tokenRecord.tokenHash) {
         return res.status(400).json({ error: "Invalid token" });
     }
 
-    // Mark as used
     await prisma.magicLinkToken.update({
         where: { id },
         data: { used: true },
     });
 
-    // create session
     const jwtToken = jwt.sign({}, process.env.JWT_SECRET_KEY ?? "", {
         expiresIn: "1d"
     })

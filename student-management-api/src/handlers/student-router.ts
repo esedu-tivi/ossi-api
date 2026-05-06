@@ -161,8 +161,6 @@ router.get("/:id/assigned_qualification_units", parseId, async (req: RequestWith
 })
 
 router.get("/:id/assigned_projects", parseId, async (req: RequestWithId, res) => {
-    //table assigned_projects_for_students
-
     const foundAssignedProjects = await prisma.assignedProjectsForStudent.findMany({
         where: { studentId: req.id },
         include: {
@@ -171,7 +169,6 @@ router.get("/:id/assigned_projects", parseId, async (req: RequestWithId, res) =>
         }
     })
 
-    //rename qualificationProjects to the parentProject
     const assignedProjects = foundAssignedProjects.map(({ qualificationProjects, ...rest }) => ({ ...rest, parentProject: qualificationProjects }))
 
     console.log("log from assigned_projects post ", { ...assignedProjects })
@@ -184,7 +181,6 @@ router.get("/:id/assigned_projects", parseId, async (req: RequestWithId, res) =>
 })
 
 router.get("/:id/single_assigned_project/:projectId", parseId, async (req: RequestWithId & { params: { projectId: any } }, res, next) => {
-    //table assigned_projects_for_students
     try {
         const projectId = req.params.projectId
         checkIds({ projectId }, NeededType.NUMBER)
@@ -253,7 +249,6 @@ router.post("/:id/qualification_title", parseId, async (req: RequestWithId, res,
             })
 
             if (student.qualificationTitleId) {
-                // revert previous title units
                 const previousTitleUnits = (await transaction.mandatoryQualificationUnitsForTitle.findMany({
                     where: {
                         titleId: student.qualificationTitleId
@@ -270,18 +265,6 @@ router.post("/:id/qualification_title", parseId, async (req: RequestWithId, res,
                 })
             }
 
-            // const titleUnits = await transaction.mandatoryQualificationUnitsForTitle.findMany({
-            //     where: { titleId: qualificationTitleId }
-            // })
-
-            // const qualificationUnitsToAssign = titleUnits.map(titleUnit => ({
-            //     studentId: req.id,
-            //     qualificationTitleId: titleUnit.unitId
-            // }))
-
-            // await transaction.assignedQualificationUnitsForStudent.createMany({
-            //     data: qualificationUnitsToAssign
-            // })
         })
 
         res.json({
@@ -296,7 +279,6 @@ router.post("/:id/qualification_title", parseId, async (req: RequestWithId, res,
 
 router.post("/assignProjectToStudent", async (req: RequestWithAssignProjectToStudentBody, res, next) => {
     try {
-        // console.log("assign to backend ", req.body.studentId, req.body.projectId)
         const { studentId, projectId } = req.body
 
         checkIds({ studentId, projectId }, NeededType.NUMBER)
@@ -359,7 +341,6 @@ router.post("/assignProjectToStudent", async (req: RequestWithAssignProjectToStu
         })
 
     } catch (error) {
-        // console.log("projectAssign error: ", error)
         next(error);
     }
 })
@@ -487,7 +468,6 @@ router.delete("/deleteWorktimeEntry", async (req, res, next) => {
 
 router.put("/updateStudentProject", async (req: RequestWithUpdateStudentProjectBody, res, next) => {
     try {
-        // console.log("updateProject: ", req.body)
         const { studentId, projectId, update } = req.body
 
         checkIds({ studentId, projectId }, NeededType.NUMBER)
@@ -570,13 +550,11 @@ router.put("/updateStudentProject", async (req: RequestWithUpdateStudentProjectB
 
         })
     } catch (error) {
-        // console.log("projectUpdate error: ", e)
         next(error)
     }
 })
 
 router.post("/:id/student_setup", parseId, async (req: StudentSetupWithIdRequest, res, next) => {
-    // console.log("setup test ", req.body, req.headers.authorization)
     try {
         const user = jwt.decode(req.headers.authorization) as DecodedJwtPayload;
         const { qualificationCompletion, qualificationId } = req.body;
@@ -595,8 +573,6 @@ router.post("/:id/student_setup", parseId, async (req: StudentSetupWithIdRequest
             if (user.isSetUp) {
                 throw new HttpError(401, "The student has already been set up.")
             }
-            // console.log("setup pre-student update ", qualificationCompletion, qualificationId, user.id)
-
             await prisma.$transaction(async (transaction) => {
                 await transaction.student.update({
                     where: { userId: userId },
@@ -606,7 +582,6 @@ router.post("/:id/student_setup", parseId, async (req: StudentSetupWithIdRequest
                     }
                 })
 
-                // assigning TVP for the new student, should make this more modular, if other vocations start using Ossi
                 if (qualificationCompletion === "FULL_COMPLETION") {
                     await transaction.assignedQualificationUnitsForStudent.create({
                         data: {
@@ -616,7 +591,6 @@ router.post("/:id/student_setup", parseId, async (req: StudentSetupWithIdRequest
                     })
                 }
 
-                // console.log("setup test pre-user update ")
                 await transaction.user.update({
                     where: { id: userId },
                     data: { isSetUp: true }

@@ -16,7 +16,6 @@ interface BasePartBody {
 const router = express();
 
 router.get("/", async (req, res, next) => {
-    // We don't need to use transactions in read-only operation
     const parts = await prisma.qualificationUnitPart.findMany()
 
     res.json({
