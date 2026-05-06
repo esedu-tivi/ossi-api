@@ -79,7 +79,6 @@ router.post("/:id/part_order", parseId, async (req: RequestWithPartOrder, res, n
 
         const partIds = partOrder.map(Number)
 
-        // Validate that all elements in partOrder are numbers
         if (partIds.includes(NaN) || partOrder.includes("")) {
             throw new HttpError(400, "partOrder contains non-numeric values")
         }

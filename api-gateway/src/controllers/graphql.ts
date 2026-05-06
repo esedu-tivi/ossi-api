@@ -90,7 +90,6 @@ const server = new ApolloServer<ApolloContext>({ schema });
                 }
             }
 
-            // todo
             return {
                 user: null,
                 dataSources: {

@@ -8,7 +8,7 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 import cors from 'cors';
 import { typeDefs } from './schema.js';
 import { resolvers } from './resolvers.js';
-import { publisher, subscriber } from './redis-client.js';
+import { publisher, redisClient, subscriber } from './redis-client.js';
 import { Message } from './models/message.js';
 import mongoose from 'mongoose';
 import { Conversation } from './models/conversation.js';
@@ -16,19 +16,33 @@ import { MessageDocument, ConversationDocument } from './types.js';
 import { getUserFromDatabase } from './resolvers.js';
 import { Types } from 'mongoose';
 
-// Connect to MongoDB
 mongoose.connect("mongodb://mongo:27017/messaging")
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-// Create Express app and HTTP server
 const app = express();
 const httpServer = createServer(app);
 
-// Create schema
+app.get("/health", (_req, res) => {
+  res.json({ ok: true, service: "messaging-server" });
+});
+
+app.get("/ready", (_req, res) => {
+  const isReady =
+    mongoose.connection.readyState === 1 &&
+    redisClient.isOpen &&
+    publisher.isOpen &&
+    subscriber.isOpen;
+
+  if (!isReady) {
+    return res.status(503).json({ ok: false, service: "messaging-server" });
+  }
+
+  return res.json({ ok: true, service: "messaging-server" });
+});
+
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 
-// Create Apollo Server
 const server = new ApolloServer({
   schema,
   plugins: [
@@ -60,7 +74,6 @@ app.use(
   }),
 );
 
-// Add error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
     console.error('Error:', err);
     const statusCode = err.statusCode || 500;
@@ -77,13 +90,11 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
     });
 });
 
-// Start the server
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}/graphql`);
 });
 
-// Kuunnellaan uusia viestejä API Gatewaylta
 subscriber.subscribe('new_message', async (message) => {
   try {
     const { conversationId, content, sender } = JSON.parse(message);
@@ -96,7 +107,6 @@ subscriber.subscribe('new_message', async (message) => {
       createdAt: new Date()
     });
 
-    // Update conversation's lastMessage
     await Conversation.findByIdAndUpdate(conversationId, {
       lastMessage: newMessage._id
     });
@@ -146,7 +156,6 @@ subscriber.subscribe('get_messages', async (message) => {
     try {
         const { conversationId, userEmail } = JSON.parse(message);
 
-        // Verify user is part of the conversation
         const conversation = await Conversation.findById(conversationId);
         if (!conversation || !conversation.participants.includes(userEmail)) {
             throw new Error('Not authorized to view these messages');

@@ -25,7 +25,6 @@ export const initialParts = [
   { unitOrderIndex: 6, name: 'Ohjelmointi Teema 3', description: 'Description', materials: '-', qualificationUnitId: 6816480 }
 ];
 
-// Define interfaces for the data structures
 interface QualificationData {
   units: any[];
   competenceRequirementGroups: any[];
@@ -49,7 +48,6 @@ export const writePartsAndProjectsTestBaseData = async (qualificationData: Quali
     await prisma.qualificationCompetenceRequirement.createMany({ data: qualificationData.competenceRequirements });
   }
 
-  // Delete all data from qualification_projects and qualification_unit_parts tables
   await prisma.$queryRawUnsafe(`TRUNCATE TABLE "qualification_projects" RESTART IDENTITY CASCADE`)
   await prisma.$queryRawUnsafe(`TRUNCATE TABLE "qualification_unit_parts" RESTART IDENTITY CASCADE`)
 
