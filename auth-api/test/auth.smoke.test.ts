@@ -19,6 +19,19 @@ test("auth readiness endpoint responds", async () => {
     assert.equal(response.body.service, "auth-api");
 });
 
+test("auth readiness returns 503 when dependency check fails", async () => {
+    const failingApi = supertest(
+        createApp({
+            readinessCheck: async () => false,
+        })
+    );
+
+    const response = await failingApi.get("/ready").expect(503);
+
+    assert.equal(response.body.ok, false);
+    assert.equal(response.body.service, "auth-api");
+});
+
 test("magic-link verify validation rejects empty payload", async () => {
     const response = await api.post("/auth/magic-link/verify").send({}).expect(400);
 

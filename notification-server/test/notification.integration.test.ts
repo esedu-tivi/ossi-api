@@ -95,3 +95,15 @@ test("notification readiness endpoint responds", async () => {
     assert.equal(response.body.ok, true);
     assert.equal(response.body.service, "notification-server");
 });
+
+test("notification readiness returns 503 when dependency check fails", async () => {
+    const failingApi = supertest(
+        createApp({
+            readinessCheck: async () => false,
+        })
+    );
+
+    const response = await failingApi.get("/ready").expect(503);
+    assert.equal(response.body.ok, false);
+    assert.equal(response.body.service, "notification-server");
+});

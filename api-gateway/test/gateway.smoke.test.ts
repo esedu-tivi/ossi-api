@@ -22,6 +22,20 @@ test("gateway readiness endpoint responds", async () => {
     assert.equal(response.body.service, "api-gateway");
 });
 
+test("gateway readiness returns 503 when dependency check fails", async () => {
+    process.env.NODE_ENV = "test";
+    const { createApp } = await import("../src/app.js");
+    const api = supertest(
+        createApp({
+            readinessCheck: async () => false,
+        })
+    );
+    const response = await api.get("/ready").expect(503);
+
+    assert.equal(response.body.ok, false);
+    assert.equal(response.body.service, "api-gateway");
+});
+
 test("graphql endpoint is mounted for POST requests", async () => {
     process.env.NODE_ENV = "test";
     const { createApp } = await import("../src/app.js");
