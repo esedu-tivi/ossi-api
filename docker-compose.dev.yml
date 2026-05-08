@@ -19,6 +19,9 @@ services:
       - 9231:9229
     volumes:
       - ./auth-api/src/:/usr/app/auth-api/src:ro
+    #sysctls:
+    #  - net.ipv6.conf.all.disable_ipv6=1
+    #  - net.ipv6.conf.default.disable_ipv6=1
 
   messaging-server:
     build: *build
@@ -37,7 +40,7 @@ services:
   student-management-api:
     build: *build
     ports:
-      - 9234:9229
+      - 127.0.0.1:19234:9229
     volumes:
       - ./student-management-api/src/:/usr/app/student-management-api/src:ro
       - ./student-management-api/test/:/usr/app/student-management-api/test:ro
@@ -54,5 +57,5 @@ services:
     environment:
       - DATABASE_URL=${DATABASE_URL}
     ports:
-      - 5555:5555
+      - 127.0.0.1:5555:5555
     command: ["npm", "--workspace", "prisma-orm", "run", "studio"]
