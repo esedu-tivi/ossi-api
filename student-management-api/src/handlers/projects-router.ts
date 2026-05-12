@@ -99,6 +99,13 @@ router.get("/:id", parseId, async (req: RequestWithId, res, next) => {
 router.get("/:id/linked_qualification_unit_parts", parseId, async (req: RequestWithId, res, next) => {
     try {
         const unitParts = await prisma.qualificationUnitPart.findMany({
+            where: {
+                projects: {
+                    some: {
+                        qualificationProjectId: req.id
+                    }
+                }
+            },
             include: {
                 projects: {
                     where: {
@@ -124,6 +131,7 @@ router.get("/:id/linked_qualification_unit_parts", parseId, async (req: RequestW
 });
 
 router.post("/", async (req, res, next) => {
+    console.log("req.body", req.body);
     try {
         const createdProject = await prisma.$transaction(async (transaction) => {
             const project: ProjectBody = req.body
