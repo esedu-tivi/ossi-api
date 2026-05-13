@@ -75,13 +75,35 @@ npm stop
 
 ## Testing
 
-Run test stack:
+### Student management end-to-end tests
+
+Run full test stack (PostgreSQL test DB + Prisma migrations + `student-management-api` tests):
 
 ```bash
 npm test
 ```
 
-This starts PostgreSQL test DB + Prisma migrations + `student-management-api` tests through `docker-compose.test.yml`.
+This uses `docker-compose.test.yml` to bring up the test database and run the existing REST tests.
+
+### Service-level smoke and integration tests
+
+Critical backend services also have lightweight smoke/integration tests that run directly against each workspace:
+
+- **auth-api**: health check + magic-link verify flow validation
+- **api-gateway**: health check + `/graphql` endpoint is mounted and responds
+- **messaging-server**: resolvers for user search and Prisma mapping
+- **notification-server**: HTTP notification creation + Redis subscriber persistence logic
+
+Run them from the `ossi-api` root:
+
+```bash
+npm test -w auth-api
+npm test -w api-gateway
+npm test -w messaging-server
+npm test -w notification-server
+```
+
+These tests are designed to avoid external infra dependencies (Docker, Redis, PostgreSQL, MongoDB) where possible, so they can be used as fast smoke tests locally and in CI.
 
 ## Database, Migrations and Seeding
 
@@ -104,6 +126,20 @@ npm run studio
 - Messaging GraphQL: `http://localhost:3002/graphql`
 - Prisma Studio (dev profile): `http://localhost:5555`
 - pgAdmin: `http://localhost:5433`
+
+## Health and Readiness Endpoints
+
+All backend services expose:
+
+- `GET /health`: process liveness check
+- `GET /ready`: dependency readiness check
+
+Readiness verifies critical dependencies per service:
+
+- `auth-api`: PostgreSQL via Prisma query
+- `api-gateway`: Redis client/pub/sub connection state
+- `messaging-server`: MongoDB + Redis connection state
+- `notification-server`: MongoDB + Redis connection state
 
 ## Environment Variables
 

@@ -13,7 +13,6 @@ beforeEach(async () => {
   const qualificationData = await getExternalQualificationData(7861752);
   await writePartsAndProjectsTestBaseData(qualificationData)
 
-  //await QualificationProjectTag.truncate({ cascade: true });
   await prisma.$queryRawUnsafe(`TRUNCATE TABLE "qualification_project_tags" RESTART IDENTITY CASCADE`)
   await prisma.qualificationProjectTag.createMany({ data: initialProjectTags });
 

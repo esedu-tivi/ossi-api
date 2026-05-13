@@ -6,7 +6,8 @@
     "scripts": {
         "build": "tsc",
         "dev": "tsx watch --inspect=0.0.0.0:9229 src/index.ts",
-        "start": "node ./dist/index.js"
+        "start": "node ./dist/index.js",
+        "test": "node --import tsx --test test/*.test.ts"
     },
     "devDependencies": {
         "@graphql-tools/utils": "^10.8.6",
@@ -16,6 +17,8 @@
         "@types/jsonwebtoken": "^9.0.7",
         "@types/mongoose": "^5.11.97",
         "@types/node": "^24.6.2",
+        "@types/supertest": "^6.0.2",
+        "supertest": "^7.1.4",
         "tsx": "^4.20.6",
         "typescript": "^5.8.3"
     },

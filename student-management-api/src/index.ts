@@ -5,8 +5,6 @@ import { redisPublisher } from './redis.js';
 import prisma from 'prisma-orm';
 
 const main = async () => {
-    // we can presume qualification data from ePeruste is not yet, if there are no units in db
-
     if (await prisma.qualificationUnit.count() === 0) {
         const qualificationData = await getExternalQualificationData(7861752);
 

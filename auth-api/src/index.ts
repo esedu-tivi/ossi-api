@@ -1,19 +1,15 @@
 import "dotenv";
-
-import express from "express";
-import { AuthRouter } from "./routes/auth-router.js";
-import { MagicLinkRouter } from "./routes/magicLink-router.js";
-
-const app = express();
-app.use(express.json());
+import prisma from "prisma-orm";
+import { createApp } from "./app.js";
 
 const PORT = 3000;
-
-
-app.use("/login", AuthRouter)
-app.use("/auth/magic-link", MagicLinkRouter)
-
+const app = createApp({
+    readinessCheck: async () => {
+        await prisma.$queryRawUnsafe("SELECT 1");
+        return true;
+    }
+});
 
 app.listen(PORT, () => {
-    console.log(`auth-api running on port ${PORT}`)
+    console.log(`auth-api running on port ${PORT}`);
 });

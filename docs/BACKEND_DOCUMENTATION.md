@@ -88,6 +88,8 @@ Implementation files:
 
 Service root is internal container URL `http://auth-api:3000`.
 
+- `GET /health`
+- `GET /ready`
 - `POST /login`
 - `POST /auth/magic-link/request`
 - `POST /auth/magic-link/verify`
@@ -101,6 +103,11 @@ Implementation:
 
 Base URL (host): `http://localhost:3001/notifications`
 
+Service liveness/readiness endpoints:
+
+- `GET /health`
+- `GET /ready`
+
 Routes in `notification-server/src/handlers/notification-router.ts`:
 
 - `GET /notifications`
@@ -112,6 +119,11 @@ Routes in `notification-server/src/handlers/notification-router.ts`:
 ### 5) Messaging Server
 
 Base URL (host): `http://localhost:3002/graphql`
+
+Service liveness/readiness endpoints:
+
+- `GET /health`
+- `GET /ready`
 
 - GraphQL schema: `messaging-server/src/schema.ts`
 - Resolvers: `messaging-server/src/resolvers.ts`
@@ -170,8 +182,13 @@ Core variables:
 1. `npm install`
 2. `npm --workspace=prisma-orm run build`
 3. `npm run dev`
-4. run tests with `npm test`
-5. stop stack with `npm stop`
+4. run student-management test stack with `npm test`
+5. run service smoke/integration tests:
+   - `npm test -w auth-api`
+   - `npm test -w api-gateway`
+   - `npm test -w messaging-server`
+   - `npm test -w notification-server`
+6. stop stack with `npm stop`
 
 ## Production Deployment Workflow
 

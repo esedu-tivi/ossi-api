@@ -13,8 +13,6 @@ interface ApolloContext {
     user: UserContext | null,
     dataSources: {
         studentManagementAPI: StudentManagementAPI,
-//        activityAPI: ActivityAPI,
-//        authAPI: AuthAPI,
     },
     token: string
 }
