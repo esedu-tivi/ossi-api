@@ -171,3 +171,5 @@ Server-side deployment steps are documented in [docs/BACKEND_DOCUMENTATION.md](.
 
 Release checklist: [docs/RELEASE_CHECKLIST.md](./docs/RELEASE_CHECKLIST.md).
 Developer onboarding: [docs/DEVELOPER_ONBOARDING.md](./docs/DEVELOPER_ONBOARDING.md).
+ER diagram: [docs/ER_DIAGRAM.md](./docs/ER_DIAGRAM.md).
+Prioritized backlog: [docs/BACKLOG.md](./docs/BACKLOG.md).
