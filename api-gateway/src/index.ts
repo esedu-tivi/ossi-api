@@ -1,3 +1,4 @@
+import "./env-bootstrap.js";
 import { createApp } from "./app.js";
 import { publisher, redisClient, subscriber } from "./redis-client.js";
 

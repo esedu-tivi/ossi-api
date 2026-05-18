@@ -33,6 +33,10 @@
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./validate-env": {
+      "import": "./dist/validate-env.js",
+      "types": "./dist/validate-env.d.ts"
     }
   }
 }
