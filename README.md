@@ -42,7 +42,9 @@ npm run dev
 ```
 
 ## Runtime Modes
-
+> ⚠️ `docker-compose.yml` and `docker-compose.dev.yml` are for **local development only**.
+> Never use them on a server or any publicly reachable machine.
+> On the server, use only `deploy/docker-compose.prod.yml`. See [SECURITY.md](./SECURITY.md).
 ### Development mode
 
 ```bash
