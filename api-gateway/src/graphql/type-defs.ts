@@ -909,9 +909,6 @@ const newLocal = `#graphql
         createWorktimeEntry(studentId:ID! , projectId:ID!, entry: StudentWorktimeInput): WorktimeEntryResponse @authenticated
         deleteWorktimeEntry(id:ID!): WorktimeEntryResponse @authenticated
         markNotificationAsRead(id: ID!): MarkNotificationAsReadResponse! @authenticated
-        
-        # remove once not needed
-        debugSendNotification(recipients: [ID!]!, notification: String!): Int!
 
         createConversation(participantIds: [ID!]!): Conversation!
         sendMessage(conversationId: ID!, content: String!): Message!
