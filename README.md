@@ -23,19 +23,25 @@ See detailed architecture and endpoint map in [docs/BACKEND_DOCUMENTATION.md](./
 
 ## Quick Start
 
-1. Install dependencies:
+1. Create your local environment file:
+
+```bash
+cp .env.example .env
+```
+
+2. Install dependencies:
 
 ```bash
 npm install
 ```
 
-2. Build Prisma client package once before first local development run:
+3. Build Prisma client package once before first local development run:
 
 ```bash
 npm --workspace=prisma-orm run build
 ```
 
-3. Start services in development mode:
+4. Start services in development mode:
 
 ```bash
 npm run dev
