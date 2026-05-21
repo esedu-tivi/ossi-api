@@ -1,6 +1,6 @@
-# Opettajanäkymä – backend-demo (XP + kirjautumislogit)
+# ope pov
 
-Nopea demo opettajan näkymälle: oppilaat opettajan ryhmistä, XP-pisteet ja kirjautumisajat.
+Nopee demo opettajan näkymälle: oppilaat opettajan ryhmistä XP-pisteet ja kirjautumisajat.
 
 ## Muutokset
 
@@ -8,25 +8,9 @@ Nopea demo opettajan näkymälle: oppilaat opettajan ryhmistä, XP-pisteet ja ki
 - `student_login_logs` – kirjautumisaika tallennetaan `auth-api` loginissa (vain opiskelijat)
 - `GET /teachers/:teacherUserId/students-overview` – opettajan oppilaslista
 
-## Käynnistys
 
-```bash
-cd ossi-api
-npm install
-npm --workspace=prisma-orm run build
-npm run dev
-```
-
-Migraatio ajetaan dev-profiilissa automaattisesti. Uudelleenkäynnistyksen jälkeen Prisma-client päivittyy.
-
-## Testaus (suoraan student-management-api)
-
-Kontissa (tai port-forward): `http://student-management-api:3000`
-
-```bash
 # Opettajan user id (esim. seedistä tai tietokannasta)
 curl http://localhost:3004/teachers/2/students-overview
-```
 
 Vastaus:
 
@@ -37,9 +21,9 @@ Vastaus:
   "students": [
     {
       "id": 5,
-      "firstName": "Matti",
-      "lastName": "Meikäläinen",
-      "email": "matti@esedulainen.fi",
+      "firstName": "dev",
+      "lastName": "devaaja",
+      "email": "dev@esedulainen.fi",
       "groupId": "TVT24A",
       "xp": 120,
       "lastLoginAt": "2026-05-21T07:15:00.000Z",
@@ -57,6 +41,6 @@ Oppilaat lajitellaan viimeisimmän kirjautumisen mukaan (uusin ensin).
 
 Jokainen onnistunut opiskelijan login (`POST` auth-api `/login`) luo rivin `student_login_logs`-tauluun.
 
-## Huomio frontille
+##frontille
 
-Tämä on vain REST-demo student-management-api:ssa. Front voi kutsua gatewayn kautta kun GraphQL-kenttä lisätään myöhemmin.
+Tää on demo student-management-api:ssa front voi kutsua gatewayn kautta kun GraphQL-kenttä lisätään myöhemmin.

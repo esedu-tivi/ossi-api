@@ -1,4 +1,3 @@
--- XP + kirjautumislogit opettajanäkymän demoa varten
 ALTER TABLE "students" ADD COLUMN "xp" INTEGER NOT NULL DEFAULT 0;
 
 CREATE TABLE "student_login_logs" (

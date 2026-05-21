@@ -12,7 +12,6 @@ interface RequestWithIdAndProjectId extends RequestWithId {
     }
 }
 
-/** Opettajanäkymä-demo: oppilaat + XP + kirjautumislogit (lajittelu viimeisimmän kirjautumisen mukaan). */
 router.get("/:id/students-overview", parseId, async (req: RequestWithId, res, next) => {
     try {
         const teacherData = await prisma.teacher.findUnique({
