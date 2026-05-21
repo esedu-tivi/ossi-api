@@ -101,6 +101,12 @@ router.post("/", async (req, res) => {
 
             const user = await transaction.user.findFirst({ where: { oid: idToken.oid } });
 
+            if (userScope === enumUsersScope.STUDENT) {
+                await transaction.studentLoginLog.create({
+                    data: { userId: user.id }
+                });
+            }
+
             //Need use findUnique because we do not have findByPk() in the Prisma ORM
             const profile = userScope == enumUsersScope.STUDENT
                 ? await transaction.student.findUnique({ where: { userId: user.id } })

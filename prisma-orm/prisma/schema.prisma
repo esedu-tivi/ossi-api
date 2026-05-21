@@ -196,6 +196,7 @@ model Student {
   qualificationTitleId                  Int?                                  @map("qualification_title_id")
   qualificationId                       Int?                                  @map("qualification_id")
   qualificationCompletion               enumStudentsQualificationCompletion?  @map("qualification_completion")
+  xp                                    Int                                   @default(0)
   assignedQualificationUnitsForStudents AssignedQualificationUnitsForStudent?
   assignedProjectsForStudent            AssignedProjectsForStudent[]
   users                                 User                                  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -204,6 +205,16 @@ model Student {
   internships                           Internship[]
 
   @@map("students")
+}
+
+model StudentLoginLog {
+  id         Int      @id @default(autoincrement())
+  userId     Int      @map("user_id")
+  loggedInAt DateTime @default(now()) @map("logged_in_at") @db.Timestamptz(6)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([userId, loggedInAt(sort: Desc)])
+  @@map("student_login_logs")
 }
 
 model StudentGroup {
@@ -238,18 +249,19 @@ model Teacher {
 }
 
 model User {
-  id             Int            @id @default(autoincrement())
-  firstName      String         @map("first_name") @db.VarChar(128)
-  lastName       String         @map("last_name") @db.VarChar(128)
-  email          String         @unique @db.VarChar(128)
-  phoneNumber    String         @map("phone_number") @db.VarChar(128)
+  id             Int               @id @default(autoincrement())
+  firstName      String            @map("first_name") @db.VarChar(128)
+  lastName       String            @map("last_name") @db.VarChar(128)
+  email          String            @unique @db.VarChar(128)
+  phoneNumber    String            @map("phone_number") @db.VarChar(128)
   scope          enumUsersScope
-  archived       Boolean?       @default(false)
-  oid            String         @unique @db.Uuid
-  isSetUp        Boolean        @default(false) @map("is_set_up")
+  archived       Boolean?          @default(false)
+  oid            String            @unique @db.Uuid
+  isSetUp        Boolean           @default(false) @map("is_set_up")
   jobSupervisors JobSupervisor?
   students       Student?
   teachers       Teacher?
+  loginLogs      StudentLoginLog[]
 
   @@map("users")
 }
