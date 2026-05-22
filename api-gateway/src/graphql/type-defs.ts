@@ -868,10 +868,10 @@ const newLocal = `#graphql
         notifications: NotificationsResponse! @authenticated
         notification(id: ID!): NotificationResponse! @authenticated
         unreadNotificationCount: UnreadNotificationCountResponse! @authenticated 
-        conversations: [Conversation!]!
-        conversation(id: ID!): Conversation
-        messages(conversationId: ID!): [Message!]!
-        searchUsers(query: String!): [User!]!
+        conversations: [Conversation!]! @authenticated
+        conversation(id: ID!): Conversation @authenticated
+        messages(conversationId: ID!): [Message!]! @authenticated
+        searchUsers(query: String!): [User!]! @authenticated
         workplaces: WorkplacesResponse! @authenticatedAsTeacher
         workplace(id: ID!): WorkplaceResponse! @authenticatedAsTeacher
         internships(studentId: ID!): InternshipsResponse! @authenticatedAsTeacher
@@ -910,9 +910,9 @@ const newLocal = `#graphql
         deleteWorktimeEntry(id:ID!): WorktimeEntryResponse @authenticated
         markNotificationAsRead(id: ID!): MarkNotificationAsReadResponse! @authenticated
 
-        createConversation(participantIds: [ID!]!): Conversation!
-        sendMessage(conversationId: ID!, content: String!): Message!
-        markMessageAsRead(messageId: ID!): Message!
+        createConversation(participantIds: [ID!]!): Conversation! @authenticated
+        sendMessage(conversationId: ID!, content: String!): Message! @authenticated
+        markMessageAsRead(messageId: ID!): Message! @authenticated
 
         assignTeachingProject(userId: ID!, projectId: ID!): AssignTeachingProjectResponse @authenticatedAsTeacher
         unassignTeachingProject(userId: ID!, projectId: ID!): UnassignTeachingProjectResponse @authenticatedAsTeacher
