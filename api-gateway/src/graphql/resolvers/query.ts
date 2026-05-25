@@ -150,6 +150,17 @@ const teachingQualificationUnits: Resolver<null, { teacherId: number }> = async 
     return await context.dataSources.studentManagementAPI.getTeachingQualificationUnits(args.teacherId);
 }
 
+const assignedStudentsSortMap: Record<string, string> = {
+    LAST_LOGIN: "lastLogin",
+    NAME: "name",
+    XP: "xp",
+};
+
+const assignedStudents: Resolver<null, { teacherId: number; sortBy?: string }> = async (_, args, context) => {
+    const sortBy = args.sortBy ? assignedStudentsSortMap[args.sortBy] : undefined;
+    return await context.dataSources.studentManagementAPI.getAssignedStudents(args.teacherId, sortBy);
+};
+
 export const Query = {
     me,
     amISetUp,
@@ -168,6 +179,7 @@ export const Query = {
     conversations,
     assignedTeachingProjects,
     assignedStudentGroups,
+    assignedStudents,
     assignedTags,
     teachingQualificationUnits
 }

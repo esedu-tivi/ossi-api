@@ -51,6 +51,7 @@ interface ParsedStudent {
     qualificationTitleId: number | null;
     qualificationId: number | null;
     qualificationCompletion: enumStudentsQualificationCompletion;
+    xp: number;
 }
 
 type StudentWithUserAndGroup = Student & { users: User, group: StudentGroup };
@@ -63,6 +64,7 @@ const parseStudent = (student: StudentWithUserAndGroup): ParsedStudent | null =>
         qualificationTitleId: student.qualificationTitleId,
         qualificationId: student.qualificationId,
         qualificationCompletion: student.qualificationCompletion,
+        xp: student.xp,
     };
 
     return returnStudent || null;

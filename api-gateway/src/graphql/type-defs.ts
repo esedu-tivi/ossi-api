@@ -158,6 +158,7 @@ const newLocal = `#graphql
         email: String!
         archived: Boolean!
         groupId: String!
+        xp: Int!
         qualificationCompletion: QualificationCompletion
         studyingQualification: Qualification
         studyingQualificationTitle: QualificationTitle
@@ -596,6 +597,34 @@ const newLocal = `#graphql
         studentGroups: [StudentGroup]!
     }
 
+    type LoginLog {
+        id: ID!
+        loggedInAt: String!
+    }
+
+    type AssignedStudent {
+        id: ID!
+        firstName: String!
+        lastName: String!
+        email: String!
+        groupId: String!
+        xp: Int!
+        lastLoginAt: String
+        loginLogs: [LoginLog!]!
+    }
+
+    enum AssignedStudentsSort {
+        LAST_LOGIN
+        NAME
+        XP
+    }
+
+    type AssignedStudentsResponse {
+        success: Boolean!
+        status: Int!
+        students: [AssignedStudent!]!
+    }
+
     type AssignStudentGroupsResponse {
         success: Boolean!
         status: Int!
@@ -880,6 +909,7 @@ const newLocal = `#graphql
         jobSupervisor(jobSupervisorId: ID!): JobSupervisorResponse! @authenticatedAsTeacher
         assignedTeachingProjects(teacherId: ID!): AssignedTeachingProjectsResponse! @authenticatedAsTeacher
         assignedStudentGroups(teacherId: ID!): AssignedStudentGroupsResponse! @authenticatedAsTeacher
+        assignedStudents(teacherId: ID!, sortBy: AssignedStudentsSort): AssignedStudentsResponse! @authenticatedAsTeacher
         teachingQualificationUnits(teacherId: ID!): TeachingQualificationUnitsResponse! @authenticatedAsTeacher
     }
 

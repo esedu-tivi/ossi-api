@@ -72,6 +72,7 @@ Implementation files:
 
 - students: `student-management-api/src/handlers/student-router.ts`
 - teachers: `student-management-api/src/handlers/teacher-router.ts`
+  - `GET /teachers/:id/assignedStudents?sortBy=lastLogin|name|xp`
 - qualifications/titles/units/parts/projects/tags:
   - `student-management-api/src/handlers/qualification-router.ts`
   - `student-management-api/src/handlers/titles-router.ts`

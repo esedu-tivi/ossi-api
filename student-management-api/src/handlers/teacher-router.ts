@@ -3,7 +3,10 @@ import { parseId } from "../utils/middleware.js";
 import prisma from "prisma-orm";
 import { type RequestWithId } from "../types.js";
 import { checkIds, NeededType } from "../utils/checkIds.js";
-import { HttpError } from "../classes/HttpError.js";
+import {
+    getAssignedStudentsForTeacher,
+    parseAssignedStudentsSort
+} from "../services/teacher-assigned-students.js";
 const router = express.Router();
 
 interface RequestWithIdAndProjectId extends RequestWithId {
@@ -12,75 +15,10 @@ interface RequestWithIdAndProjectId extends RequestWithId {
     }
 }
 
-router.get("/:id/students-overview", parseId, async (req: RequestWithId, res, next) => {
+router.get("/:id/assignedStudents", parseId, async (req: RequestWithId, res, next) => {
     try {
-        const teacherData = await prisma.teacher.findUnique({
-            where: { userId: req.id },
-            select: {
-                studentGroups: {
-                    select: {
-                        groupName: true,
-                        students: {
-                            include: {
-                                users: {
-                                    include: {
-                                        loginLogs: {
-                                            orderBy: { loggedInAt: "desc" },
-                                            take: 20,
-                                            select: { id: true, loggedInAt: true }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        });
-
-        if (!teacherData) {
-            throw new HttpError(404, "Teacher not found");
-        }
-
-        const seen = new Set<number>();
-        const students: {
-            id: number;
-            firstName: string;
-            lastName: string;
-            email: string;
-            groupId: string;
-            xp: number;
-            lastLoginAt: Date | null;
-            loginLogs: { id: number; loggedInAt: Date }[];
-        }[] = [];
-
-        for (const group of teacherData.studentGroups) {
-            for (const student of group.students) {
-                if (seen.has(student.userId)) {
-                    continue;
-                }
-                seen.add(student.userId);
-
-                const lastLogin = student.users.loginLogs[0]?.loggedInAt ?? null;
-
-                students.push({
-                    id: student.userId,
-                    firstName: student.users.firstName,
-                    lastName: student.users.lastName,
-                    email: student.users.email,
-                    groupId: group.groupName,
-                    xp: student.xp,
-                    lastLoginAt: lastLogin,
-                    loginLogs: student.users.loginLogs
-                });
-            }
-        }
-
-        students.sort((a, b) => {
-            const aTime = a.lastLoginAt ? new Date(a.lastLoginAt).getTime() : 0;
-            const bTime = b.lastLoginAt ? new Date(b.lastLoginAt).getTime() : 0;
-            return bTime - aTime;
-        });
+        const sortBy = parseAssignedStudentsSort(req.query.sortBy);
+        const students = await getAssignedStudentsForTeacher(req.id, sortBy);
 
         res.json({
             status: 200,

@@ -5,6 +5,8 @@ services:
       target: dev
       context: .
       dockerfile: ./docker/prismadep.Dockerfile
+      args:
+        SERVICE_NAME: student-management-api
       additional_contexts:
         - prisma-orm=service:db-migrations
     depends_on:

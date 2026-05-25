@@ -272,6 +272,13 @@ class StudentManagementAPI extends RESTDataSource {
         )
     }
 
+    async getAssignedStudents(teacherId, sortBy?: string) {
+        const query = sortBy ? `?sortBy=${encodeURIComponent(sortBy)}` : "";
+        return this.get(
+            this.baseURL + `/teachers/${teacherId}/assignedStudents${query}`
+        );
+    }
+
     async assignStudentGroups(args) {
         return this.post(
             process.env.INTERNAL_STUDENT_MANAGEMENT_API_URL + `/teachers/${args.userId}/assignStudentGroups`, { body: args }
