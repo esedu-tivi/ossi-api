@@ -602,6 +602,13 @@ const newLocal = `#graphql
         loggedInAt: String!
     }
 
+    type WorktimeLog {
+        id: ID!
+        projectId: ID!
+        durationMinutes: Int!
+        recordedAt: String!
+    }
+
     type AssignedStudent {
         id: ID!
         firstName: String!
@@ -611,6 +618,8 @@ const newLocal = `#graphql
         xp: Int!
         lastLoginAt: String
         loginLogs: [LoginLog!]!
+        totalWorktimeMinutes: Int!
+        worktimeLogs: [WorktimeLog!]!
     }
 
     enum AssignedStudentsSort {

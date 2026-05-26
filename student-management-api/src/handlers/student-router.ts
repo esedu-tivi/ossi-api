@@ -8,6 +8,7 @@ import { HttpError } from "../classes/HttpError.js";
 import { checkRequiredFields } from "../utils/checkRequiredFields.js";
 import { checkIds, NeededType } from "../utils/checkIds.js";
 import { redisPublisher } from "../redis.js";
+import { recordStudentWorktimeLog } from "../services/worktime-duration.js";
 
 const router = express.Router();
 
@@ -449,6 +450,14 @@ router.post("/createWorktimeEntry", async (req, res, next) => {
                 endDate: data.entry.endDate,
                 description: data.entry.description,
             }
+        })
+
+        await recordStudentWorktimeLog({
+            userId: parsedStudentId,
+            projectId: parsedProjectId,
+            worktimeEntryId: newEntry.id,
+            startDate: newEntry.startDate,
+            endDate: newEntry.endDate
         })
 
         res.json({

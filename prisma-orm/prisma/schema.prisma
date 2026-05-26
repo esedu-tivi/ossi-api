@@ -186,8 +186,23 @@ model WorktimeEntries {
   endDate                    DateTime                    @map("end_date") @db.Timestamptz(6)
   description                String?
   AssignedProjectsForStudent AssignedProjectsForStudent? @relation(fields: [studentId, projectId], references: [studentId, projectId], onDelete: Cascade)
+  worktimeLog                StudentWorktimeLog?
 
   @@map("student_worktime_tracker")
+}
+
+model StudentWorktimeLog {
+  id              Int             @id @default(autoincrement())
+  userId          Int             @map("user_id")
+  projectId       Int             @map("project_id")
+  worktimeEntryId Int             @unique @map("worktime_entry_id")
+  durationMinutes Int             @map("duration_minutes")
+  recordedAt      DateTime        @default(now()) @map("recorded_at") @db.Timestamptz(6)
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  worktimeEntry   WorktimeEntries @relation(fields: [worktimeEntryId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([userId, recordedAt(sort: Desc)])
+  @@map("student_worktime_logs")
 }
 
 model Student {
@@ -262,6 +277,7 @@ model User {
   students       Student?
   teachers       Teacher?
   loginLogs      StudentLoginLog[]
+  worktimeLogs   StudentWorktimeLog[]
 
   @@map("users")
 }
