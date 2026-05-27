@@ -27,6 +27,7 @@
   },
   "include": [
     "index.ts",
+    "validate-env.ts",
     "prisma/**/*.ts",
     "generated/**/*.ts",
     "prisma.config.ts"

@@ -1,4 +1,4 @@
-import "dotenv";
+import "./env-bootstrap.js";
 import prisma from "prisma-orm";
 import { createApp } from "./app.js";
 

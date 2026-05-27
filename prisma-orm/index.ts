@@ -1,12 +1,15 @@
-import "dotenv"
 import { PrismaClient } from "./generated/prisma/client.js";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { assertRequiredEnv } from "./validate-env.js";
 
-const DATABASE_URL = process.env.NODE_ENV === "test"
-  ? process.env.DATABASE_URL_TEST
-  : process.env.DATABASE_URL
+const dbUrlKey = process.env.NODE_ENV === "test" ? "DATABASE_URL_TEST" : "DATABASE_URL";
+assertRequiredEnv("prisma-orm", [dbUrlKey]);
 
-const adapter = new PrismaPg({ connectionString: DATABASE_URL })
+const DATABASE_URL = (
+    process.env.NODE_ENV === "test" ? process.env.DATABASE_URL_TEST : process.env.DATABASE_URL
+)!;
+
+const adapter = new PrismaPg({ connectionString: DATABASE_URL });
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient;

@@ -1,5 +1,6 @@
 import path from "path"
 import { defineConfig } from "prisma/config";
+import { resolveDatabaseUrl } from "./validate-env.js";
 
 export default defineConfig({
   schema: path.join("prisma", "schema.prisma"),
@@ -8,6 +9,6 @@ export default defineConfig({
     seed: "tsx prisma/seed.ts",
   },
   datasource: {
-    url: process.env.DATABASE_URL!,
+    url: resolveDatabaseUrl(),
   }
 })
