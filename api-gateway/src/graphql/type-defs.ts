@@ -868,10 +868,10 @@ const newLocal = `#graphql
         notifications: NotificationsResponse! @authenticated
         notification(id: ID!): NotificationResponse! @authenticated
         unreadNotificationCount: UnreadNotificationCountResponse! @authenticated 
-        conversations: [Conversation!]!
-        conversation(id: ID!): Conversation
-        messages(conversationId: ID!): [Message!]!
-        searchUsers(query: String!): [User!]!
+        conversations: [Conversation!]! @authenticated
+        conversation(id: ID!): Conversation @authenticated
+        messages(conversationId: ID!): [Message!]! @authenticated
+        searchUsers(query: String!): [User!]! @authenticated
         workplaces: WorkplacesResponse! @authenticatedAsTeacher
         workplace(id: ID!): WorkplaceResponse! @authenticatedAsTeacher
         internships(studentId: ID!): InternshipsResponse! @authenticatedAsTeacher
@@ -892,7 +892,7 @@ const newLocal = `#graphql
         # after performing this mutation a new token should be generated
         setUpStudent(studentId: ID!, studentSetupInput: StudentSetupInput!): SetUpStudentResponse! @authenticatedAsStudent
 
-        requestMagicLink(email: String!): MagicLinkRequestResponse!
+        requestMagicLink(email: String!): MagicLinkRequestResponse! @authenticatedAsTeacher
         verifyMagicLink(id: ID!, token: String!): MagicLinkVerifyResponse!
 
         createProject(project: CreateProjectInput!): CreateProjectResponse! @authenticatedAsTeacher
@@ -909,13 +909,10 @@ const newLocal = `#graphql
         createWorktimeEntry(studentId:ID! , projectId:ID!, entry: StudentWorktimeInput): WorktimeEntryResponse @authenticated
         deleteWorktimeEntry(id:ID!): WorktimeEntryResponse @authenticated
         markNotificationAsRead(id: ID!): MarkNotificationAsReadResponse! @authenticated
-        
-        # remove once not needed
-        debugSendNotification(recipients: [ID!]!, notification: String!): Int!
 
-        createConversation(participantIds: [ID!]!): Conversation!
-        sendMessage(conversationId: ID!, content: String!): Message!
-        markMessageAsRead(messageId: ID!): Message!
+        createConversation(participantIds: [ID!]!): Conversation! @authenticated
+        sendMessage(conversationId: ID!, content: String!): Message! @authenticated
+        markMessageAsRead(messageId: ID!): Message! @authenticated
 
         assignTeachingProject(userId: ID!, projectId: ID!): AssignTeachingProjectResponse @authenticatedAsTeacher
         unassignTeachingProject(userId: ID!, projectId: ID!): UnassignTeachingProjectResponse @authenticatedAsTeacher

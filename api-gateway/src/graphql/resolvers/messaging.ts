@@ -6,7 +6,6 @@ import { type ApolloContext } from '../context.js';
 const messagingPubSub = new PubSub();
 let redisSubscriptionInitialized = false;
 
-// Initialize Redis subscription once
 const initializeRedisSubscription = () => {
     if (!redisSubscriptionInitialized) {
         subscriber.subscribe('message_received', (message) => {
@@ -27,12 +26,10 @@ export const MessagingResolvers = {
                     return [];
                 }
 
-                // Publish request for conversations
                 await publisher.publish('get_conversations', JSON.stringify({
                     userEmail: context.user.email
                 }));
 
-                // Wait for response
                 return new Promise((resolve, reject) => {
                     const timeout = setTimeout(() => {
                         reject(new Error('Conversations fetch timeout'));
@@ -55,13 +52,11 @@ export const MessagingResolvers = {
                     return [];
                 }
 
-                // Publish request for messages
                 await publisher.publish('get_messages', JSON.stringify({
                     conversationId,
                     userEmail: context.user.email
                 }));
 
-                // Wait for response
                 return new Promise((resolve, reject) => {
                     const timeout = setTimeout(() => {
                         reject(new Error('Messages fetch timeout'));
@@ -156,14 +151,12 @@ export const MessagingResolvers = {
                     throw new Error('User not authenticated');
                 }
 
-                // Publish message to Redis for messaging server to process
                 await publisher.publish('new_message', JSON.stringify({
                     conversationId,
                     content,
                     sender: context.user
                 }));
 
-                // Wait for response from messaging server
                 return new Promise((resolve, reject) => {
                     const timeout = setTimeout(() => {
                         reject(new Error('Message sending timeout'));

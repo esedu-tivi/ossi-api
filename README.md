@@ -23,26 +23,34 @@ See detailed architecture and endpoint map in [docs/BACKEND_DOCUMENTATION.md](./
 
 ## Quick Start
 
-1. Install dependencies:
+1. Create your local environment file:
+
+```bash
+cp .env.example .env
+```
+
+2. Install dependencies:
 
 ```bash
 npm install
 ```
 
-2. Build Prisma client package once before first local development run:
+3. Build Prisma client package once before first local development run:
 
 ```bash
 npm --workspace=prisma-orm run build
 ```
 
-3. Start services in development mode:
+4. Start services in development mode:
 
 ```bash
 npm run dev
 ```
 
 ## Runtime Modes
-
+> ⚠️ `docker-compose.yml` and `docker-compose.dev.yml` are for **local development only**.
+> Never use them on a server or any publicly reachable machine.
+> On the server, use only `deploy/docker-compose.prod.yml`. See [SECURITY.md](./SECURITY.md).
 ### Development mode
 
 ```bash
@@ -75,13 +83,35 @@ npm stop
 
 ## Testing
 
-Run test stack:
+### Student management end-to-end tests
+
+Run full test stack (PostgreSQL test DB + Prisma migrations + `student-management-api` tests):
 
 ```bash
 npm test
 ```
 
-This starts PostgreSQL test DB + Prisma migrations + `student-management-api` tests through `docker-compose.test.yml`.
+This uses `docker-compose.test.yml` to bring up the test database and run the existing REST tests.
+
+### Service-level smoke and integration tests
+
+Critical backend services also have lightweight smoke/integration tests that run directly against each workspace:
+
+- **auth-api**: health check + magic-link verify flow validation
+- **api-gateway**: health check + `/graphql` endpoint is mounted and responds
+- **messaging-server**: resolvers for user search and Prisma mapping
+- **notification-server**: HTTP notification creation + Redis subscriber persistence logic
+
+Run them from the `ossi-api` root:
+
+```bash
+npm test -w auth-api
+npm test -w api-gateway
+npm test -w messaging-server
+npm test -w notification-server
+```
+
+These tests are designed to avoid external infra dependencies (Docker, Redis, PostgreSQL, MongoDB) where possible, so they can be used as fast smoke tests locally and in CI.
 
 ## Database, Migrations and Seeding
 
@@ -105,6 +135,20 @@ npm run studio
 - Prisma Studio (dev profile): `http://localhost:5555`
 - pgAdmin: `http://localhost:5433`
 
+## Health and Readiness Endpoints
+
+All backend services expose:
+
+- `GET /health`: process liveness check
+- `GET /ready`: dependency readiness check
+
+Readiness verifies critical dependencies per service:
+
+- `auth-api`: PostgreSQL via Prisma query
+- `api-gateway`: Redis client/pub/sub connection state
+- `messaging-server`: MongoDB + Redis connection state
+- `notification-server`: MongoDB + Redis connection state
+
 ## Environment Variables
 
 Main variables are stored in `.env`.
@@ -112,6 +156,8 @@ Main variables are stored in `.env`.
 - `DATABASE_URL`: Postgres connection for normal runtime
 - `DATABASE_URL_TEST`: Postgres connection for test runtime
 - `JWT_SECRET_KEY`: JWT signing/verification secret
+- `MS_CLIENT_ID`, `MS_TENANT_ID`: Microsoft Entra ID app registration (same values as the frontend's `VITE_CLIENT_ID` / `VITE_TENANT_ID`). `auth-api` only accepts ID tokens issued for this app in this tenant, and only `@esedu.fi` / `@esedulainen.fi` accounts.
+- `DISABLE_ROLE_BASED_ACCESS_CONTROL`: set to `true` to skip GraphQL access checks in local development. Any other value (or a missing variable) keeps checks on, and the setting is ignored when `NODE_ENV=production`.
 - `INTERNAL_*_URL`: Internal service URLs used between containers
 - `SMTP_*`, `APP_URL`: Magic-link email flow settings
 
@@ -135,3 +181,6 @@ Server-side deployment steps are documented in [docs/BACKEND_DOCUMENTATION.md](.
 
 Release checklist: [docs/RELEASE_CHECKLIST.md](./docs/RELEASE_CHECKLIST.md).
 Developer onboarding: [docs/DEVELOPER_ONBOARDING.md](./docs/DEVELOPER_ONBOARDING.md).
+Troubleshooting: [docs/TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md).
+ER diagram: [docs/ER_DIAGRAM.md](./docs/ER_DIAGRAM.md).
+Prioritized backlog: [docs/BACKLOG.md](./docs/BACKLOG.md).

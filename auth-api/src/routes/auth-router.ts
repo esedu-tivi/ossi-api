@@ -1,50 +1,47 @@
-import axios from "axios";
 import express from "express";
-import jwt, { type JwtPayload } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import prisma, { enumUsersScope, type StudentGroup } from "prisma-orm"
 import { HttpError } from "../classes/HttpError.js";
-
-interface IdTokenPayload extends JwtPayload {
-    oid: string,
-    given_name: string,
-    family_name: string,
-    jobTitle: string,
-    upn: string,
-}
-
-async function getPemCertificate(idToken) {
-    const jwks = (await axios.get("https://login.microsoftonline.com/common/discovery/keys")).data;
-
-    const idTokenKid = jwt.decode(idToken, { complete: true }).header.kid;
-
-    const jwksKey = jwks["keys"].find(key => key.kid == idTokenKid);
-
-    return "-----BEGIN CERTIFICATE-----\n" + jwksKey.x5c[0] + "\n-----END CERTIFICATE-----";
-}
+import {
+    createMicrosoftKeyResolver,
+    getIdTokenEmail,
+    resolveUserScope,
+    verifyIdToken,
+    type IdTokenPayload,
+    type SigningKeyResolver,
+} from "../utils/idToken.js";
 
 const router = express.Router();
 
-// intended for basic ossi login, job supervisor scopes should be created in a seperate endpoint?
+let keyResolver: SigningKeyResolver | null = null;
+const getKeyResolver = () => keyResolver ??= createMicrosoftKeyResolver(process.env.MS_TENANT_ID ?? "");
+
 router.post("/", async (req, res) => {
     try {
+        // Verify before taking the table lock so the JWKS request does not block other logins.
+        let idToken: IdTokenPayload;
+        try {
+            idToken = await verifyIdToken(req.body.idToken, {
+                clientId: process.env.MS_CLIENT_ID ?? "",
+                tenantId: process.env.MS_TENANT_ID ?? "",
+            }, getKeyResolver());
+        } catch (e) {
+            console.log(e);
+            throw new HttpError(401, "Error while verifying ID token, logged.")
+        }
+
+        const email = getIdTokenEmail(idToken);
+        const userScope = email ? resolveUserScope(email) : null;
+        if (!email || !userScope) {
+            throw new HttpError(403, "Account is not allowed to use OSSI.")
+        }
+
         const userData = await prisma.$transaction(async (transaction) => {
 
-            // Prisma ORM do not have table lock functionality built-in, so need use raw query
             await transaction.$queryRaw`LOCK TABLE "users" IN ACCESS EXCLUSIVE MODE`
 
-            let idToken: IdTokenPayload;
-            try {
-                const pem = await getPemCertificate(req.body.idToken);
-                idToken = jwt.verify(req.body.idToken, pem, { algorithms: ["RS256"] }) as IdTokenPayload;
-            } catch (e) {
-                console.log(e);
-                throw new HttpError(401, "Error while verifying ID token, logged.")
-            }
-
             const isUserInDatabase = await transaction.user.findFirst({ where: { oid: idToken.oid } }) != null;
-            const userScope = idToken.upn.endsWith("@esedulainen.fi") ? enumUsersScope.STUDENT : enumUsersScope.TEACHER;
 
-            // create user and teacher or student rows for nonexistant user
             if (!isUserInDatabase) {
                 const createdUser = await transaction.user.create({
                     data: {
@@ -52,7 +49,7 @@ router.post("/", async (req, res) => {
                         isSetUp: false,
                         firstName: idToken.given_name,
                         lastName: idToken.family_name,
-                        email: idToken.upn,
+                        email,
                         phoneNumber: "",
                         scope: userScope,
                         archived: false,
@@ -101,7 +98,6 @@ router.post("/", async (req, res) => {
 
             const user = await transaction.user.findFirst({ where: { oid: idToken.oid } });
 
-            //Need use findUnique because we do not have findByPk() in the Prisma ORM
             const profile = userScope == enumUsersScope.STUDENT
                 ? await transaction.student.findUnique({ where: { userId: user.id } })
                 : await transaction.teacher.findUnique({ where: { userId: user.id } });
@@ -111,7 +107,7 @@ router.post("/", async (req, res) => {
                 oid: user.oid,
                 email: user.email,
                 isSetUp: user.isSetUp,
-                type: idToken.upn.endsWith("@esedulainen.fi") ? "STUDENT" : "TEACHER",
+                type: userScope === enumUsersScope.STUDENT ? "STUDENT" : "TEACHER",
                 scope: userScope,
                 profile
             };
@@ -119,12 +115,10 @@ router.post("/", async (req, res) => {
             return userData
         });
 
-        //If Prisma ORM rollback transaction and we do not have userData
         if (!userData) {
             throw new HttpError(400)
         }
 
-        // In Prisma ORM we do not need manually commit transaction, so we can return response
         res.json({
             status: 200,
             success: true,
@@ -148,6 +142,11 @@ router.post("/", async (req, res) => {
                 success: false
             })
         }
+        return res.json({
+            status: 500,
+            success: false,
+            message: "Login failed."
+        })
     }
 })
 

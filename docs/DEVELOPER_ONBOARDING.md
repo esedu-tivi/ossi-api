@@ -56,15 +56,15 @@ Suositeltu branch-nimeäminen:
 Esimerkki:
 
 ```bash
-git checkout dev
+git switch dev
 git pull origin dev
-git checkout -b feature/1234-add-student-import
+git switch -c feature/1234-add-student-import
 ```
 
 ## 4. Uuden tehtävän aloitus
 
 1. Päivitä `dev`:
-   - `git checkout dev`
+   - `git switch dev`
    - `git pull origin dev`
 2. Luo uusi branch `dev`-haarasta.
 3. Tee muutos pienissä, loogisissa commit-erissä.

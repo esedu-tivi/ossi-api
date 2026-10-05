@@ -88,12 +88,6 @@ const markNotificationAsRead = async (parent, args, context, info) => {
     return response.data;
 }
 
-const debugSendNotification = async (parent, args, context, info) => {
-    const response = await axios.post(process.env.INTERNAL_NOTIFICATION_SERVER_URL + `/notifications/send_notification`, { recipients: args.recipients, notification: JSON.parse(args.notification) });
-
-    return response.status;
-}
-
 const assignTeachingProject = async (parent, args, context, info) => {
     console.log('assignTeachingProject args:', args)
     return await context.dataSources.studentManagementAPI.assignTeachingProject(args)
@@ -154,7 +148,6 @@ export const Mutation = {
     createWorktimeEntry,
     deleteWorktimeEntry,
     markNotificationAsRead,
-    debugSendNotification,
     assignTeachingProject,
     unassignTeachingProject,
     updateTeachingProjectAssigns,
