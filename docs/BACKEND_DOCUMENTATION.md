@@ -156,7 +156,8 @@ Core variables:
 
 - Auth/security:
   - `JWT_SECRET_KEY`
-  - `DISABLE_ROLE_BASED_ACCESS_CONTROL`
+  - `MS_CLIENT_ID`, `MS_TENANT_ID` (required by `auth-api`; ID tokens must be issued for this app registration in this tenant)
+  - `DISABLE_ROLE_BASED_ACCESS_CONTROL` (only `true` disables checks, and it is ignored when `NODE_ENV=production`)
 - Internal service routing:
   - `INTERNAL_AUTH_API_URL`
   - `INTERNAL_STUDENT_MANAGEMENT_API_URL`

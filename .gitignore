@@ -3,3 +3,4 @@ dist
 package-lock.json
 .env
 !package-lock.json
+.DS_Store

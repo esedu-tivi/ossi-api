@@ -1,18 +1,26 @@
 import crypto from "crypto";
 import express, { type Request, type Response } from "express";
 import jwt from "jsonwebtoken";
-import prisma from "prisma-orm";
-import { HttpError } from "../classes/HttpError.js";
+import prisma, { enumUsersScope } from "prisma-orm";
 import { generateMagicLinkToken } from "../utils/magicLink.js";
 import { sendMagicLink } from "../utils/sendEmail.js";
 
 const router = express.Router();
 
 router.post("/request", async (req: Request, res: Response) => {
-    const { email } = req.body;
+    const email = typeof req.body.email === "string" ? req.body.email.trim().toLowerCase() : "";
 
     if (!email) {
-        throw new HttpError(400, "Email required")
+        return res.status(400).json({ error: "Email required" });
+    }
+
+    // Magic links are only for existing job supervisors. Respond the same way either way
+    // so the endpoint cannot be used to probe which emails exist.
+    const jobSupervisor = await prisma.user.findFirst({
+        where: { email: { equals: email, mode: "insensitive" }, scope: enumUsersScope.JOB_SUPERVISOR }
+    });
+    if (!jobSupervisor || jobSupervisor.archived) {
+        return res.json({ ok: true });
     }
 
     const { token, tokenHash, expiresAt } = generateMagicLinkToken();
@@ -56,7 +64,20 @@ router.post("/verify", async (req: Request, res: Response) => {
         data: { used: true },
     });
 
-    const jwtToken = jwt.sign({}, process.env.JWT_SECRET_KEY ?? "", {
+    const user = await prisma.user.findFirst({
+        where: { email: { equals: tokenRecord.email, mode: "insensitive" }, scope: enumUsersScope.JOB_SUPERVISOR }
+    });
+    if (!user || user.archived) {
+        return res.status(400).json({ error: "Invalid or expired link" });
+    }
+
+    const jwtToken = jwt.sign({
+        id: user.id,
+        email: user.email,
+        isSetUp: user.isSetUp,
+        type: "JOB_SUPERVISOR",
+        scope: user.scope,
+    }, process.env.JWT_SECRET_KEY ?? "", {
         expiresIn: "1d"
     })
 
