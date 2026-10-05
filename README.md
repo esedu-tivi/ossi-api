@@ -156,6 +156,8 @@ Main variables are stored in `.env`.
 - `DATABASE_URL`: Postgres connection for normal runtime
 - `DATABASE_URL_TEST`: Postgres connection for test runtime
 - `JWT_SECRET_KEY`: JWT signing/verification secret
+- `MS_CLIENT_ID`, `MS_TENANT_ID`: Microsoft Entra ID app registration (same values as the frontend's `VITE_CLIENT_ID` / `VITE_TENANT_ID`). `auth-api` only accepts ID tokens issued for this app in this tenant, and only `@esedu.fi` / `@esedulainen.fi` accounts.
+- `DISABLE_ROLE_BASED_ACCESS_CONTROL`: set to `true` to skip GraphQL access checks in local development. Any other value (or a missing variable) keeps checks on, and the setting is ignored when `NODE_ENV=production`.
 - `INTERNAL_*_URL`: Internal service URLs used between containers
 - `SMTP_*`, `APP_URL`: Magic-link email flow settings
 

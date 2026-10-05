@@ -892,7 +892,7 @@ const newLocal = `#graphql
         # after performing this mutation a new token should be generated
         setUpStudent(studentId: ID!, studentSetupInput: StudentSetupInput!): SetUpStudentResponse! @authenticatedAsStudent
 
-        requestMagicLink(email: String!): MagicLinkRequestResponse!
+        requestMagicLink(email: String!): MagicLinkRequestResponse! @authenticatedAsTeacher
         verifyMagicLink(id: ID!, token: String!): MagicLinkVerifyResponse!
 
         createProject(project: CreateProjectInput!): CreateProjectResponse! @authenticatedAsTeacher
