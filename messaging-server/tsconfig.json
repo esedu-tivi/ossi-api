@@ -10,5 +10,6 @@
     "types": ["node"],
     "strict": true,
     "skipLibCheck": true
-  }
-} 
+  },
+  "include": ["src"]
+}
