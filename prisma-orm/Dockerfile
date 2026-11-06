@@ -27,5 +27,6 @@ RUN npm ci -w prisma-orm
 COPY --from=build /usr/app/prisma-orm/dist ./prisma-orm/dist
 COPY --from=build /usr/app/prisma-orm/prisma ./prisma-orm/prisma
 COPY --from=build /usr/app/prisma-orm/prisma.config.ts ./prisma-orm/prisma.config.ts
+COPY --from=build /usr/app/prisma-orm/dist/validate-env.js ./prisma-orm/validate-env.js
 
 # Ei CMD:tä pakolla – compose antaa komennon (migrate/seed/studio)
