@@ -64,7 +64,7 @@ services:
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
       interval: 5s
@@ -82,7 +82,7 @@ services:
     command: ["npm", "--workspace", "prisma-orm", "run", "start"]
 
   mongo:
-    image: docker.io/mongo
+    image: docker.io/mongo:8.0
     restart: unless-stopped
     volumes:
       - mongo-data:/data/db
@@ -93,7 +93,7 @@ services:
       start_period: 3s
 
   redis:
-    image: docker.io/redis
+    image: docker.io/redis:8-alpine
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
